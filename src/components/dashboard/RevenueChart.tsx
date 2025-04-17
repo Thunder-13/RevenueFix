@@ -75,20 +75,20 @@ export function RevenueChart({
             </Select>
             <div className="flex rounded-md border">
               <Button 
-                variant={chartType === "line" ? "default" : "ghost"} 
-                size="sm" 
-                className="h-8 rounded-r-none border-r"
-                onClick={() => setChartType("line")}
-              >
-                Line
-              </Button>
-              <Button 
                 variant={chartType === "area" ? "default" : "ghost"} 
                 size="sm" 
                 className="h-8 rounded-l-none"
                 onClick={() => setChartType("area")}
               >
                 Area
+              </Button>
+              <Button 
+                variant={chartType === "line" ? "default" : "ghost"} 
+                size="sm" 
+                className="h-8 rounded-r-none border-r"
+                onClick={() => setChartType("line")}
+              >
+                Line
               </Button>
             </div>
           </div>
