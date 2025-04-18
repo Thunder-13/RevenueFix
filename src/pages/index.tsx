@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { AppSidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
-import { BarChart3, FileText, Network, Briefcase, Users } from "lucide-react";
+import { BarChart3, FileText, Network, Briefcase, Users, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { HeroCarousel } from "@/components/home/homePage";
+import { motion } from "framer-motion";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -25,32 +27,56 @@ const Index = () => {
     {
       title: "Revenue Dashboard",
       description: "Comprehensive view of all revenue metrics and KPIs",
-      icon: <BarChart3 className="h-10 w-10 text-primary" />,
+      icon: <BarChart3 className="h-10 w-10 text-[#7e3af2]" />,
       path: "/dashboard"
     },
     {
       title: "Network vs Billing",
       description: "Reconcile network usage with billing records",
-      icon: <Network className="h-10 w-10 text-primary" />,
+      icon: <Network className="h-10 w-10 text-[#7e3af2]" />,
       path: "/network-billing"
     },
     {
       title: "Mediation vs Billing",
       description: "Analyze mediation system data against billing",
-      icon: <FileText className="h-10 w-10 text-primary" />,
+      icon: <FileText className="h-10 w-10 text-[#7e3af2]" />,
       path: "/mediation-billing"
     },
     {
       title: "B2B Analysis",
       description: "Business customer revenue and performance metrics",
-      icon: <Briefcase className="h-10 w-10 text-primary" />,
+      icon: <Briefcase className="h-10 w-10 text-[#7e3af2]" />,
       path: "/b2b-analysis"
     },
     {
       title: "B2C Analysis",
       description: "Consumer revenue and performance metrics",
-      icon: <Users className="h-10 w-10 text-primary" />,
+      icon: <Users className="h-10 w-10 text-[#7e3af2]" />,
       path: "/b2c-analysis"
+    }
+  ];
+  
+  const carouselSlides = [
+    {
+      title: "Revenue Analytics Platform",
+      description: "Gain insights into your telecom revenue streams with our comprehensive analytics platform",
+      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      ctaText: "Explore Dashboard",
+      ctaLink: "/login"
+    },
+    {
+      title: "Billing Reconciliation",
+      description: "Identify and resolve discrepancies between network usage and billing systems",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2015&q=80",
+      ctaText: "Learn More",
+      ctaLink: "/login"
+    },
+    {
+      title: "Customer Insights",
+      description: "Understand your customers better with advanced CRM analytics and segmentation",
+      image: "https://images.unsplash.com/photo-1556155092-490a1ba16284?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      ctaText: "Get Started",
+      ctaLink: "/login"
     }
   ];
 
@@ -60,50 +86,149 @@ const Index = () => {
       <div className="flex flex-1 flex-col">
         <Header />
         <main className="flex-1 p-6 md:p-8">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-8 text-center">
-              <h1 className="text-4xl font-bold tracking-tight">Welcome to RevenueFix</h1>
-              <p className="mt-4 text-xl text-muted-foreground">
+          <div className="mx-auto max-w-7xl">
+            {/* Hero Carousel */}
+            <div className="mb-12">
+              <HeroCarousel slides={carouselSlides} />
+            </div>
+            
+            {/* Welcome Section */}
+            <div className="mb-12 text-center">
+              <motion.h1 
+                className="text-4xl font-bold tracking-tight md:text-5xl"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                Welcome to <span className="text-[#7e3af2]">RevenueFix</span>
+              </motion.h1>
+              <motion.p 
+                className="mt-4 text-xl text-muted-foreground"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
                 Comprehensive revenue analytics and billing reconciliation platform
-              </p>
+              </motion.p>
             </div>
 
             {!isAuthenticated && (
-              <div className="mt-8 flex justify-center gap-4">
-                <Button onClick={() => navigate("/login")} size="lg">
+              <motion.div 
+                className="mb-12 flex justify-center gap-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <Button 
+                  onClick={() => navigate("/login")} 
+                  size="lg"
+                  className="bg-[#7e3af2] hover:bg-[#7e3af2]/90"
+                >
                   Sign In
                 </Button>
                 <Button onClick={() => navigate("/signup")} variant="outline" size="lg">
                   Create Account
                 </Button>
-              </div>
+              </motion.div>
             )}
 
-            <div className="mt-16">
-              <h2 className="mb-6 text-2xl font-semibold">Key Features</h2>
+            {/* Key Features */}
+            <div className="mb-16">
+              <motion.h2 
+                className="mb-8 text-center text-3xl font-semibold"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+              >
+                Key Features
+              </motion.h2>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {features.map((feature) => (
-                  <Card key={feature.title} className="transition-all hover:shadow-md">
-                    <CardHeader>
-                      <div className="mb-4">{feature.icon}</div>
-                      <CardTitle>{feature.title}</CardTitle>
-                      <CardDescription>{feature.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => navigate(feature.path)}
-                        disabled={!isAuthenticated}
-                      >
-                        {isAuthenticated ? "View" : "Sign in to view"}
-                      </Button>
-                    </CardContent>
-                  </Card>
+                {features.map((feature, index) => (
+                  <motion.div
+                    key={feature.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.6 + (index * 0.1) }}
+                  >
+                    <Card className="h-full transition-all duration-300 hover:shadow-lg hover:shadow-[#7e3af2]/10">
+                      <CardHeader>
+                        <div className="mb-4 rounded-full bg-[#7e3af2]/10 p-3 w-fit">
+                          {feature.icon}
+                        </div>
+                        <CardTitle>{feature.title}</CardTitle>
+                        <CardDescription>{feature.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => navigate(feature.path)}
+                          disabled={!isAuthenticated}
+                          className="group w-full border-[#7e3af2]/30 text-[#7e3af2] hover:bg-[#7e3af2]/10"
+                        >
+                          {isAuthenticated ? (
+                            <>
+                              View 
+                              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                            </>
+                          ) : (
+                            "Sign in to view"
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 ))}
               </div>
             </div>
           </div>
         </main>
+        
+        {/* Footer */}
+        <footer className="border-t bg-white py-8 dark:bg-[#1e1e2d] dark:border-gray-800">
+          <div className="container mx-auto px-6">
+            <div className="grid gap-8 md:grid-cols-4">
+              <div>
+                <h3 className="mb-4 text-lg font-semibold">RevenueFix</h3>
+                <p className="text-sm text-muted-foreground">
+                  Comprehensive revenue analytics and billing reconciliation platform for telecom companies.
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="mb-4 text-lg font-semibold">Product</h3>
+                <ul className="space-y-2 text-sm">
+                  <li><a href="#" className="text-muted-foreground hover:text-[#7e3af2]">Features</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-[#7e3af2]">Pricing</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-[#7e3af2]">Case Studies</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-[#7e3af2]">Documentation</a></li>
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="mb-4 text-lg font-semibold">Company</h3>
+                <ul className="space-y-2 text-sm">
+                  <li><a href="#" className="text-muted-foreground hover:text-[#7e3af2]">About Us</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-[#7e3af2]">Careers</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-[#7e3af2]">Blog</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-[#7e3af2]">Contact</a></li>
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="mb-4 text-lg font-semibold">Legal</h3>
+                <ul className="space-y-2 text-sm">
+                  <li><a href="#" className="text-muted-foreground hover:text-[#7e3af2]">Privacy Policy</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-[#7e3af2]">Terms of Service</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-[#7e3af2]">Cookie Policy</a></li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="mt-8 border-t pt-6 text-center text-sm text-muted-foreground">
+              <p>Accenture &copy; {new Date().getFullYear()}. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );

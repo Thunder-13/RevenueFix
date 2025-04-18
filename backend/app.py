@@ -5,6 +5,7 @@ from routes.auth import auth_bp
 from routes.dashboard import dashboard_bp
 from routes.network_billing import network_billing_bp
 from routes.mediation_billing import mediation_billing_bp
+from routes.crm_billing import crm_billing_bp
 from routes.b2b import b2b_bp
 from routes.b2c import b2c_bp
 from routes.fixed_line import fixed_line_bp
@@ -24,6 +25,7 @@ app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(dashboard_bp, url_prefix='/api/dashboard')
 app.register_blueprint(network_billing_bp, url_prefix='/api/network-billing')
 app.register_blueprint(mediation_billing_bp, url_prefix='/api/mediation-billing')
+app.register_blueprint(crm_billing_bp, url_prefix='/api/crm-billing')
 app.register_blueprint(b2b_bp, url_prefix='/api/b2b')
 app.register_blueprint(b2c_bp, url_prefix='/api/b2c')
 app.register_blueprint(fixed_line_bp, url_prefix='/api/fixed-line')

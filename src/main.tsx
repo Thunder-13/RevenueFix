@@ -19,6 +19,7 @@ import Logout from "./pages/logout";
 import Dashboard from "./pages/dashboard";
 import NetworkBilling from "./pages/network-billing";
 import MediationBilling from "./pages/mediation-billing";
+import CrmBilling from "./pages/crm-billing";
 import B2BAnalysis from "./pages/b2b-analysis";
 import B2CAnalysis from "./pages/b2c-analysis";
 import FixedLine from "./pages/fixed-line";
@@ -46,6 +47,7 @@ createRoot(document.getElementById("root")!).render(
               <Route path='/dashboard' element={<ProtectedRoute Component={Dashboard} />} />
               <Route path='/network-billing' element={<ProtectedRoute Component={NetworkBilling} />} />
               <Route path='/mediation-billing' element={<ProtectedRoute Component={MediationBilling} />} />
+              <Route path='/crm-billing' element={<ProtectedRoute Component={CrmBilling} />} />
               <Route path='/b2b-analysis' element={<ProtectedRoute Component={B2BAnalysis} />} />
               <Route path='/b2c-analysis' element={<ProtectedRoute Component={B2CAnalysis} />} />
               <Route path='/fixed-line' element={<ProtectedRoute Component={FixedLine} />} />

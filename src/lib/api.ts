@@ -76,6 +76,114 @@ const dummyData = {
       { service_type: 'Subscription Services', count: 100, value: 9876.54 }
     ]
   },
+  crmBilling: {
+    summary: {
+      total_accounts: 10000,
+      mismatched_bill_plans: 245,
+      mismatched_account_status: 178,
+      mismatched_start_dates: 89,
+      mismatch_percentage: 5.12
+    },
+    account_status: {
+      crm_active_billing_inactive: 103,
+      crm_inactive_billing_active: 75
+    },
+    enterprise_breakdown: [
+      {
+        category: "Enterprise",
+        mismatched_bill_plans: 87,
+        crm_active_billing_inactive: 42,
+        crm_inactive_billing_active: 31,
+        total_accounts: 3500
+      },
+      {
+        category: "SME",
+        mismatched_bill_plans: 65,
+        crm_active_billing_inactive: 28,
+        crm_inactive_billing_active: 19,
+        total_accounts: 2800
+      },
+      {
+        category: "Government",
+        mismatched_bill_plans: 43,
+        crm_active_billing_inactive: 18,
+        crm_inactive_billing_active: 12,
+        total_accounts: 1200
+      },
+      {
+        category: "Education",
+        mismatched_bill_plans: 32,
+        crm_active_billing_inactive: 9,
+        crm_inactive_billing_active: 8,
+        total_accounts: 1500
+      },
+      {
+        category: "Healthcare",
+        mismatched_bill_plans: 18,
+        crm_active_billing_inactive: 6,
+        crm_inactive_billing_active: 5,
+        total_accounts: 1000
+      }
+    ],
+    trend_data: generateTimeSeries(30, 5, 0.3),
+    mismatched_accounts: [
+      {
+        customer_id: "C10045678",
+        account_id: "A20056789",
+        msisdn: "9876543210",
+        crm_status: "Active",
+        billing_status: "Inactive",
+        crm_bill_plan: "Enterprise Premium",
+        billing_bill_plan: "Enterprise Standard",
+        enterprise_category: "Enterprise",
+        mismatch_type: "Bill Plan, Account Status"
+      },
+      {
+        customer_id: "C10045679",
+        account_id: "A20056790",
+        msisdn: "9876543211",
+        crm_status: "Inactive",
+        billing_status: "Active",
+        crm_bill_plan: "SME Basic",
+        billing_bill_plan: "SME Basic",
+        enterprise_category: "SME",
+        mismatch_type: "Account Status"
+      },
+      {
+        customer_id: "C10045680",
+        account_id: "A20056791",
+        msisdn: "9876543212",
+        crm_status: "Active",
+        billing_status: "Active",
+        crm_bill_plan: "Government Special",
+        billing_bill_plan: "Government Standard",
+        enterprise_category: "Government",
+        mismatch_type: "Bill Plan"
+      },
+      {
+        customer_id: "C10045681",
+        account_id: "A20056792",
+        msisdn: "9876543213",
+        crm_status: "Active",
+        billing_status: "Active",
+        crm_bill_plan: "Education Premium",
+        billing_bill_plan: "Education Premium",
+        enterprise_category: "Education",
+        mismatch_type: "Start Date"
+      },
+      {
+        customer_id: "C10045682",
+        account_id: "A20056793",
+        msisdn: "9876543214",
+        crm_status: "Active",
+        billing_status: "Inactive",
+        crm_bill_plan: "Healthcare Basic",
+        billing_bill_plan: "Healthcare Basic",
+        enterprise_category: "Healthcare",
+        mismatch_type: "Account Status"
+      }
+    ]
+  },
   b2b: {
     summary: {
       total_b2b_revenue: 7654321.09,
@@ -396,17 +504,128 @@ const dummyData = {
       status: 'Planning',
       release_date: '2023-11-15'
     }
-  ]
+  ],
+  kra: {
+    revenue: {
+      title: "Revenue KRA",
+      description: "Key Revenue Analytics",
+      metrics: [
+        { name: "Total Revenue", value: 12458932.45, target: 13000000, achievement: 95.8 },
+        { name: "ARPU", value: 42.35, target: 45.00, achievement: 94.1 },
+        { name: "Revenue Growth", value: 8.7, target: 10.0, achievement: 87.0 }
+      ],
+      trend: generateTimeSeries(12, 1000000, 0.05, "monthly")
+    },
+    customer: {
+      title: "Customer KRA",
+      description: "Key Customer Analytics",
+      metrics: [
+        { name: "Customer Satisfaction", value: 87.5, target: 90.0, achievement: 97.2 },
+        { name: "Churn Rate", value: 2.1, target: 1.8, achievement: 85.7 },
+        { name: "New Customers", value: 12345, target: 15000, achievement: 82.3 }
+      ],
+      trend: generateTimeSeries(12, 10000, 0.08, "monthly")
+    },
+    operations: {
+      title: "Operations KRA",
+      description: "Key Operational Analytics",
+      metrics: [
+        { name: "Network Uptime", value: 99.95, target: 99.99, achievement: 99.9 },
+        { name: "Ticket Resolution Time", value: 4.2, target: 4.0, achievement: 95.2 },
+        { name: "First Call Resolution", value: 78.3, target: 85.0, achievement: 92.1 }
+      ],
+      trend: generateTimeSeries(12, 99.9, 0.001, "monthly")
+    }
+  },
+  kpi: {
+    arpu: {
+      title: "Average Revenue Per User",
+      description: "ARPU across different segments",
+      current_value: 42.35,
+      previous_value: 40.12,
+      change_percentage: 5.6,
+      breakdown: [
+        { segment: "Consumer", value: 35.45 },
+        { segment: "Business", value: 87.23 },
+        { segment: "Enterprise", value: 245.67 }
+      ],
+      trend: generateTimeSeries(24, 40, 0.03, "monthly"),
+      details: [
+        { id: 1, segment: "Consumer", plan: "Basic", arpu: 25.45, users: 45678 },
+        { id: 2, segment: "Consumer", plan: "Premium", arpu: 45.45, users: 23456 },
+        { id: 3, segment: "Business", plan: "Small Business", arpu: 65.78, users: 5678 },
+        { id: 4, segment: "Business", plan: "Corporate", arpu: 108.67, users: 3456 },
+        { id: 5, segment: "Enterprise", plan: "Standard", arpu: 187.45, users: 1234 },
+        { id: 6, segment: "Enterprise", plan: "Premium", arpu: 303.89, users: 567 }
+      ]
+    },
+    churn: {
+      title: "Customer Churn Rate",
+      description: "Churn rate across different segments",
+      current_value: 2.1,
+      previous_value: 2.3,
+      change_percentage: -8.7,
+      breakdown: [
+        { segment: "Consumer", value: 2.4 },
+        { segment: "Business", value: 1.7 },
+        { segment: "Enterprise", value: 0.9 }
+      ],
+      trend: generateTimeSeries(24, 2.3, 0.1, "monthly"),
+      details: [
+        { id: 1, segment: "Consumer", plan: "Basic", churn: 2.8, users: 45678 },
+        { id: 2, segment: "Consumer", plan: "Premium", churn: 2.0, users: 23456 },
+        { id: 3, segment: "Business", plan: "Small Business", churn: 1.9, users: 5678 },
+        { id: 4, segment: "Business", plan: "Corporate", churn: 1.5, users: 3456 },
+        { id: 5, segment: "Enterprise", plan: "Standard", churn: 1.1, users: 1234 },
+        { id: 6, segment: "Enterprise", plan: "Premium", churn: 0.7, users: 567 }
+      ]
+    },
+    revenue: {
+      title: "Revenue Growth",
+      description: "Revenue growth across different segments",
+      current_value: 8.7,
+      previous_value: 7.5,
+      change_percentage: 16.0,
+      breakdown: [
+        { segment: "Consumer", value: 7.2 },
+        { segment: "Business", value: 9.5 },
+        { segment: "Enterprise", value: 12.3 }
+      ],
+      trend: generateTimeSeries(24, 7.5, 0.1, "monthly"),
+      details: [
+        { id: 1, segment: "Consumer", product: "Voice", growth: 5.2, revenue: 4523651.23 },
+        { id: 2, segment: "Consumer", product: "Data", growth: 9.1, revenue: 5689472.34 },
+        { id: 3, segment: "Business", product: "Voice", growth: 6.7, revenue: 2345678.90 },
+        { id: 4, segment: "Business", product: "Data", growth: 12.3, revenue: 3456789.01 },
+        { id: 5, segment: "Enterprise", product: "Voice", growth: 8.9, revenue: 1876543.21 },
+        { id: 6, segment: "Enterprise", product: "Data", growth: 15.7, revenue: 2987654.32 }
+      ]
+    }
+  }
 };
 
 // Helper function to generate time series data
-function generateTimeSeries(days = 30, baseValue = 1000000, volatility = 0.05) {
+function generateTimeSeries(periods = 30, baseValue = 1000000, volatility = 0.05, periodType = "daily") {
   const data = [];
   const today = new Date();
   
-  for (let i = 0; i < days; i++) {
-    const date = new Date(today);
-    date.setDate(today.getDate() - days + i + 1);
+  for (let i = 0; i < periods; i++) {
+    let date;
+    let dateFormat;
+    
+    if (periodType === "daily") {
+      date = new Date(today);
+      date.setDate(today.getDate() - periods + i + 1);
+      dateFormat = date.toISOString().split('T')[0];
+    } else if (periodType === "monthly") {
+      date = new Date(today);
+      date.setMonth(today.getMonth() - periods + i + 1);
+      dateFormat = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    } else {
+      date = new Date(today);
+      date.setDate(today.getDate() - periods + i + 1);
+      dateFormat = date.toISOString().split('T')[0];
+    }
     
     // Add some randomness to the value
     const change = (Math.random() - 0.5) * 2 * volatility;
@@ -414,7 +633,7 @@ function generateTimeSeries(days = 30, baseValue = 1000000, volatility = 0.05) {
     baseValue = value; // For the next day
     
     data.push({
-      date: date.toISOString().split('T')[0],
+      date: dateFormat,
       value: Math.round(value * 100) / 100
     });
   }
@@ -435,11 +654,21 @@ api.interceptors.response.use(
     
     // Determine which fallback data to return based on the endpoint
     if (url.includes('/dashboard')) {
-      return Promise.resolve({ data: { status: 'success', data: dummyData.dashboard } });
+      if (url.includes('/kra/')) {
+        const kraId = url.split('/kra/')[1];
+        return Promise.resolve({ data: { status: 'success', data: dummyData.kra[kraId] || dummyData.kra.revenue } });
+      } else if (url.includes('/kpi/')) {
+        const kpiId = url.split('/kpi/')[1];
+        return Promise.resolve({ data: { status: 'success', data: dummyData.kpi[kpiId] || dummyData.kpi.arpu } });
+      } else {
+        return Promise.resolve({ data: { status: 'success', data: dummyData.dashboard } });
+      }
     } else if (url.includes('/network-billing')) {
       return Promise.resolve({ data: { status: 'success', data: dummyData.networkBilling } });
     } else if (url.includes('/mediation-billing')) {
       return Promise.resolve({ data: { status: 'success', data: dummyData.mediationBilling } });
+    } else if (url.includes('/crm-billing')) {
+      return Promise.resolve({ data: { status: 'success', data: dummyData.crmBilling } });
     } else if (url.includes('/b2b')) {
       return Promise.resolve({ data: { status: 'success', data: dummyData.b2b } });
     } else if (url.includes('/b2c')) {
@@ -499,12 +728,17 @@ export const apiService = {
   
   // Dashboard
   getDashboardData: () => api.get("/dashboard"),
+  getKraData: (kraId: string) => api.get(`/dashboard/kra/${kraId}`),
+  getKpiData: (kpiId: string) => api.get(`/dashboard/kpi/${kpiId}`),
   
   // Network vs Billing
   getNetworkBillingData: () => api.get("/network-billing"),
   
   // Mediation vs Billing
   getMediationBillingData: () => api.get("/mediation-billing"),
+  
+  // CRM vs Billing
+  getCrmBillingData: () => api.get("/crm-billing"),
   
   // B2B Analysis
   getB2BData: () => api.get("/b2b"),
