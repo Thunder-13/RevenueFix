@@ -7,6 +7,7 @@ RevenueFix is a comprehensive revenue analytics and billing reconciliation platf
 - Interactive dashboard with key revenue metrics
 - Network vs Billing reconciliation
 - Mediation vs Billing reconciliation
+- CRM vs Billing reconciliation
 - B2B and B2C revenue analysis
 - Fixed Line, Voice, SMS, and Data service analytics
 - CRM insights and customer segmentation
@@ -26,10 +27,12 @@ RevenueFix is a comprehensive revenue analytics and billing reconciliation platf
 - React Router for navigation
 - Recharts for data visualization
 - Axios for API requests
+- Framer Motion for animations
 
 ### Backend
 - Python with Flask
 - RESTful API architecture
+- CSV data processing
 - Mock data models (can be replaced with real database connections)
 
 ## Getting Started
@@ -84,6 +87,23 @@ The frontend application will be available at http://localhost:5173
    - Password: password
 3. Explore the various features through the sidebar navigation
 
+### Key Features
+
+#### Dashboard
+The dashboard provides an overview of key revenue metrics, including total revenue, revenue growth, ARPU, and churn rate. It also includes visualizations of revenue trends and breakdowns by channel.
+
+#### Revenue Analytics
+Detailed analysis of revenue streams, including KRA (Key Result Area) and KPI (Key Performance Indicator) metrics. Click on any metric card to view detailed information.
+
+#### Network vs Billing Reconciliation
+Identify and resolve discrepancies between network usage and billing systems.
+
+#### CRM vs Billing Reconciliation
+Analyze and reconcile discrepancies between CRM and billing systems, including bill plan mismatches, account status mismatches, and start date mismatches.
+
+#### CRM Insights
+Analyze customer segments, lifecycle stages, and satisfaction metrics to improve customer retention and growth.
+
 ## Development
 
 ### Adding New Features
@@ -93,3 +113,11 @@ The frontend application will be available at http://localhost:5173
 3. Create new React components in the frontend `src/components` directory
 4. Add new pages in the `src/pages` directory
 5. Update the router in `src/main.tsx` to include new routes
+
+### Data Processing
+
+The application includes CSV data processing capabilities in the backend. Place your CSV files in the `backend/assets` directory and update the data processor to read and analyze the data.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
