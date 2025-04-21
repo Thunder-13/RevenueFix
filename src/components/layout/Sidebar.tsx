@@ -1,22 +1,22 @@
-import { 
-  Home, 
-  BarChart3, 
-  Network, 
-  FileText, 
-  Briefcase, 
-  Users, 
-  PhoneCall, 
-  Radio, 
-  HeartPulse, 
-  Bell, 
-  UserCog, 
-  FolderKanban, 
-  Sparkles, 
+import {
+  Home,
+  BarChart3,
+  Network,
+  FileText,
+  Briefcase,
+  Users,
+  PhoneCall,
+  Radio,
+  HeartPulse,
+  Bell,
+  UserCog,
+  FolderKanban,
+  Sparkles,
   Settings as SettingsIcon,
   ChevronLeft,
   Menu,
   ChevronRight,
-  Database
+  Database,
 } from "lucide-react";
 
 import {
@@ -28,7 +28,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Link, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -37,81 +37,81 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const items = [
-  {
-    title: "Home",
-    url: "/",
-    icon: Home,
-  },
+  // {
+  //   title: "Home",
+  //   url: "/",
+  //   icon: Home,
+  // },
   {
     title: "Dashboard",
     url: "/dashboard",
     icon: BarChart3,
   },
-  {
-    title: "Network vs Billing",
-    url: "/network-billing",
-    icon: Network,
-  },
-  {
-    title: "Mediation vs Billing",
-    url: "/mediation-billing",
-    icon: FileText,
-  },
+  // {
+  //   title: "Network vs Billing",
+  //   url: "/network-billing",
+  //   icon: Network,
+  // },
+  // {
+  //   title: "Mediation vs Billing",
+  //   url: "/mediation-billing",
+  //   icon: FileText,
+  // },
   {
     title: "CRM vs Billing",
     url: "/crm-billing",
     icon: Database,
   },
-  {
-    title: "B2B Analysis",
-    url: "/b2b-analysis",
-    icon: Briefcase,
-  },
-  {
-    title: "B2C Analysis",
-    url: "/b2c-analysis",
-    icon: Users,
-  },
-  {
-    title: "Fixed Line",
-    url: "/fixed-line",
-    icon: Radio,
-  },
-  {
-    title: "Voice / SMS / Data",
-    url: "/voice-sms-data",
-    icon: PhoneCall,
-  },
-  {
-    title: "CRM Insights",
-    url: "/crm-insights",
-    icon: HeartPulse,
-  },
-  {
-    title: "Alarm Management",
-    url: "/alarm-management",
-    icon: Bell,
-  },
-  {
-    title: "User Management",
-    url: "/user-management",
-    icon: UserCog,
-  },
-  {
-    title: "Case Management",
-    url: "/case-management",
-    icon: FolderKanban,
-  },
-  {
-    title: "Upcoming Features",
-    url: "/upcoming-features",
-    icon: Sparkles,
-  },
-  {
-    title: "Settings",
-    url: "/settings",
-    icon: SettingsIcon,
-  },
+  // {
+  //   title: "B2B Analysis",
+  //   url: "/b2b-analysis",
+  //   icon: Briefcase,
+  // },
+  // {
+  //   title: "B2C Analysis",
+  //   url: "/b2c-analysis",
+  //   icon: Users,
+  // },
+  // {
+  //   title: "Fixed Line",
+  //   url: "/fixed-line",
+  //   icon: Radio,
+  // },
+  // {
+  //   title: "Voice / SMS / Data",
+  //   url: "/voice-sms-data",
+  //   icon: PhoneCall,
+  // },
+  // {
+  //   title: "CRM Insights",
+  //   url: "/crm-insights",
+  //   icon: HeartPulse,
+  // },
+  // {
+  //   title: "Alarm Management",
+  //   url: "/alarm-management",
+  //   icon: Bell,
+  // },
+  // {
+  //   title: "User Management",
+  //   url: "/user-management",
+  //   icon: UserCog,
+  // },
+  // {
+  //   title: "Case Management",
+  //   url: "/case-management",
+  //   icon: FolderKanban,
+  // },
+  // {
+  //   title: "Upcoming Features",
+  //   url: "/upcoming-features",
+  //   icon: Sparkles,
+  // },
+  // {
+  //   title: "Settings",
+  //   url: "/settings",
+  //   icon: SettingsIcon,
+  // },
 ];
 
 export function AppSidebar() {
@@ -119,14 +119,14 @@ export function AppSidebar() {
   const isMobile = useIsMobile();
   const { expanded, setExpanded } = useSidebar();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-  
+
   // Close sidebar on mobile when navigating
   useEffect(() => {
     if (isMobile) {
       setExpanded(false);
     }
   }, [location.pathname, isMobile, setExpanded]);
-  
+
   return (
     <Sidebar className="border-r bg-white shadow-sm dark:bg-[#1e1e2d] dark:border-gray-800">
       <div className="flex h-16 items-center border-b px-4 justify-between">
@@ -140,23 +140,22 @@ export function AppSidebar() {
               RF
             </motion.div>
           </div>
-            {expanded && (
-            <motion.div 
+          {expanded && (
+            <motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3 }}
               className="flex items-center gap-2"
             >
-              
               <span className="text-xl font-bold text-[#7e3af2]">
-              RevenueFix
+                RevenueFix
               </span>
             </motion.div>
-            )}
+          )}
         </Link>
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => setExpanded(!expanded)}
           className="h-8 w-8 text-[#7e3af2] hover:bg-[#7e3af2]/10 transition-colors duration-200"
         >
@@ -174,19 +173,24 @@ export function AppSidebar() {
                 const isActive = location.pathname === item.url;
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton 
+                    <SidebarMenuButton
                       asChild
                       className={cn(
                         "sidebar-item group relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all duration-200",
-                        isActive 
-                          ? "bg-[#7e3af2]/10 text-[#7e3af2] font-medium" 
+                        isActive
+                          ? "bg-[#7e3af2]/10 text-[#7e3af2] font-medium"
                           : "text-gray-600 hover:text-[#7e3af2] dark:text-gray-300",
-                        hoveredItem === item.title && !isActive && "bg-[#7e3af2]/5"
+                        hoveredItem === item.title &&
+                          !isActive &&
+                          "bg-[#7e3af2]/5"
                       )}
                       onMouseEnter={() => setHoveredItem(item.title)}
                       onMouseLeave={() => setHoveredItem(null)}
                     >
-                      <Link to={item.url} className="flex w-full items-center gap-3">
+                      <Link
+                        to={item.url}
+                        className="flex w-full items-center gap-3"
+                      >
                         <motion.div
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
@@ -197,16 +201,18 @@ export function AppSidebar() {
                         >
                           <item.icon className="h-5 w-5" />
                         </motion.div>
-                        
+
                         {expanded && (
-                          <span className={cn(
-                            "transition-all duration-200",
-                            isActive && "font-medium text-[#7e3af2]"
-                          )}>
+                          <span
+                            className={cn(
+                              "transition-all duration-200",
+                              isActive && "font-medium text-[#7e3af2]"
+                            )}
+                          >
                             {item.title}
                           </span>
                         )}
-                        
+
                         {isActive && (
                           <motion.div
                             layoutId="sidebar-active-indicator"
@@ -231,5 +237,5 @@ export function AppSidebar() {
 
 // Helper function to conditionally join class names
 function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(' ');
+  return classes.filter(Boolean).join(" ");
 }
