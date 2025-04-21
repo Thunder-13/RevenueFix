@@ -109,23 +109,19 @@ export function DataTable({
     if (!data || data.length === 0) return;
 
     // Convert data to CSV
-    const headers = columns.map((col) => col.header).join(",");
-    const rows = data
-      .map((row) =>
-        columns
-          .map((col) => {
-            const value = row[col.key];
-            // Handle values with commas by wrapping in quotes
-            return typeof value === "string" && value.includes(",")
-              ? `"${value}"`
-              : value;
-          })
-          .join(",")
-      )
-      .join("\n"); // Use actual newline character instead of \\\n
-
-    const csv = `${headers}\n${rows}`;
-
+    const headers = columns.map(col => col.header).join(',');
+    const rows = data.map(row => 
+      columns.map(col => {
+        const value = row[col.key];
+        // Handle values with commas by wrapping in quotes
+        return typeof value === 'string' && value.includes(',') 
+          ? `"${value}"` 
+          : value;
+      }).join(',')
+    ).join('\\n'); // Use actual newline character instead of \\\n
+    
+    const csv = `${headers}\\n${rows}`;
+    
     // Create download link
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);

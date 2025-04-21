@@ -8,33 +8,11 @@ import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { useToast } from "@/hooks/use-toast";
 import apiService from "@/lib/api";
 import { AlertTriangle, CheckCircle, Database, FileCheck } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Legend,
-  Tooltip,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-} from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, AreaChart, Area } from "recharts";
 
 interface CrmBillingData {
   summary: {
@@ -71,7 +49,7 @@ interface CrmBillingData {
     crm_bill_plan: string;
     billing_bill_plan: string;
     enterprise_category: string;
-    mismatch_type: string[];
+    mismatch_type: string;
   }[];
   mismatch_visualization: {
     name: string;
@@ -82,9 +60,7 @@ interface CrmBillingData {
 const CrmBilling = () => {
   const [data, setData] = useState<CrmBillingData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [visualizationType, setVisualizationType] = useState<
-    "pie" | "bar" | "line" | "area"
-  >("pie");
+  const [visualizationType, setVisualizationType] = useState<"pie" | "bar" | "line" | "area">("pie");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -123,8 +99,7 @@ const CrmBilling = () => {
   }
 
   const getStatusBadge = (status: string) => {
-    return status.toLowerCase() === "active" ||
-      status.toLowerCase() === "act" ? (
+    return status.toLowerCase() === "active" || status.toLowerCase() === "act" ? (
       <Badge className="bg-green-500">Active</Badge>
     ) : (
       <Badge variant="outline" className="border-red-500 text-red-500">
@@ -133,7 +108,7 @@ const CrmBilling = () => {
     );
   };
 
-  const COLORS = ["#7e3af2", "#3f83f8", "#9061f9", "#0e9f6e", "#9061a9"];
+  const COLORS = ['#7e3af2', '#3f83f8', '#0e9f6e', '#ff5a1f', '#9061f9'];
 
   const renderVisualization = () => {
     if (!data?.mismatch_visualization) return null;
@@ -151,25 +126,20 @@ const CrmBilling = () => {
                 outerRadius={120}
                 fill="#8884d8"
                 dataKey="value"
-                label={({ name, percent }) =>
-                  `${name}: ${(percent * 100).toFixed(0)}%`
-                }
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 animationDuration={1500}
               >
                 {data.mismatch_visualization.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip
+              <Tooltip 
                 formatter={(value: number) => value.toLocaleString()}
-                contentStyle={{
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  borderColor: "#7e3af2",
-                  borderRadius: "6px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                contentStyle={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  borderColor: '#7e3af2',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
               />
               <Legend />
@@ -183,13 +153,13 @@ const CrmBilling = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip
+              <Tooltip 
                 formatter={(value: number) => value.toLocaleString()}
-                contentStyle={{
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  borderColor: "#7e3af2",
-                  borderRadius: "6px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                contentStyle={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  borderColor: '#7e3af2',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
               />
               <Legend />
@@ -204,22 +174,17 @@ const CrmBilling = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip
+              <Tooltip 
                 formatter={(value: number) => value.toLocaleString()}
-                contentStyle={{
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  borderColor: "#7e3af2",
-                  borderRadius: "6px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                contentStyle={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  borderColor: '#7e3af2',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
               />
               <Legend />
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke="#7e3af2"
-                activeDot={{ r: 8 }}
-              />
+              <Line type="monotone" dataKey="value" stroke="#7e3af2" activeDot={{ r: 8 }} />
             </LineChart>
           </ResponsiveContainer>
         );
@@ -230,28 +195,23 @@ const CrmBilling = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip
+              <Tooltip 
                 formatter={(value: number) => value.toLocaleString()}
-                contentStyle={{
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  borderColor: "#7e3af2",
-                  borderRadius: "6px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                contentStyle={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  borderColor: '#7e3af2',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
               />
               <Legend />
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#7e3af2" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#7e3af2" stopOpacity={0.1} />
+                  <stop offset="5%" stopColor="#7e3af2" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#7e3af2" stopOpacity={0.1}/>
                 </linearGradient>
               </defs>
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke="#7e3af2"
-                fill="url(#colorValue)"
-              />
+              <Area type="monotone" dataKey="value" stroke="#7e3af2" fill="url(#colorValue)" />
             </AreaChart>
           </ResponsiveContainer>
         );
@@ -274,9 +234,7 @@ const CrmBilling = () => {
               <MetricsCard
                 title="Total Accounts"
                 value={data?.summary.total_accounts || 0}
-                description={`Including ${
-                  data?.summary.duplicate_records || 0
-                } duplicates`}
+                description={`Including ${data?.summary.duplicate_records || 0} duplicates`}
                 icon={<Database className="h-4 w-4 text-muted-foreground" />}
               />
               <MetricsCard
@@ -348,7 +306,11 @@ const CrmBilling = () => {
                         </div>
                       </div>
                       <p className="text-xl font-bold">
-                        {data?.summary.matched_accounts || 0}
+                        {data?.summary.total_accounts -
+                          (data?.summary.mismatched_bill_plans || 0) -
+                          (data?.summary.mismatched_account_status || 0) -
+                          (data?.summary.mismatched_start_dates || 0) -
+                          (data?.summary.duplicate_records || 0)}
                       </p>
                     </div>
 
@@ -374,6 +336,26 @@ const CrmBilling = () => {
             </Card>
 
             {/* Mismatch Visualization */}
+            <Card className="mb-8">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Billing vs CRM Mismatches</CardTitle>
+                <div className="flex gap-2">
+                  {/* Fix: Wrap TabsList in a Tabs component */}
+                  <Tabs value={visualizationType} onValueChange={(value) => setVisualizationType(value as any)}>
+                    <TabsList>
+                      <TabsTrigger value="pie">Pie</TabsTrigger>
+                      <TabsTrigger value="bar">Bar</TabsTrigger>
+                      <TabsTrigger value="line">Line</TabsTrigger>
+                      <TabsTrigger value="area">Area</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {renderVisualization()}
+              </CardContent>
+            </Card>
+
             {/* Account Status Mismatches */}
             <div className="mb-8 grid gap-6 md:grid-cols-2">
               <Card className="mb-8">

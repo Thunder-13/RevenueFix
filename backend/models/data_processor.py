@@ -40,11 +40,10 @@ class DataProcessor:
             crm_df.columns = crm_df.columns.str.strip()
             billing_df.columns = billing_df.columns.str.strip()
             
-            total_inc_duplicates = max(crm_df.shape[0], billing_df.shape[0])
             # Identify duplicate rows in CRM and Billing
-            crm_duplicates = crm_df.duplicated(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
-            billing_duplicates = billing_df.duplicated(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
-            total_duplicates = crm_duplicates.sum() + billing_duplicates.sum()
+            crm_duplicates = crm_df.duplicated(subset=['Account_ID', 'Customer_ID', 'MSISDN']).sum()
+            billing_duplicates = billing_df.duplicated(subset=['Account_ID', 'Customer_ID', 'MSISDN']).sum()
+            total_duplicates = crm_duplicates + billing_duplicates
             
             # Remove duplicates for analysis
             crm_df = crm_df.drop_duplicates(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
@@ -58,10 +57,6 @@ class DataProcessor:
                 how='inner',
                 suffixes=('_crm', '_billing')
             )
-            # Save the merged DataFrame to a temporary CSV file
-            # temp_file_path = os.path.join(curr_dir, '..', 'assets', 'temp.csv')
-            # merged_df.to_csv(temp_file_path, index=False)
-            # print(f"Merged DataFrame saved to {temp_file_path}")
             
             # Calculate mismatches
             # Bill Plan mismatches
@@ -73,17 +68,16 @@ class DataProcessor:
             crm_inactive_billing_active = merged_df[(merged_df['Account_Status_crm'] == 'INACT') & (merged_df['Account_Status_billing'] == 'ACT')].shape[0]
             
             # Start Date mismatches
-            start_date_mismatches = merged_df[merged_df['Account_Start_Date_crm'] != merged_df['Account_Start_Date_billing']]
+            start_date_mismatches = merged_df[merged_df['Account_Creation_Date'] != merged_df['Account_Start_Date']]
             
             # Enterprise category breakdown
             enterprise_breakdown = []
-            for category in merged_df['Ent_Residence'].unique():
-                category_df = merged_df[merged_df['Ent_Residence'] == category]
+            for category in merged_df['BUS_ENT'].unique():
+                category_df = merged_df[merged_df['BUS_ENT'] == category]
                 category_bill_plan_mismatches = category_df[category_df['Bill_Plan'] != category_df['BillPlan_ID']].shape[0]
                 category_crm_active_billing_inactive = category_df[(category_df['Account_Status_crm'] == 'ACT') & (category_df['Account_Status_billing'] == 'INACT')].shape[0]
                 category_crm_inactive_billing_active = category_df[(category_df['Account_Status_crm'] == 'INACT') & (category_df['Account_Status_billing'] == 'ACT')].shape[0]
                 
-
                 enterprise_breakdown.append({
                     'category': category,
                     'mismatched_bill_plans': category_bill_plan_mismatches,
@@ -104,72 +98,54 @@ class DataProcessor:
                     'value': round(mismatch_percentage, 2)
                 })
             
-            # Mismatched accounts for display
+            # Sample mismatched accounts for display
             mismatched_accounts = []
             
             # Add bill plan mismatches
-            for _, row in bill_plan_mismatches.iterrows():
-                existing_account = next((acc for acc in mismatched_accounts if acc['msisdn'] == row['MSISDN']), None)
-                if existing_account:
-                    existing_account['mismatch_type'].append('Bill Plan')
-                else:
-                    mismatched_accounts.append({
-                        'customer_id': row['Customer_ID'],
-                        'account_id': row['Account_ID'],
-                        'msisdn': row['MSISDN'],
-                        'crm_status': row['Account_Status_crm'],
-                        'billing_status': row['Account_Status_billing'],
-                        'crm_bill_plan': row['Bill_Plan'],
-                        'billing_bill_plan': row['BillPlan_ID'],
-                        'enterprise_category': row['Ent_Residence'],
-                        'crm_bill_start_date': row['Account_Start_Date_crm'],
-                        'billing_bill_start_date': row['Account_Start_Date_billing'],
-                        'mismatch_type': ['Bill Plan']
-                    })
+            for _, row in bill_plan_mismatches.head(2).iterrows():
+                mismatched_accounts.append({
+                    'customer_id': row['Customer_ID'],
+                    'account_id': row['Account_ID'],
+                    'msisdn': row['MSISDN'],
+                    'crm_status': row['Account_Status_crm'],
+                    'billing_status': row['Account_Status_billing'],
+                    'crm_bill_plan': row['Bill_Plan'],
+                    'billing_bill_plan': row['BillPlan_ID'],
+                    'enterprise_category': row['BUS_ENT'],
+                    'mismatch_type': 'Bill Plan'
+                })
             
             # Add account status mismatches
-            for _, row in account_status_mismatches.iterrows():
-                existing_account = next((acc for acc in mismatched_accounts if acc['msisdn'] == row['MSISDN']), None)
-                if existing_account:
-                    existing_account['mismatch_type'].append('Account Status')
-                else:
-                    mismatched_accounts.append({
-                        'customer_id': row['Customer_ID'],
-                        'account_id': row['Account_ID'],
-                        'msisdn': row['MSISDN'],
-                        'crm_status': row['Account_Status_crm'],
-                        'billing_status': row['Account_Status_billing'],
-                        'crm_bill_plan': row['Bill_Plan'],
-                        'billing_bill_plan': row['BillPlan_ID'],
-                        'enterprise_category': row['Ent_Residence'],
-                        'crm_bill_start_date': row['Account_Start_Date_crm'],
-                        'billing_bill_start_date': row['Account_Start_Date_billing'],
-                        'mismatch_type': ['Account Status']
-                    })
+            for _, row in account_status_mismatches.head(2).iterrows():
+                mismatched_accounts.append({
+                    'customer_id': row['Customer_ID'],
+                    'account_id': row['Account_ID'],
+                    'msisdn': row['MSISDN'],
+                    'crm_status': row['Account_Status_crm'],
+                    'billing_status': row['Account_Status_billing'],
+                    'crm_bill_plan': row['Bill_Plan'],
+                    'billing_bill_plan': row['BillPlan_ID'],
+                    'enterprise_category': row['BUS_ENT'],
+                    'mismatch_type': 'Account Status'
+                })
             
             # Add start date mismatches
-            for _, row in start_date_mismatches.iterrows():
-                existing_account = next((acc for acc in mismatched_accounts if acc['msisdn'] == row['MSISDN']), None)
-                if existing_account:
-                    existing_account['mismatch_type'].append('Bill Start Date')
-                else:
-                    mismatched_accounts.append({
-                        'customer_id': row['Customer_ID'],
-                        'account_id': row['Account_ID'],
-                        'msisdn': row['MSISDN'],
-                        'crm_status': row['Account_Status_crm'],
-                        'billing_status': row['Account_Status_billing'],
-                        'crm_bill_plan': row['Bill_Plan'],
-                        'billing_bill_plan': row['BillPlan_ID'],
-                        'enterprise_category': row['Ent_Residence'],
-                        'crm_bill_start_date': row['Account_Start_Date_crm'],
-                        'billing_bill_start_date': row['Account_Start_Date_billing'],
-                        'mismatch_type': ['Bill Start Date']
-                    })
+            for _, row in start_date_mismatches.head(1).iterrows():
+                mismatched_accounts.append({
+                    'customer_id': row['Customer_ID'],
+                    'account_id': row['Account_ID'],
+                    'msisdn': row['MSISDN'],
+                    'crm_status': row['Account_Status_crm'],
+                    'billing_status': row['Account_Status_billing'],
+                    'crm_bill_plan': row['Bill_Plan'],
+                    'billing_bill_plan': row['BillPlan_ID'],
+                    'enterprise_category': row['BUS_ENT'],
+                    'mismatch_type': 'Start Date'
+                })
             
             # Calculate total accounts and mismatch percentage
             total_accounts = merged_df.shape[0]
-            total_mismatches = len(mismatched_accounts)
+            total_mismatches = bill_plan_mismatches.shape[0] + account_status_mismatches.shape[0] + start_date_mismatches.shape[0]
             mismatch_percentage = (total_mismatches / total_accounts) * 100 if total_accounts > 0 else 0
             
             # Generate visualization data
@@ -179,18 +155,15 @@ class DataProcessor:
                 {'name': 'Start Date Mismatches', 'value': start_date_mismatches.shape[0]},
                 {'name': 'Matched Records', 'value': total_accounts - total_mismatches}
             ]
-            print(total_accounts, total_mismatches, mismatch_percentage)
             
             return {
                 'summary': {
-                    'total_accounts': total_accounts - int(total_duplicates//2),  # Exclude duplicates in total count
+                    'total_accounts': total_accounts + total_duplicates,  # Include duplicates in total count
                     'mismatched_bill_plans': bill_plan_mismatches.shape[0],
                     'mismatched_account_status': account_status_mismatches.shape[0],
                     'mismatched_start_dates': start_date_mismatches.shape[0],
-                    'duplicate_records': int(total_duplicates//2),
-                    'mismatch_percentage': round(mismatch_percentage, 2),
-                    'matched_accounts': total_accounts - total_mismatches,
-                    'mismatched_accounts': total_mismatches
+                    'duplicate_records': total_duplicates,
+                    'mismatch_percentage': round(mismatch_percentage, 2)
                 },
                 'account_status': {
                     'crm_active_billing_inactive': crm_active_billing_inactive,
