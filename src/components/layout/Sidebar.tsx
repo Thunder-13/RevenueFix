@@ -37,11 +37,11 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const items = [
-  // {
-  //   title: "Home",
-  //   url: "/",
-  //   icon: Home,
-  // },
+  {
+    title: "Home",
+    url: "/",
+    icon: Home,
+  },
   {
     title: "Dashboard",
     url: "/dashboard",
