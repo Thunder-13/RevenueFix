@@ -14,7 +14,6 @@ import {
   Sparkles, 
   Settings as SettingsIcon,
   ChevronLeft,
-  Menu,
   ChevronRight,
   Database
 } from "lucide-react";
@@ -140,19 +139,16 @@ export function AppSidebar() {
               RF
             </motion.div>
           </div>
-            {expanded && (
-            <motion.div 
+          {expanded && (
+            <motion.span 
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex items-center gap-2"
+              className="text-xl font-bold text-[#7e3af2]"
             >
-              
-              <span className="text-xl font-bold text-[#7e3af2]">
               RevenueFix
-              </span>
-            </motion.div>
-            )}
+            </motion.span>
+          )}
         </Link>
         <Button 
           variant="ghost" 

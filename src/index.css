@@ -119,6 +119,19 @@ main {
   @apply scale-110 text-primary;
 }
 
+/* Enhanced Sidebar Item Hover Effects */
+.sidebar-item:hover .sidebar-icon {
+  @apply text-[#7e3af2] transform scale-110;
+}
+
+.sidebar-item:hover .sidebar-text {
+  @apply text-[#7e3af2] font-medium;
+}
+
+.sidebar-item:active {
+  @apply bg-[#7e3af2]/20;
+}
+
 /* Enhanced Chart Styles */
 .chart-container {
   @apply relative overflow-hidden rounded-lg transition-all duration-300;
