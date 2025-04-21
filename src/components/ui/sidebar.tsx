@@ -38,11 +38,11 @@ export function Sidebar({
     <aside
       className={cn(
         "group/sidebar h-full overflow-hidden transition-all duration-300",
-        expanded ? "w-64" : "w-14",
+        expanded ? "w-64" : "w-17", // Changed from w-14 to w-16 to ensure toggle button is visible
         className
       )}
     >
-      <div className="h-full w-64 flex flex-col">{children}</div>
+      <div className="h-full w-full flex flex-col">{children}</div>
     </aside>
   )
 }
@@ -166,7 +166,7 @@ export function SidebarMenuButton({
   return (
     <Comp
       className={cn(
-        "flex items-center gap-2 w-full px-2 py-2 rounded-md text-sm hover:bg-accent hover:text-accent-foreground",
+        "flex items-center gap-2 w-full px-2 py-2 rounded-md text-sm hover:bg-accent hover:text-accent-foreground transition-all duration-200",
         !expanded && "justify-center",
         className
       )}

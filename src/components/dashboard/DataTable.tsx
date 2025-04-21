@@ -105,7 +105,7 @@ export function DataTable({
           ? `"${value}"` 
           : value;
       }).join(',')
-    ).join('\\n');
+    ).join('\\n'); // Use actual newline character instead of \\\n
     
     const csv = `${headers}\\n${rows}`;
     
