@@ -36,11 +36,11 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const items = [
-  {
-    title: "Home",
-    url: "/",
-    icon: Home,
-  },
+  // {
+  //   title: "Home",
+  //   url: "/",
+  //   icon: Home,
+  // },
   {
     title: "Dashboard",
     url: "/dashboard",
@@ -140,7 +140,7 @@ export function AppSidebar() {
             </motion.div>
           </div>
           {expanded && (
-            <motion.span 
+            <motion.span
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3 }}
