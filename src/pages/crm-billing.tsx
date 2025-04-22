@@ -489,16 +489,16 @@ const CrmBilling = () => {
                       { key: "customer_id", header: "Customer ID" },
                       { key: "account_id", header: "Account ID" },
                       { key: "msisdn", header: "MSISDN" },
-                      {
-                        key: "crm_status",
-                        header: "CRM Status",
-                        formatter: (value) => getStatusBadge(value),
-                      },
-                      {
-                        key: "billing_status",
-                        header: "Billing Status",
-                        formatter: (value) => getStatusBadge(value),
-                      },
+                      // {
+                      //   key: "crm_status",
+                      //   header: "CRM Status",
+                      //   formatter: (value) => getStatusBadge(value),
+                      // },
+                      // {
+                      //   key: "billing_status",
+                      //   header: "Billing Status",
+                      //   formatter: (value) => getStatusBadge(value),
+                      // },
                       {
                         key: "enterprise_category",
                         header: "Enterprise Category",
@@ -561,13 +561,18 @@ const CrmBilling = () => {
                       { key: "customer_id", header: "Customer ID" },
                       { key: "account_id", header: "Account ID" },
                       { key: "msisdn", header: "MSISDN" },
+                      { key: "crm_bill_start_date", header: "CRM Bill Start" },
+                      {
+                        key: "billing_bill_start_date",
+                        header: "Billing Bill Start",
+                      },
                       {
                         key: "enterprise_category",
                         header: "Enterprise Category",
                       },
                     ]}
                     data={(data?.mismatched_accounts || []).filter((account) =>
-                      account.mismatch_type.includes("Start Date")
+                      account.mismatch_type.includes("Bill Start Date")
                     )}
                   />
                 </TabsContent>
