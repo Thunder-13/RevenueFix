@@ -1,4 +1,4 @@
-﻿Customer_ID,Account_ID,Account_Status,Ent_Residence,Account_Start_Date,MSISDN,BillPlan_ID,BillPlan_Name,Charge,Service ID,Service Name,Service Start Date,Service End Date
+Customer_ID,Account_ID,Account_Status,Ent_Residence,Account_Start_Date,MSISDN,BillPlan_ID,BillPlan_Name,Charge,Service ID,Service Name,Service Start Date,Service End Date
 7812599,14058,A,Enterprise,2/5/2025,9959650797,101,Voice_Basic_99,99,89,Mobile Voice,2/5/2025,
 7812600,14059,A,Enterprise,2/19/2025,9959650798,101,Voice_Basic_99,99,89,Mobile Voice,2/19/2025,
 7812601,14060,A,Enterprise,1/3/2025,9959650799,101,Voice_Basic_99,99,89,Mobile Voice,1/3/2025,
