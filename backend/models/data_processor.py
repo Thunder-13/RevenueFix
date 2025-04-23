@@ -40,14 +40,15 @@ class DataProcessor:
             crm_df.columns = crm_df.columns.str.strip()
             billing_df.columns = billing_df.columns.str.strip()
             
+            total_inc_duplicates = max(crm_df.shape[0], billing_df.shape[0])
             # Identify duplicate rows in CRM and Billing
-            # crm_duplicates = crm_df.duplicated(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
-            # billing_duplicates = billing_df.duplicated(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
-            # total_duplicates = crm_duplicates + billing_duplicates
-                       
+            crm_duplicates = crm_df.duplicated(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
+            billing_duplicates = billing_df.duplicated(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
+            total_duplicates = crm_duplicates.sum() + billing_duplicates.sum()
+            
             # Remove duplicates for analysis
-            # crm_df = crm_df.drop_duplicates(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
-            # billing_df = billing_df.drop_duplicates(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
+            crm_df = crm_df.drop_duplicates(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
+            billing_df = billing_df.drop_duplicates(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
             
             # Merge datasets on common keys for comparison
             merged_df = pd.merge(
@@ -57,6 +58,10 @@ class DataProcessor:
                 how='inner',
                 suffixes=('_crm', '_billing')
             )
+            # Save the merged DataFrame to a temporary CSV file
+            # temp_file_path = os.path.join(curr_dir, '..', 'assets', 'temp.csv')
+            # merged_df.to_csv(temp_file_path, index=False)
+            # print(f"Merged DataFrame saved to {temp_file_path}")
             
             # Calculate mismatches
             # Bill Plan mismatches
@@ -165,11 +170,11 @@ class DataProcessor:
             
             return {
                 'summary': {
-                    'total_accounts': total_accounts,  # Include duplicates in total count
+                    'total_accounts': total_inc_duplicates,  # Include duplicates in total count
                     'mismatched_bill_plans': bill_plan_mismatches.shape[0],
                     'mismatched_account_status': account_status_mismatches.shape[0],
                     'mismatched_start_dates': start_date_mismatches.shape[0],
-                    'duplicate_records': 0,  # Placeholder for duplicates
+                    'duplicate_records': int(total_duplicates//2),  # Placeholder for duplicates
                     'mismatch_percentage': round(mismatch_percentage, 2)
                 },
                 'account_status': {
