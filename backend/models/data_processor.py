@@ -42,13 +42,13 @@ class DataProcessor:
             
             total_inc_duplicates = max(crm_df.shape[0], billing_df.shape[0])
             # Identify duplicate rows in CRM and Billing
-            crm_duplicates = crm_df.duplicated(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
-            billing_duplicates = billing_df.duplicated(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
+            crm_duplicates = crm_df.duplicated(subset=['Account_ID', 'Customer_ID', 'Account_Status', 'BUS_ENT', 'Account_Start_Date', 'MSISDN', 'Bill_Plan'])
+            billing_duplicates = billing_df.duplicated(subset=['Account_ID', 'Customer_ID', 'Account_Status', 'Ent_Residence', 'Account_Start_Date', 'MSISDN', 'BillPlan_ID'])
             total_duplicates = crm_duplicates.sum() + billing_duplicates.sum()
             
             # Remove duplicates for analysis
-            crm_df = crm_df.drop_duplicates(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
-            billing_df = billing_df.drop_duplicates(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
+            crm_df = crm_df.drop_duplicates(subset=['Account_ID', 'Customer_ID', 'Account_Status', 'BUS_ENT', 'Account_Start_Date', 'MSISDN', 'Bill_Plan'])
+            billing_df = billing_df.drop_duplicates(subset=['Account_ID', 'Customer_ID', 'Account_Status', 'Ent_Residence', 'Account_Start_Date', 'MSISDN', 'BillPlan_ID'])
             
             # Merge datasets on common keys for comparison
             merged_df = pd.merge(
@@ -170,7 +170,7 @@ class DataProcessor:
             
             return {
                 'summary': {
-                    'total_accounts': total_inc_duplicates,  # Include duplicates in total count
+                    'total_accounts': total_inc_duplicates - int(total_duplicates//2),  # Include duplicates in total count
                     'mismatched_bill_plans': bill_plan_mismatches.shape[0],
                     'mismatched_account_status': account_status_mismatches.shape[0],
                     'mismatched_start_dates': start_date_mismatches.shape[0],

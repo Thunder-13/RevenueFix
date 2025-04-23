@@ -272,7 +272,7 @@ const CrmBilling = () => {
               <MetricsCard
                 title="Total Accounts"
                 value={data?.summary.total_accounts || 0}
-                description={`Including ${
+                description={`Excluding ${
                   data?.summary.duplicate_records || 0
                 } duplicates`}
                 icon={<Database className="h-4 w-4 text-muted-foreground" />}
