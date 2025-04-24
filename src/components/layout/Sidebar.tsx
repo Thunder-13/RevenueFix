@@ -169,7 +169,10 @@ export function AppSidebar() {
               {items.map((item) => {
                 const isActive = location.pathname === item.url;
                 return (
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem
+                    key={item.title}
+                    className="font-[Roboto] hover:bg-[#7e3af2]/10 transition-colors duration-200"
+                  >
                     <SidebarMenuButton
                       asChild
                       className={cn(

@@ -1,39 +1,39 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
 const SidebarContext = React.createContext<{
-  expanded: boolean
-  setExpanded: React.Dispatch<React.SetStateAction<boolean>>
-} | null>(null)
+  expanded: boolean;
+  setExpanded: React.Dispatch<React.SetStateAction<boolean>>;
+} | null>(null);
 
 export function useSidebar() {
-  const context = React.useContext(SidebarContext)
+  const context = React.useContext(SidebarContext);
   if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider")
+    throw new Error("useSidebar must be used within a SidebarProvider");
   }
-  return context
+  return context;
 }
 
 export function SidebarProvider({
   children,
   defaultExpanded = true,
 }: {
-  children: React.ReactNode
-  defaultExpanded?: boolean
+  children: React.ReactNode;
+  defaultExpanded?: boolean;
 }) {
-  const [expanded, setExpanded] = React.useState(defaultExpanded)
+  const [expanded, setExpanded] = React.useState(defaultExpanded);
   return (
     <SidebarContext.Provider value={{ expanded, setExpanded }}>
       {children}
     </SidebarContext.Provider>
-  )
+  );
 }
 
 export function Sidebar({
   className,
   children,
 }: React.HTMLAttributes<HTMLDivElement>) {
-  const { expanded } = useSidebar()
+  const { expanded } = useSidebar();
   return (
     <aside
       className={cn(
@@ -44,11 +44,11 @@ export function Sidebar({
     >
       <div className="h-full w-full flex flex-col">{children}</div>
     </aside>
-  )
+  );
 }
 
 export function SidebarToggle() {
-  const { expanded, setExpanded } = useSidebar()
+  const { expanded, setExpanded } = useSidebar();
   return (
     <button
       onClick={() => setExpanded((v) => !v)}
@@ -83,42 +83,44 @@ export function SidebarToggle() {
         </svg>
       )}
     </button>
-  )
+  );
 }
 
 export function SidebarContent({
   className,
   children,
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("flex-1 overflow-auto", className)}>{children}</div>
+  return (
+    <div className={cn("flex-1 overflow-auto", className)}>{children}</div>
+  );
 }
 
 export function SidebarHeader({
   className,
   children,
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("p-4", className)}>{children}</div>
+  return <div className={cn("p-4", className)}>{children}</div>;
 }
 
 export function SidebarFooter({
   className,
   children,
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("p-4", className)}>{children}</div>
+  return <div className={cn("p-4", className)}>{children}</div>;
 }
 
 export function SidebarGroup({
   className,
   children,
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("pb-4", className)}>{children}</div>
+  return <div className={cn("pb-4", className)}>{children}</div>;
 }
 
 export function SidebarGroupLabel({
   className,
   children,
 }: React.HTMLAttributes<HTMLDivElement>) {
-  const { expanded } = useSidebar()
+  const { expanded } = useSidebar();
   return (
     <div
       className={cn(
@@ -129,28 +131,28 @@ export function SidebarGroupLabel({
     >
       {children}
     </div>
-  )
+  );
 }
 
 export function SidebarGroupContent({
   className,
   children,
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("", className)}>{children}</div>
+  return <div className={cn("", className)}>{children}</div>;
 }
 
 export function SidebarMenu({
   className,
   children,
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("", className)}>{children}</div>
+  return <div className={cn("", className)}>{children}</div>;
 }
 
 export function SidebarMenuItem({
   className,
   children,
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("px-2", className)}>{children}</div>
+  return <div className={cn("p-2", className)}>{children}</div>;
 }
 
 export function SidebarMenuButton({
@@ -159,10 +161,10 @@ export function SidebarMenuButton({
   asChild,
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  asChild?: boolean
+  asChild?: boolean;
 }) {
-  const { expanded } = useSidebar()
-  const Comp = asChild ? React.Fragment : "button"
+  const { expanded } = useSidebar();
+  const Comp = asChild ? React.Fragment : "button";
   return (
     <Comp
       className={cn(
@@ -174,5 +176,5 @@ export function SidebarMenuButton({
     >
       {children}
     </Comp>
-  )
+  );
 }

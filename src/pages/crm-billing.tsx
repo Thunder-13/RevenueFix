@@ -44,6 +44,8 @@ interface CrmBillingData {
     mismatched_start_dates: number;
     duplicate_records: number;
     mismatch_percentage: number;
+    matched_accounts: number;
+    mismatched_accounts: number;
   };
   account_status: {
     crm_active_billing_inactive: number;
@@ -69,7 +71,7 @@ interface CrmBillingData {
     crm_bill_plan: string;
     billing_bill_plan: string;
     enterprise_category: string;
-    mismatch_type: string;
+    mismatch_type: string[];
   }[];
   mismatch_visualization: {
     name: string;
@@ -346,11 +348,7 @@ const CrmBilling = () => {
                         </div>
                       </div>
                       <p className="text-xl font-bold">
-                        {data?.summary.total_accounts -
-                          (data?.summary.mismatched_bill_plans || 0) -
-                          (data?.summary.mismatched_account_status || 0) -
-                          (data?.summary.mismatched_start_dates || 0) -
-                          (data?.summary.duplicate_records || 0)}
+                        {data?.summary.matched_accounts || 0}
                       </p>
                     </div>
 
@@ -367,9 +365,7 @@ const CrmBilling = () => {
                         </div>
                       </div>
                       <p className="text-xl font-bold">
-                        {(data?.summary.mismatched_bill_plans || 0) +
-                          (data?.summary.mismatched_account_status || 0) +
-                          (data?.summary.mismatched_start_dates || 0)}
+                        {data?.summary.mismatched_accounts || 0}
                       </p>
                     </div>
                   </div>
@@ -394,7 +390,7 @@ const CrmBilling = () => {
                       <TabsList>
                         <TabsTrigger value="pie">Pie</TabsTrigger>
                         <TabsTrigger value="bar">Bar</TabsTrigger>
-                        <TabsTrigger value="line">Line</TabsTrigger>
+                        {/* <TabsTrigger value="line">Line</TabsTrigger> */}
                         <TabsTrigger value="area">Area</TabsTrigger>
                       </TabsList>
                     </Tabs>
@@ -459,11 +455,11 @@ const CrmBilling = () => {
                   },
                   {
                     key: "crm_active_billing_inactive",
-                    header: "CRM Active, Billing Inactive",
+                    header: "CRM Active : Billing Inactive",
                   },
                   {
                     key: "crm_inactive_billing_active",
-                    header: "CRM Inactive, Billing Active",
+                    header: "CRM Inactive : Billing Active",
                   },
                   { key: "total_accounts", header: "Total Accounts" },
                 ]}
@@ -489,21 +485,15 @@ const CrmBilling = () => {
                       { key: "customer_id", header: "Customer ID" },
                       { key: "account_id", header: "Account ID" },
                       { key: "msisdn", header: "MSISDN" },
-                      // {
-                      //   key: "crm_status",
-                      //   header: "CRM Status",
-                      //   formatter: (value) => getStatusBadge(value),
-                      // },
-                      // {
-                      //   key: "billing_status",
-                      //   header: "Billing Status",
-                      //   formatter: (value) => getStatusBadge(value),
-                      // },
                       {
                         key: "enterprise_category",
                         header: "Enterprise Category",
                       },
-                      { key: "mismatch_type", header: "Mismatch Type" },
+                      {
+                        key: "mismatch_type",
+                        header: "Mismatch Type",
+                        formatter: (value: string[]) => value.join(", "),
+                      },
                     ]}
                     data={data?.mismatched_accounts || []}
                   />
