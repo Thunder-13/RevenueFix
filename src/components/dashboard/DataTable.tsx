@@ -10,7 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Download, Search, SortAsc, SortDesc } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Search,
+  SortAsc,
+  SortDesc,
+} from "lucide-react";
 import { motion } from "framer-motion";
 
 interface Column {
@@ -43,89 +50,101 @@ export function DataTable({
   pageSize = 5,
   searchable = true,
   downloadable = true,
-  onRowClick
+  onRowClick,
 }: DataTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
-  
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  } | null>(null);
+
   // Filter data based on search term
   const filteredData = useMemo(() => {
     if (!searchTerm) return data || [];
-    return (data || []).filter(row => 
-      Object.values(row).some(value => 
+    return (data || []).filter((row) =>
+      Object.values(row).some((value) =>
         String(value).toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
   }, [data, searchTerm]);
-    
+
   // Sort data if sort config is set
   const sortedData = useMemo(() => {
     if (!sortConfig) return filteredData;
     return [...filteredData].sort((a, b) => {
       const aValue = a[sortConfig.key];
       const bValue = b[sortConfig.key];
-      
+
       if (aValue === bValue) return 0;
-      
+
       const comparison = aValue < bValue ? -1 : 1;
-      return sortConfig.direction === 'asc' ? comparison : -comparison;
+      return sortConfig.direction === "asc" ? comparison : -comparison;
     });
   }, [filteredData, sortConfig]);
-  
+
   // Paginate data
   const totalPages = Math.ceil((sortedData?.length || 0) / pageSize);
   const paginatedData = useMemo(() => {
     if (!pagination || !sortedData) return sortedData;
-    return sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    return sortedData.slice(
+      (currentPage - 1) * pageSize,
+      currentPage * pageSize
+    );
   }, [pagination, sortedData, currentPage, pageSize]);
-    
+
   // Handle sort
   const handleSort = (key: string) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    
+    let direction: "asc" | "desc" = "asc";
+
     if (sortConfig && sortConfig.key === key) {
-      direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+      direction = sortConfig.direction === "asc" ? "desc" : "asc";
     }
-    
+
     setSortConfig({ key, direction });
   };
-  
+
   // Handle download
   const handleDownload = () => {
     if (!data || data.length === 0) return;
-    
+
     // Convert data to CSV
-    const headers = columns.map(col => col.header).join(',');
-    const rows = data.map(row => 
-      columns.map(col => {
-        const value = row[col.key];
-        // Handle values with commas by wrapping in quotes
-        return typeof value === 'string' && value.includes(',') 
-          ? `"${value}"` 
-          : value;
-      }).join(',')
-    ).join('\\n'); // Use actual newline character instead of \\\n
-    
-    const csv = `${headers}\\n${rows}`;
-    
+    const headers = columns.map((col) => col.header).join(",");
+    const rows = data
+      .map((row) =>
+        columns
+          .map((col) => {
+            const value = row[col.key];
+            // Handle values with commas by wrapping in quotes
+            return typeof value === "string" && value.includes(",")
+              ? `"${value}"`
+              : value;
+          })
+          .join(",")
+      )
+      .join("\n"); // Use actual newline character instead of \\\n
+
+    const csv = `${headers}\n${rows}`;
+
     // Create download link
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = `${title.toLowerCase().replace(/\s+/g, '-')}.csv`;
+    link.download = `${title.toLowerCase().replace(/\s+/g, "-")}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
-  
+
   return (
     <Card className={className}>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
           <CardTitle>{title}</CardTitle>
-          {description && <p className="text-sm text-muted-foreground">{description}</p>}
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {searchable && (
@@ -140,7 +159,7 @@ export function DataTable({
               />
             </div>
           )}
-          
+
           {downloadable && (
             <Button variant="outline" size="sm" onClick={handleDownload}>
               <Download className="mr-1 h-4 w-4" />
@@ -155,18 +174,28 @@ export function DataTable({
             <TableHeader>
               <TableRow>
                 {columns.map((column) => (
-                  <TableHead 
+                  <TableHead
                     key={column.key}
-                    className={column.sortable !== false ? "cursor-pointer hover:bg-muted/50" : ""}
-                    onClick={column.sortable !== false ? () => handleSort(column.key) : undefined}
+                    className={
+                      column.sortable !== false
+                        ? "cursor-pointer hover:bg-muted/50"
+                        : ""
+                    }
+                    onClick={
+                      column.sortable !== false
+                        ? () => handleSort(column.key)
+                        : undefined
+                    }
                   >
                     <div className="flex items-center gap-1">
                       {column.header}
-                      {sortConfig && sortConfig.key === column.key && (
-                        sortConfig.direction === 'asc' 
-                          ? <SortAsc className="h-3 w-3 text-muted-foreground" /> 
-                          : <SortDesc className="h-3 w-3 text-muted-foreground" />
-                      )}
+                      {sortConfig &&
+                        sortConfig.key === column.key &&
+                        (sortConfig.direction === "asc" ? (
+                          <SortAsc className="h-3 w-3 text-muted-foreground" />
+                        ) : (
+                          <SortDesc className="h-3 w-3 text-muted-foreground" />
+                        ))}
                     </div>
                   </TableHead>
                 ))}
@@ -179,8 +208,13 @@ export function DataTable({
                     key={rowIndex}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: Math.min(rowIndex * 0.05, 0.5) }}
-                    className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
+                    transition={{
+                      duration: 0.3,
+                      delay: Math.min(rowIndex * 0.05, 0.5),
+                    }}
+                    className={
+                      onRowClick ? "cursor-pointer hover:bg-muted/50" : ""
+                    }
                     onClick={onRowClick ? () => onRowClick(row) : undefined}
                   >
                     {columns.map((column) => (
@@ -194,7 +228,10 @@ export function DataTable({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
                     No results found.
                   </TableCell>
                 </TableRow>
@@ -202,11 +239,13 @@ export function DataTable({
             </TableBody>
           </Table>
         </div>
-        
+
         {pagination && totalPages > 1 && (
           <div className="mt-4 flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, sortedData?.length || 0)} of {sortedData?.length || 0} entries
+              Showing {(currentPage - 1) * pageSize + 1} to{" "}
+              {Math.min(currentPage * pageSize, sortedData?.length || 0)} of{" "}
+              {sortedData?.length || 0} entries
             </div>
             <div className="flex items-center gap-1">
               <Button
@@ -230,7 +269,7 @@ export function DataTable({
                 } else {
                   pageNum = currentPage - 2 + i;
                 }
-                
+
                 return (
                   <Button
                     key={pageNum}
