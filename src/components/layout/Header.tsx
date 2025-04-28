@@ -22,7 +22,7 @@ export function Header() {
   const { expanded, setExpanded } = useSidebar();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [notifications, setNotifications] = useState<number>(3);
-  
+
   useEffect(() => {
     const userStr = localStorage.getItem("user");
     if (userStr) {
@@ -34,28 +34,32 @@ export function Header() {
       }
     }
   }, []);
-  
+
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-white px-4 shadow-sm dark:bg-[#1e1e2d] dark:border-gray-800 md:px-6">
+    <header className="sticky top-4 z-30 mx-auto flex h-16 w-[98%] items-center justify-between rounded-lg border-b bg-gradient-to-r from-[#7e3af2] to-[#1e1e2d] px-8 py-4 shadow-sm dark:from-[#1e1e2d] dark:to-[#7e3af2] md:px-10">
+      {/* Logo and Title */}
       <div className="flex items-center gap-4">
+        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#7e3af2] text-white shadow-md">
+          RF
+        </div>
+        <span className="text-xl font-bold text-white">RevenueFix</span>
         {isMobile && (
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setExpanded(!expanded)}
-            className="text-[#7e3af2]"
+            className="text-white"
           >
             <Menu className="h-5 w-5" />
           </Button>
         )}
-        
-        
       </div>
-      
+
+      {/* Other Header Content */}
       <div className="flex items-center gap-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative text-[#7e3af2]">
+            <Button variant="ghost" size="icon" className="relative text-white">
               <Bell className="h-5 w-5" />
               {notifications > 0 && (
                 <motion.div
@@ -110,33 +114,33 @@ export function Header() {
             </div>
             <DropdownMenuSeparator />
             <div className="p-2 text-center">
-              <Button variant="ghost" size="sm" className="w-full text-[#7e3af2]">
+              <Button variant="ghost" size="sm" className="w-full text-white">
                 View all notifications
               </Button>
             </div>
           </DropdownMenuContent>
         </DropdownMenu>
-        
-        <Button variant="ghost" size="icon" className="text-[#7e3af2]">
+
+        <Button variant="ghost" size="icon" className="text-white">
           <HelpCircle className="h-5 w-5" />
         </Button>
-        
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2 px-2">
-                <Avatar className="h-8 w-8">
+              <Avatar className="h-8 w-8">
                 <AvatarImage src="/assets/images/user-icon.png" alt="User" />
                 <AvatarFallback className="bg-[#7e3af2] text-white">
-                  {user?.name?.charAt(0) || 'U'}
+                  {user?.name?.charAt(0) || "U"}
                 </AvatarFallback>
-                </Avatar>
+              </Avatar>
               {!isMobile && (
                 <>
                   <div className="flex flex-col items-start text-left">
-                    <span className="text-sm font-medium">{user?.name || 'Demo User'}</span>
-                    <span className="text-xs text-muted-foreground">Admin</span>
+                    <span className="text-sm font-medium text-white">{user?.name || "Demo User"}</span>
+                    <span className="text-xs text-gray-300">Admin</span>
                   </div>
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  <ChevronDown className="h-4 w-4 text-gray-300" />
                 </>
               )}
             </Button>
@@ -146,19 +150,25 @@ export function Header() {
             {user && (
               <div className="px-2 py-1.5 text-sm">
                 <div className="font-medium">{user.name}</div>
-                <div className="text-xs text-muted-foreground">{user.email}</div>
+                <div className="text-xs text-gray-300">{user.email}</div>
               </div>
             )}
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link to="/profile" className="flex w-full">Profile</Link>
+              <Link to="/profile" className="flex w-full">
+                Profile
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Link to="/settings" className="flex w-full">Settings</Link>
+              <Link to="/settings" className="flex w-full">
+                Settings
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link to="/logout" className="flex w-full">Logout</Link>
+              <Link to="/logout" className="flex w-full">
+                Logout
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
