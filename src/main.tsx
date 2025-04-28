@@ -23,13 +23,15 @@ import CrmBilling from "./pages/crm-billing";
 import B2BAnalysis from "./pages/b2b-analysis";
 import B2CAnalysis from "./pages/b2c-analysis";
 import FixedLine from "./pages/fixed-line";
-import VoiceSmsData from "./pages/voice-sms-data";
 import CrmInsights from "./pages/crm-insights";
 import AlarmManagement from "./pages/alarm-management";
 import UserManagement from "./pages/user-management";
 import CaseManagement from "./pages/case-management";
 import UpcomingFeatures from "./pages/upcoming-features";
 import Settings from "./pages/settings";
+import Voice from "@/pages/voice";
+import SMS from "@/pages/sms";
+import Data from "@/pages/data";
 
 const queryClient = new QueryClient();
 
@@ -51,7 +53,9 @@ createRoot(document.getElementById("root")!).render(
               <Route path='/b2b-analysis' element={<ProtectedRoute Component={B2BAnalysis} />} />
               <Route path='/b2c-analysis' element={<ProtectedRoute Component={B2CAnalysis} />} />
               <Route path='/fixed-line' element={<ProtectedRoute Component={FixedLine} />} />
-              <Route path='/voice-sms-data' element={<ProtectedRoute Component={VoiceSmsData} />} />
+              <Route path='/voice' element={<ProtectedRoute Component={Voice} />} />
+              <Route path='/sms' element={<ProtectedRoute Component={SMS} />} />
+              <Route path='/data' element={<ProtectedRoute Component={Data} />} />
               <Route path='/crm-insights' element={<ProtectedRoute Component={CrmInsights} />} />
               <Route path='/alarm-management' element={<ProtectedRoute Component={AlarmManagement} />} />
               <Route path='/user-management' element={<ProtectedRoute Component={UserManagement} />} />

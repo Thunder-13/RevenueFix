@@ -13,13 +13,14 @@ import { KraDialog } from "@/components/dashboard/KraDialog";
 import { KpiDialog } from "@/components/dashboard/KpiDialog";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts"; // Import required components
 
 interface DashboardData {
   total_revenue: number;
   revenue_growth: number;
   average_revenue_per_user: number;
   churn_rate: number;
+  leakage_detected: number; // Added this property
   revenue_by_channel: Array<{ name: string; value: number }>;
   revenue_trend: Array<{ date: string; value: number }>;
   top_products: Array<{ name: string; revenue: number }>;
@@ -28,7 +29,7 @@ interface DashboardData {
 const Dashboard = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("revenue");
+  const [activeTab, setActiveTab] = useState("executive");
   const [kraDialogOpen, setKraDialogOpen] = useState(false);
   const [kpiDialogOpen, setKpiDialogOpen] = useState(false);
   const [selectedKra, setSelectedKra] = useState<string | null>(null);
@@ -135,13 +136,13 @@ const Dashboard = () => {
               <h1 className="text-3xl font-bold">Dashboard</h1>
               <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4 md:mt-0">
                 <TabsList>
-                  <TabsTrigger value="revenue">Revenue</TabsTrigger>
                   <TabsTrigger value="executive">Executive</TabsTrigger>
+                  <TabsTrigger value="analyst">Analyst</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
 
-            {activeTab === "revenue" && (
+            {activeTab === "executive" && (
               <>
                 {/* Key Metrics */}
                 <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -155,26 +156,26 @@ const Dashboard = () => {
                     onClick={() => handleKraClick('revenue')}
                     infoTooltip="Click for detailed revenue KRA"
                   />
+					  <MetricsCard
+						title="Revenue Growth"
+						value={data?.revenue_growth || 0}
+						suffix="%"
+						description="compared to last month"
+						icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
+						onClick={() => handleKpiClick('revenue')}
+						infoTooltip="Click for detailed growth KPI"
+					  />
                   <MetricsCard
-                    title="Revenue Growth"
-                    value={data?.revenue_growth || 0}
-                    suffix="%"
-                    description="compared to last month"
-                    icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
-                    onClick={() => handleKpiClick('revenue')}
-                    infoTooltip="Click for detailed growth KPI"
-                  />
-                  <MetricsCard
-                    title="Average Revenue Per User"
-                    value={data?.average_revenue_per_user || 0}
+                    title="Leakage Detected"
+                    value={data?.leakage_detected || 0}
                     prefix="$"
-                    description="monthly average"
+                    description="monthly rate"
                     icon={<Users className="h-4 w-4 text-muted-foreground" />}
                     onClick={() => handleKpiClick('arpu')}
                     infoTooltip="Click for detailed ARPU KPI"
                   />
                   <MetricsCard
-                    title="Churn Rate"
+                    title="Customer Count"
                     value={data?.churn_rate || 0}
                     suffix="%"
                     description="monthly rate"
@@ -208,28 +209,34 @@ const Dashboard = () => {
                       <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
                           <RechartsPieChart>
+                            <defs>
+                              <linearGradient id="purpleGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#7e3af2" />
+                                <stop offset="100%" stopColor="#9061f9" />
+                              </linearGradient>
+                            </defs>
                             <Pie
                               data={data?.revenue_by_channel || []}
                               cx="50%"
                               cy="50%"
                               labelLine={false}
                               outerRadius={80}
-                              fill="#8884d8"
+                              fill="url(#purpleGradient)"
                               dataKey="value"
                               label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                               animationDuration={1500}
                             >
                               {data?.revenue_by_channel.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                <Cell key={`cell-${index}`} fill="url(#purpleGradient)" />
                               ))}
                             </Pie>
-                            <Tooltip 
+                            <Tooltip
                               formatter={(value: number) => `$${value.toLocaleString()}`}
-                              contentStyle={{ 
+                              contentStyle={{
                                 backgroundColor: 'rgba(255, 255, 255, 0.9)',
                                 borderColor: '#7e3af2',
                                 borderRadius: '6px',
-                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                               }}
                             />
                             <Legend />
@@ -258,12 +265,12 @@ const Dashboard = () => {
               </>
             )}
 
-            {activeTab === "executive" && (
+            {activeTab === "analyst" && (
               <>
                 {/* Executive Dashboard */}
                 <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                   <MetricsCard
-                    title="Revenue KRA"
+                    title="Network vs Billing (Voice)"
                     value="95.8%"
                     description="of target achieved"
                     icon={<Target className="h-4 w-4 text-muted-foreground" />}
@@ -271,7 +278,7 @@ const Dashboard = () => {
                     infoTooltip="Click for detailed revenue KRA"
                   />
                   <MetricsCard
-                    title="Customer KRA"
+                    title="Network vs Billing (Data)"
                     value="97.2%"
                     description="of target achieved"
                     icon={<Users className="h-4 w-4 text-muted-foreground" />}
@@ -279,7 +286,7 @@ const Dashboard = () => {
                     infoTooltip="Click for detailed customer KRA"
                   />
                   <MetricsCard
-                    title="Operations KRA"
+                    title="Network vs Billing (SMS)"
                     value="99.9%"
                     description="of target achieved"
                     icon={<Activity className="h-4 w-4 text-muted-foreground" />}
@@ -291,6 +298,7 @@ const Dashboard = () => {
                     value="97.6%"
                     description="weighted average"
                     icon={<Layers className="h-4 w-4 text-muted-foreground" />}
+                    onClick={() => handleKraClick('operations')}
                     infoTooltip="Overall performance across all KRAs"
                   />
                 </div>
@@ -305,7 +313,7 @@ const Dashboard = () => {
                       <div className="space-y-4">
                         <div>
                           <div className="mb-1 flex items-center justify-between">
-                            <span className="text-sm font-medium">Revenue KRA (95.8%)</span>
+                            <span className="text-sm font-medium">Network vs Billing (Voice) (95.8%)</span>
                             <span className="text-sm text-green-500">On Track</span>
                           </div>
                           <div className="h-2 w-full rounded-full bg-muted">
@@ -314,7 +322,7 @@ const Dashboard = () => {
                         </div>
                         <div>
                           <div className="mb-1 flex items-center justify-between">
-                            <span className="text-sm font-medium">Customer KRA (97.2%)</span>
+                            <span className="text-sm font-medium">Network vs Billing (Data) (97.2%)</span>
                             <span className="text-sm text-green-500">On Track</span>
                           </div>
                           <div className="h-2 w-full rounded-full bg-muted">
@@ -323,7 +331,7 @@ const Dashboard = () => {
                         </div>
                         <div>
                           <div className="mb-1 flex items-center justify-between">
-                            <span className="text-sm font-medium">Operations KRA (99.9%)</span>
+                            <span className="text-sm font-medium">Network vs Billing (SMS) (99.9%)</span>
                             <span className="text-sm text-green-500">On Track</span>
                           </div>
                           <div className="h-2 w-full rounded-full bg-muted">
@@ -345,8 +353,8 @@ const Dashboard = () => {
                           onClick={() => handleKpiClick('arpu')}
                         >
                           <div>
-                            <p className="font-medium">ARPU</p>
-                            <p className="text-sm text-muted-foreground">Average Revenue Per User</p>
+                            <p className="font-medium">Mismatched Records</p>
+                            <p className="text-sm text-muted-foreground">Records not aligned</p>
                           </div>
                           <div className="text-right">
                             <p className="font-bold">${data?.average_revenue_per_user}</p>
@@ -358,8 +366,8 @@ const Dashboard = () => {
                           onClick={() => handleKpiClick('churn')}
                         >
                           <div>
-                            <p className="font-medium">Churn Rate</p>
-                            <p className="text-sm text-muted-foreground">Customer Attrition</p>
+                            <p className="font-medium">Mismatched Plans</p>
+                            <p className="text-sm text-muted-foreground">Plans not aligned</p>
                           </div>
                           <div className="text-right">
                             <p className="font-bold">{data?.churn_rate}%</p>
@@ -371,8 +379,8 @@ const Dashboard = () => {
                           onClick={() => handleKpiClick('revenue')}
                         >
                           <div>
-                            <p className="font-medium">Revenue Growth</p>
-                            <p className="text-sm text-muted-foreground">Month-over-Month</p>
+                            <p className="font-medium">Mismatched Services Billed</p>
+                            <p className="text-sm text-muted-foreground">Services billed incorrectly</p>
                           </div>
                           <div className="text-right">
                             <p className="font-bold">{data?.revenue_growth}%</p>

@@ -69,7 +69,7 @@ The backend API will be available at http://localhost:5000
 
 1. Install dependencies:
    ```
-   npm install
+   cd 
    ```
 
 2. Run the development server:

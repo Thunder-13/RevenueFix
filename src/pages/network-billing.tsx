@@ -72,13 +72,13 @@ const NetworkBilling = () => {
             {/* Key Metrics */}
             <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               <MetricsCard
-                title="Network Records"
+                title="Total Usage from Network"
                 value={data?.summary.total_network_records || 0}
                 description="Total records from network systems"
                 icon={<FileCheck className="h-4 w-4 text-muted-foreground" />}
               />
               <MetricsCard
-                title="Billing Records"
+                title="Total Usage in Billing"
                 value={data?.summary.total_billing_records || 0}
                 description="Total records from billing systems"
                 icon={<FileCheck className="h-4 w-4 text-muted-foreground" />}

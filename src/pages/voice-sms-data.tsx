@@ -81,10 +81,10 @@ const VoiceSmsData = () => {
         <Header />
         <main className="flex-1 p-6 md:p-8">
           <div className="mx-auto max-w-7xl">
-            <h1 className="mb-6 text-3xl font-bold">Voice / SMS / Data</h1>
+            <h1 className="mb-6 text-3xl font-bold">Voice</h1>
 
             {/* Service Distribution */}
-            <div className="mb-8">
+            {/*<div className="mb-8">
               <DataTable
                 title="Service Revenue Distribution"
                 columns={[
@@ -97,7 +97,7 @@ const VoiceSmsData = () => {
                 ]}
                 data={data?.service_distribution || []}
               />
-            </div>
+            </div>*/}
 
             <Tabs defaultValue="voice" className="mb-8">
               <TabsList className="grid w-full grid-cols-3">
