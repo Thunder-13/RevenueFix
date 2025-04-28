@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  web:
+    environment:
+      - NGINX_ENV=production
+    ports:
+      - "80:80"
+
+  backend:
+    build:
+      target: backend-prod
+    environment:
+      - FLASK_ENV=production
+      # - DATABASE_URL=redshift://user:password@your-redshift-cluster:5439/production
+
+  # db:
+  #   image: amazon/redshift

@@ -1,18 +1,44 @@
 version: "3.8"
 
 services:
-  frontend:
-    build: ./frontend
+  web:
+    build:
+      context: .
+      target: nginx
     ports:
       - "80:80"
     depends_on:
       - backend
-    restart: unless-stopped
+    environment:
+      - NGINX_ENV=production
 
   backend:
-    build: ./backend
+    build:
+      context: .
+      target: backend-dev
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://user:password@db:5439/production
+      # - REDSHIFT_HOST=db
+      # - REDSHIFT_PORT=5439
+      # - REDSHIFT_USER=user
+      # - REDSHIFT_PASSWORD=password
+      # - REDSHIFT_DB=production
+    volumes:
+      - ./backend:/app
     ports:
       - "5000:5000"
-    restart: unless-stopped
-    environment:
-      - FLASK_ENV=production
+
+  # db:
+  #   image: postgres:13
+  #   environment:
+  #     # POSTGRES_USER: user
+  #     # POSTGRES_PASSWORD: password
+  #     # POSTGRES_DB: production
+  #   ports:
+  #     - "5439:5432"
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+
+# volumes:
+#   postgres-data:
