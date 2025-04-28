@@ -7,7 +7,8 @@ import { DataTable } from "@/components/dashboard/DataTable";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { useToast } from "@/hooks/use-toast";
 import apiService from "@/lib/api";
-import { AlertTriangle, AlertOctagon, AlertCircle, CheckCircle } from "lucide-react";
+import { AlertTriangle, AlertOctagon, AlertCircle, CheckCircle, PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 interface AlarmData {
@@ -89,7 +90,14 @@ const AlarmManagement = () => {
         <Header />
         <main className="flex-1 p-6 md:p-8">
           <div className="mx-auto max-w-7xl">
+          <div className="mb-6 flex items-center justify-between">
             <h1 className="mb-6 text-3xl font-bold">Alarm Management</h1>
+            <Button>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Create Alarm
+              </Button>
+              </div>
+
 
             {/* Key Metrics */}
             <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">

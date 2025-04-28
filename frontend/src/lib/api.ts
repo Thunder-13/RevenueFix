@@ -289,9 +289,10 @@ const dummyData = {
       customer_satisfaction: 87.5
     },
     customer_segments: [
-      { segment: 'High Value', count: 123456, percentage: 10.0 },
-      { segment: 'Medium Value', count: 370370, percentage: 30.0 },
-      { segment: 'Low Value', count: 740741, percentage: 60.0 }
+      { segment: 'platinum', count: 123456, percentage: 10.0 },
+      { segment: 'vip', count: 370370, percentage: 15.0 },
+      { segment: 'gold', count: 740741, percentage: 25.0 },
+      { segment: 'silver', count: 77345, percentage: 50.0 }
     ],
     customer_lifecycle: [
       { stage: 'Acquisition', count: 12345 },
@@ -377,7 +378,52 @@ const dummyData = {
       email: 'admin@revenuefix.com',
       role: 'admin',
       department: 'IT',
-      last_login: '2023-06-15T14:23:45',
+      last_login: '2025-04-15T14:23:45',
+      status: 'active'
+    },
+    {
+      id: 6,
+      name: 'Aravinth Kannan',
+      email: 'Aravinth@revenuefix.com',
+      role: 'analyst',
+      department: 'Customer Service',
+      last_login: '2025-04-27T11:45:51',
+      status: 'active'  
+    },
+    {
+      id: 7,
+      name: 'Anselm',
+      email: 'anselm@revenuefix.com',
+      role: 'analyst',
+      department: 'Customer Service',
+      last_login: '2025-04-15T11:45:51',
+      status: 'active'
+    },
+    {
+      id: 8,
+      name: 'Muthulakshmi',
+      email: 'muthu@revenuefix.com',
+      role: 'analyst',
+      department: 'Customer Service',
+      last_login: '2025-04-19T11:45:51',
+      status: 'active'
+    },
+    {
+      id: 9,
+      name: 'sayantani',
+      email: 'sayantani@revenuefix.com',
+      role: 'analyst',
+      department: 'Customer Service',
+      last_login: '2025-04-12T11:45:51',
+      status: 'active'
+    },
+    {
+      id: 10,
+      name: 'Ganesh',
+      email: 'Ganesh@revenuefix.com',
+      role: 'analyst',
+      department: 'Customer Service',
+      last_login: '2025-04-14T11:45:51',
       status: 'active'
     },
     {
@@ -386,7 +432,7 @@ const dummyData = {
       email: 'john.smith@revenuefix.com',
       role: 'manager',
       department: 'Finance',
-      last_login: '2023-06-15T10:15:22',
+      last_login: '2025-04-15T10:15:22',
       status: 'active'
     },
     {
@@ -395,7 +441,7 @@ const dummyData = {
       email: 'jane.doe@revenuefix.com',
       role: 'analyst',
       department: 'Revenue Assurance',
-      last_login: '2023-06-14T16:05:17',
+      last_login: '2025-04-14T16:05:17',
       status: 'active'
     },
     {
@@ -404,7 +450,7 @@ const dummyData = {
       email: 'robert.johnson@revenuefix.com',
       role: 'viewer',
       department: 'Marketing',
-      last_login: '2023-06-13T09:58:03',
+      last_login: '2025-04-13T09:58:03',
       status: 'active'
     },
     {
@@ -413,7 +459,7 @@ const dummyData = {
       email: 'emily.wilson@revenuefix.com',
       role: 'analyst',
       department: 'Customer Service',
-      last_login: '2023-06-15T11:45:51',
+      last_login: '2025-04-15T11:45:51',
       status: 'inactive'
     }
   ],
