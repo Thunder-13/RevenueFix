@@ -108,7 +108,7 @@ const CrmBilling = () => {
     );
   };
 
-  const COLORS = ['#7e3af2', '#3f83f8', '#0e9f6e', '#ff5a1f', '#9061f9'];
+  const COLORS = ['#7e3af2', '#3f83f8', '#0e9f6e', '#a855f7', '#9061f9'];
 
   const renderVisualization = () => {
     if (!data?.mismatch_visualization) return null;
@@ -121,9 +121,9 @@ const CrmBilling = () => {
               <Pie
                 data={data.mismatch_visualization}
                 cx="50%"
-                cy="50%"
+                cy="45%"
                 labelLine={false}
-                outerRadius={120}
+                outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"
                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
@@ -142,7 +142,13 @@ const CrmBilling = () => {
                   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
               />
-              <Legend />
+              <Legend
+                layout="horizontal"
+                verticalAlign="bottom"
+                align="center"
+                iconType="circle"
+                wrapperStyle={{ paddingTop: 10 }}
+              />
             </PieChart>
           </ResponsiveContainer>
         );
@@ -337,27 +343,6 @@ const CrmBilling = () => {
               </CardContent>
             </Card>
 
-            {/* Mismatch Visualization */}
-            <Card className="mb-8">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Billing vs CRM Mismatches</CardTitle>
-                <div className="flex gap-2">
-                  {/* Fix: Wrap TabsList in a Tabs component */}
-                  <Tabs value={visualizationType} onValueChange={(value) => setVisualizationType(value as any)}>
-                    <TabsList>
-                      <TabsTrigger value="pie">Pie</TabsTrigger>
-                      <TabsTrigger value="bar">Bar</TabsTrigger>
-                      <TabsTrigger value="line">Line</TabsTrigger>
-                      <TabsTrigger value="area">Area</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {renderVisualization()}
-              </CardContent>
-            </Card>
-
             {/* Account Status Mismatches */}
             <div className="mb-8 grid gap-6 md:grid-cols-2">
               <Card className="mb-8">
@@ -476,7 +461,7 @@ const CrmBilling = () => {
                       {
                         key: "mismatch_type",
                         header: "Mismatch Type",
-                        formatter: (value: string[]) => value.join(", "),
+                        formatter: (value: string[]) => {return Array.isArray(value) ? value.join(", ") : String(value)}
                       },
                     ]}
                     data={data?.mismatched_accounts || []}
