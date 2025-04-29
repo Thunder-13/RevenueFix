@@ -25,7 +25,7 @@ class DataProcessor:
         assets_dir = '/app/assets'
         crm_file = os.path.join(assets_dir, 'CRM_100.csv')
         billing_file = os.path.join(assets_dir, 'Billing_CRM_100.csv')
-        print("CSV files:", crm_file, billing_file)
+        # print("CSV files:", crm_file, billing_file)
         try:
             # Check if files exist
             if not os.path.exists(crm_file) or not os.path.exists(billing_file):
@@ -35,7 +35,6 @@ class DataProcessor:
             # Load CSV files
             crm_df = pd.read_csv(crm_file)
             billing_df = pd.read_csv(billing_file)
-            print(int(max(crm_df.shape[0], billing_df.shape[0]))) 
             total_inc_duplicates = int(max(crm_df.shape[0], billing_df.shape[0]))
             
             # Clean and prepare data
@@ -47,7 +46,6 @@ class DataProcessor:
             crm_duplicates = crm_df.duplicated(subset=['Account_ID', 'Customer_ID', 'Account_Status', 'BUS_ENT', 'Account_Start_Date', 'MSISDN', 'Bill_Plan']).sum()
             billing_duplicates = billing_df.duplicated(subset=['Account_ID', 'Customer_ID', 'Account_Status', 'Ent_Residence', 'Account_Start_Date', 'MSISDN', 'BillPlan_ID']).sum()
             total_duplicates = int(crm_duplicates + billing_duplicates)
-            print(type(total_duplicates))
             
             # Remove duplicates for analysis
             crm_df = crm_df.drop_duplicates(subset=['Account_ID', 'Customer_ID', 'Account_Status'])
@@ -163,24 +161,7 @@ class DataProcessor:
                 {'name': 'Start Date Mismatches', 'value': start_date_mismatches.shape[0]},
                 {'name': 'Matched Records', 'value': total_accounts - total_mismatches}
             ]
-            print({
-                'summary': {
-                    'total_accounts': total_inc_duplicates - int(total_duplicates//2),  # Exclude duplicates in total count
-                    'mismatched_bill_plans': bill_plan_mismatches.shape[0],
-                    'mismatched_account_status': account_status_mismatches.shape[0],
-                    'mismatched_start_dates': start_date_mismatches.shape[0],
-                    'duplicate_records': total_duplicates,
-                    'mismatch_percentage': round(mismatch_percentage, 2)
-                },
-                'account_status': {
-                    'crm_active_billing_inactive': crm_active_billing_inactive,
-                    'crm_inactive_billing_active': crm_inactive_billing_active
-                },
-                'enterprise_breakdown': enterprise_breakdown,
-                'trend_data': trend_data,
-                'mismatched_accounts': mismatched_accounts,
-                'mismatch_visualization': mismatch_visualization
-            })
+        
             return {
                 'summary': {
                     'total_accounts': total_inc_duplicates - int(total_duplicates//2),  # Exclude duplicates in total count
