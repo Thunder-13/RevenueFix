@@ -153,9 +153,9 @@ const items = [
     url: "/network-billing",
     icon: Network,
     submenu: [
-      { title: "Voice", url: "/voice", icon: PhoneCall },
-      { title: "Data", url: "/data", icon: Database },
-      { title: "SMS", url: "/sms", icon: MessageSquare },
+      { title: "Voice", url: "/network-billing-voice", icon: PhoneCall },
+      { title: "Data", url: "/network-billing-data", icon: Database },
+      { title: "SMS", url: "/network-billing-sms", icon: MessageSquare },
     ],
   },
   { title: "CRM Insights", url: "/crm-insights", icon: HeartPulse },
