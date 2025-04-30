@@ -427,6 +427,15 @@ const dummyData = {
       status: 'active'
     },
     {
+      id: 10,
+      name: 'saravanan',
+      email: 'saravanan@revenuefix.com',
+      role: 'analyst',
+      department: 'Customer Service',
+      last_login: '2025-04-18T11:45:51',
+      status: 'active'
+    },
+    {
       id: 2,
       name: 'John Smith',
       email: 'john.smith@revenuefix.com',
