@@ -1,4 +1,5 @@
 import axios from "axios";
+import { get } from "http";
 
 // Create an axios instance with default config
 const api = axios.create({
@@ -748,6 +749,10 @@ api.interceptors.response.use(
       return Promise.resolve({ data: { status: 'success', data: dummyData.settings } });
     } else if (url.includes('/upcoming-features')) {
       return Promise.resolve({ data: { status: 'success', data: dummyData.upcomingFeatures } });
+    } else if (url.includes('/network-billing-data')) {
+      return Promise.resolve({ data: { status: 'success', data: dummyData.voiceSmsData } });
+    } else if (url.includes('/network-billing-sms')) {
+      return Promise.resolve({ data: { status: 'success', data: dummyData.voiceSmsData } });
     } else if (url.includes('/auth/login')) {
       // Simulate successful login
       return Promise.resolve({
@@ -806,6 +811,13 @@ export const apiService = {
   
   // Voice/SMS/Data
   getVoiceSmsDataMetrics: () => api.get("/voice-sms-data"),
+
+  
+  //Network vs Billing Data
+  getNetworkVsBillingData: () => api.get("/network-billing-data"),
+
+  //Network vs Billing SMS
+  getNetworkVsBillingSms: () => api.get("/network-billing-sms"),
   
   // CRM Insights
   getCRMInsights: () => api.get("/crm"),

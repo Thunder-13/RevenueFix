@@ -29,9 +29,9 @@ import UserManagement from "./pages/user-management";
 import CaseManagement from "./pages/case-management";
 import UpcomingFeatures from "./pages/upcoming-features";
 import Settings from "./pages/settings";
-import Voice from "@/pages/voice";
-import SMS from "@/pages/sms";
-import Data from "@/pages/data";
+import Voice from "./pages/voice";
+import SMS from "./pages/sms";
+import Data from "./pages/data";
 
 const queryClient = new QueryClient();
 
@@ -63,8 +63,8 @@ createRoot(document.getElementById("root")!).render(
               <Route path='/b2c-analysis' element={<ProtectedRoute Component={() => <ProtectedComponent Component={B2CAnalysis} />} />} />
               <Route path='/fixed-line' element={<ProtectedRoute Component={() => <ProtectedComponent Component={FixedLine} />} />} />
               <Route path='/voice' element={<ProtectedRoute Component={() => <ProtectedComponent Component={Voice} />} />} />
-              <Route path='/sms' element={<ProtectedRoute Component={() => <ProtectedComponent Component={SMS} />} />} />
-              <Route path='/data' element={<ProtectedRoute Component={() => <ProtectedComponent Component={Data} />} />} />
+              <Route path='/network-billing-sms' element={<ProtectedRoute Component={() => <ProtectedComponent Component={SMS} />} />} />
+              <Route path='/network-billing-data' element={<ProtectedRoute Component={() => <ProtectedComponent Component={Data} />} />} />
               <Route path='/crm-insights' element={<ProtectedRoute Component={() => <ProtectedComponent Component={CrmInsights} />} />} />
               <Route path='/alarm-management' element={<ProtectedRoute Component={() => <ProtectedComponent Component={AlarmManagement} />} />} />
               <Route path='/user-management' element={<ProtectedRoute Component={() => <ProtectedComponent Component={UserManagement} />} />} />
