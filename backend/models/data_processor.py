@@ -1,9 +1,8 @@
-import pandas as pd # type: ignore
+import pandas as pd
 import os
 import json
 from datetime import datetime, timedelta
 import random
-from pathlib import Path
 
 class DataProcessor:
     """Process CSV data files and generate analytics"""
@@ -22,10 +21,10 @@ class DataProcessor:
     @staticmethod
     def get_crm_billing_analytics():
         """Process CRM and Billing data for reconciliation"""
-        assets_dir = '/app/assets'
-        crm_file = os.path.join(assets_dir, 'CRM_100.csv')
-        billing_file = os.path.join(assets_dir, 'Billing_CRM_100.csv')
-        # print("CSV files:", crm_file, billing_file)
+        curr_dir = os.path.dirname(os.path.abspath(__file__))
+        crm_file = os.path.join(curr_dir, '..', 'assets', 'CRM_100.csv')
+        billing_file = os.path.join(curr_dir, '..', 'assets', 'Billing_CRM_100.csv')
+        print("CSV files:", crm_file, billing_file)
         try:
             # Check if files exist
             if not os.path.exists(crm_file) or not os.path.exists(billing_file):
@@ -35,21 +34,21 @@ class DataProcessor:
             # Load CSV files
             crm_df = pd.read_csv(crm_file)
             billing_df = pd.read_csv(billing_file)
-            total_inc_duplicates = int(max(crm_df.shape[0], billing_df.shape[0]))
             
             # Clean and prepare data
             # Remove leading/trailing spaces from column names
             crm_df.columns = crm_df.columns.str.strip()
             billing_df.columns = billing_df.columns.str.strip()
             
+            total_inc_duplicates = max(crm_df.shape[0], billing_df.shape[0])
             # Identify duplicate rows in CRM and Billing
-            crm_duplicates = crm_df.duplicated(subset=['Account_ID', 'Customer_ID', 'Account_Status', 'BUS_ENT', 'Account_Start_Date', 'MSISDN', 'Bill_Plan']).sum()
-            billing_duplicates = billing_df.duplicated(subset=['Account_ID', 'Customer_ID', 'Account_Status', 'Ent_Residence', 'Account_Start_Date', 'MSISDN', 'BillPlan_ID']).sum()
-            total_duplicates = int(crm_duplicates + billing_duplicates)
+            crm_duplicates = crm_df.duplicated(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
+            billing_duplicates = billing_df.duplicated(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
+            total_duplicates = crm_duplicates.sum() + billing_duplicates.sum()
             
             # Remove duplicates for analysis
-            crm_df = crm_df.drop_duplicates(subset=['Account_ID', 'Customer_ID', 'Account_Status'])
-            billing_df = billing_df.drop_duplicates(subset=['Account_ID', 'Customer_ID', 'Account_Status'])
+            crm_df = crm_df.drop_duplicates(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
+            billing_df = billing_df.drop_duplicates(subset=['Account_ID', 'Customer_ID', 'MSISDN'])
             
             # Merge datasets on common keys for comparison
             merged_df = pd.merge(
@@ -60,10 +59,10 @@ class DataProcessor:
                 suffixes=('_crm', '_billing')
             )
             # Save the merged DataFrame to a temporary CSV file
-            # temp_file_path = os.path.join(assets_dir, 'temp.csv')
+            # temp_file_path = os.path.join(curr_dir, '..', 'assets', 'temp.csv')
             # merged_df.to_csv(temp_file_path, index=False)
             # print(f"Merged DataFrame saved to {temp_file_path}")
-
+            
             # Calculate mismatches
             # Bill Plan mismatches
             bill_plan_mismatches = merged_df[merged_df['Bill_Plan'] != merged_df['BillPlan_ID']]
@@ -78,8 +77,8 @@ class DataProcessor:
             
             # Enterprise category breakdown
             enterprise_breakdown = []
-            for category in merged_df['BUS_ENT'].unique():
-                category_df = merged_df[merged_df['BUS_ENT'] == category]
+            for category in merged_df['Ent_Residence'].unique():
+                category_df = merged_df[merged_df['Ent_Residence'] == category]
                 category_bill_plan_mismatches = category_df[category_df['Bill_Plan'] != category_df['BillPlan_ID']].shape[0]
                 category_crm_active_billing_inactive = category_df[(category_df['Account_Status_crm'] == 'ACT') & (category_df['Account_Status_billing'] == 'INACT')].shape[0]
                 category_crm_inactive_billing_active = category_df[(category_df['Account_Status_crm'] == 'INACT') & (category_df['Account_Status_billing'] == 'ACT')].shape[0]
@@ -108,7 +107,7 @@ class DataProcessor:
             mismatched_accounts = []
             
             # Add bill plan mismatches
-            for _, row in bill_plan_mismatches.head(2).iterrows():
+            for _, row in bill_plan_mismatches.iterrows():
                 mismatched_accounts.append({
                     'customer_id': row['Customer_ID'],
                     'account_id': row['Account_ID'],
@@ -117,12 +116,14 @@ class DataProcessor:
                     'billing_status': row['Account_Status_billing'],
                     'crm_bill_plan': row['Bill_Plan'],
                     'billing_bill_plan': row['BillPlan_ID'],
-                    'enterprise_category': row['BUS_ENT'],
+                    'enterprise_category': row['Ent_Residence'],
+                    'crm_bill_start_date': row['Account_Start_Date_crm'],
+                    'billing_bill_start_date': row['Account_Start_Date_billing'],
                     'mismatch_type': 'Bill Plan'
                 })
             
             # Add account status mismatches
-            for _, row in account_status_mismatches.head(2).iterrows():
+            for _, row in account_status_mismatches.iterrows():
                 mismatched_accounts.append({
                     'customer_id': row['Customer_ID'],
                     'account_id': row['Account_ID'],
@@ -131,12 +132,14 @@ class DataProcessor:
                     'billing_status': row['Account_Status_billing'],
                     'crm_bill_plan': row['Bill_Plan'],
                     'billing_bill_plan': row['BillPlan_ID'],
-                    'enterprise_category': row['BUS_ENT'],
+                    'enterprise_category': row['Ent_Residence'],
+                    'crm_bill_start_date': row['Account_Start_Date_crm'],
+                    'billing_bill_start_date': row['Account_Start_Date_billing'],
                     'mismatch_type': 'Account Status'
                 })
             
             # Add start date mismatches
-            for _, row in start_date_mismatches.head(1).iterrows():
+            for _, row in start_date_mismatches.iterrows():
                 mismatched_accounts.append({
                     'customer_id': row['Customer_ID'],
                     'account_id': row['Account_ID'],
@@ -145,8 +148,10 @@ class DataProcessor:
                     'billing_status': row['Account_Status_billing'],
                     'crm_bill_plan': row['Bill_Plan'],
                     'billing_bill_plan': row['BillPlan_ID'],
-                    'enterprise_category': row['BUS_ENT'],
-                    'mismatch_type': 'Start Date'
+                    'enterprise_category': row['Ent_Residence'],
+                    'crm_bill_start_date': row['Account_Start_Date_crm'],
+                    'billing_bill_start_date': row['Account_Start_Date_billing'],
+                    'mismatch_type': 'Bill Start Date'
                 })
             
             # Calculate total accounts and mismatch percentage
@@ -161,14 +166,15 @@ class DataProcessor:
                 {'name': 'Start Date Mismatches', 'value': start_date_mismatches.shape[0]},
                 {'name': 'Matched Records', 'value': total_accounts - total_mismatches}
             ]
-        
+            print(total_accounts, total_mismatches, mismatch_percentage)
+            
             return {
                 'summary': {
-                    'total_accounts': total_inc_duplicates - int(total_duplicates//2),  # Exclude duplicates in total count
+                    'total_accounts': total_inc_duplicates,  # Include duplicates in total count
                     'mismatched_bill_plans': bill_plan_mismatches.shape[0],
                     'mismatched_account_status': account_status_mismatches.shape[0],
                     'mismatched_start_dates': start_date_mismatches.shape[0],
-                    'duplicate_records': total_duplicates,
+                    'duplicate_records': int(total_duplicates//2),  # Placeholder for duplicates
                     'mismatch_percentage': round(mismatch_percentage, 2)
                 },
                 'account_status': {
@@ -182,7 +188,7 @@ class DataProcessor:
             }
             
         except Exception as e:
-            print(f"(Error processing CRM vs Billing data): {e}")
+            print(f"Error processing CRM vs Billing data: {e}")
             import traceback
             traceback.print_exc()
             return DataProcessor.generate_dummy_crm_billing_data()
