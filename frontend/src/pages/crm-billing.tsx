@@ -8,33 +8,11 @@ import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { useToast } from "@/hooks/use-toast";
 import apiService from "@/lib/api";
 import { AlertTriangle, CheckCircle, Database, FileCheck } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Legend,
-  Tooltip,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-} from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, AreaChart, Area } from "recharts";
 
 interface CrmBillingData {
   summary: {
@@ -44,6 +22,8 @@ interface CrmBillingData {
     mismatched_start_dates: number;
     duplicate_records: number;
     mismatch_percentage: number;
+    matched_accounts: number;
+    mismatched_accounts: number;
   };
   account_status: {
     crm_active_billing_inactive: number;
@@ -80,9 +60,7 @@ interface CrmBillingData {
 const CrmBilling = () => {
   const [data, setData] = useState<CrmBillingData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [visualizationType, setVisualizationType] = useState<
-    "pie" | "bar" | "line" | "area"
-  >("pie");
+  const [visualizationType, setVisualizationType] = useState<"pie" | "bar" | "line" | "area">("pie");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -120,8 +98,7 @@ const CrmBilling = () => {
   }
 
   const getStatusBadge = (status: string) => {
-    return status.toLowerCase() === "active" ||
-      status.toLowerCase() === "act" ? (
+    return status.toLowerCase() === "active" || status.toLowerCase() === "act" ? (
       <Badge className="bg-green-500">Active</Badge>
     ) : (
       <Badge variant="outline" className="border-red-500 text-red-500">
@@ -130,7 +107,7 @@ const CrmBilling = () => {
     );
   };
 
-  const COLORS = ["#7e3af2", "#3f83f8", "#9061f9", "#0e9f6e", "#9061a9"];
+  const COLORS = ['#7e3af2', '#3f83f8', '#0e9f6e', '#a855f7', '#9061f9'];
 
   const renderVisualization = () => {
     if (!data?.mismatch_visualization) return null;
@@ -143,33 +120,34 @@ const CrmBilling = () => {
               <Pie
                 data={data.mismatch_visualization}
                 cx="50%"
-                cy="50%"
+                cy="45%"
                 labelLine={false}
-                outerRadius={120}
+                outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"
-                label={({ name, percent }) =>
-                  `${name}: ${(percent * 100).toFixed(0)}%`
-                }
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 animationDuration={1500}
               >
                 {data.mismatch_visualization.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip
+              <Tooltip 
                 formatter={(value: number) => value.toLocaleString()}
-                contentStyle={{
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  borderColor: "#7e3af2",
-                  borderRadius: "6px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                contentStyle={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  borderColor: '#7e3af2',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
               />
-              <Legend />
+              <Legend
+                layout="horizontal"
+                verticalAlign="bottom"
+                align="center"
+                iconType="circle"
+                wrapperStyle={{ paddingTop: 10 }}
+              />
             </PieChart>
           </ResponsiveContainer>
         );
@@ -180,13 +158,13 @@ const CrmBilling = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip
+              <Tooltip 
                 formatter={(value: number) => value.toLocaleString()}
-                contentStyle={{
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  borderColor: "#7e3af2",
-                  borderRadius: "6px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                contentStyle={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  borderColor: '#7e3af2',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
               />
               <Legend />
@@ -201,22 +179,17 @@ const CrmBilling = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip
+              <Tooltip 
                 formatter={(value: number) => value.toLocaleString()}
-                contentStyle={{
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  borderColor: "#7e3af2",
-                  borderRadius: "6px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                contentStyle={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  borderColor: '#7e3af2',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
               />
               <Legend />
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke="#7e3af2"
-                activeDot={{ r: 8 }}
-              />
+              <Line type="monotone" dataKey="value" stroke="#7e3af2" activeDot={{ r: 8 }} />
             </LineChart>
           </ResponsiveContainer>
         );
@@ -227,28 +200,23 @@ const CrmBilling = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip
+              <Tooltip 
                 formatter={(value: number) => value.toLocaleString()}
-                contentStyle={{
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  borderColor: "#7e3af2",
-                  borderRadius: "6px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                contentStyle={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  borderColor: '#7e3af2',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
               />
               <Legend />
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#7e3af2" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#7e3af2" stopOpacity={0.1} />
+                  <stop offset="5%" stopColor="#7e3af2" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#7e3af2" stopOpacity={0.1}/>
                 </linearGradient>
               </defs>
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke="#7e3af2"
-                fill="url(#colorValue)"
-              />
+              <Area type="monotone" dataKey="value" stroke="#7e3af2" fill="url(#colorValue)" />
             </AreaChart>
           </ResponsiveContainer>
         );
@@ -270,7 +238,7 @@ const CrmBilling = () => {
               <MetricsCard
                 title="Total Accounts"
                 value={data?.summary.total_accounts || 0}
-                description={`Including ${
+                description={`Excluding ${
                   data?.summary.duplicate_records || 0
                 } duplicates`}
                 icon={<Database className="h-4 w-4 text-muted-foreground" />}
@@ -365,9 +333,7 @@ const CrmBilling = () => {
                         </div>
                       </div>
                       <p className="text-xl font-bold">
-                        {(data?.summary.mismatched_bill_plans || 0) +
-                          (data?.summary.mismatched_account_status || 0) +
-                          (data?.summary.mismatched_start_dates || 0)}
+                        {data?.summary.mismatched_accounts || 0}
                       </p>
                     </div>
                   </div>
@@ -375,7 +341,6 @@ const CrmBilling = () => {
               </CardContent>
             </Card>
 
-            {/* Mismatch Visualization */}
             {/* Account Status Mismatches */}
             <div className="mb-8 grid gap-6 md:grid-cols-2">
               <Card className="mb-8">
@@ -392,7 +357,7 @@ const CrmBilling = () => {
                       <TabsList>
                         <TabsTrigger value="pie">Pie</TabsTrigger>
                         <TabsTrigger value="bar">Bar</TabsTrigger>
-                        <TabsTrigger value="line">Line</TabsTrigger>
+                        {/* <TabsTrigger value="line">Line</TabsTrigger> */}
                         <TabsTrigger value="area">Area</TabsTrigger>
                       </TabsList>
                     </Tabs>
@@ -457,11 +422,11 @@ const CrmBilling = () => {
                   },
                   {
                     key: "crm_active_billing_inactive",
-                    header: "CRM Active, Billing Inactive",
+                    header: "CRM Active : Billing Inactive",
                   },
                   {
                     key: "crm_inactive_billing_active",
-                    header: "CRM Inactive, Billing Active",
+                    header: "CRM Inactive : Billing Active",
                   },
                   { key: "total_accounts", header: "Total Accounts" },
                 ]}
@@ -487,21 +452,15 @@ const CrmBilling = () => {
                       { key: "customer_id", header: "Customer ID" },
                       { key: "account_id", header: "Account ID" },
                       { key: "msisdn", header: "MSISDN" },
-                      // {
-                      //   key: "crm_status",
-                      //   header: "CRM Status",
-                      //   formatter: (value) => getStatusBadge(value),
-                      // },
-                      // {
-                      //   key: "billing_status",
-                      //   header: "Billing Status",
-                      //   formatter: (value) => getStatusBadge(value),
-                      // },
                       {
                         key: "enterprise_category",
                         header: "Enterprise Category",
                       },
-                      { key: "mismatch_type", header: "Mismatch Type" },
+                      {
+                        key: "mismatch_type",
+                        header: "Mismatch Type",
+                        formatter: (value: string[]) => {return Array.isArray(value) ? value.join(", ") : String(value)}
+                      },
                     ]}
                     data={data?.mismatched_accounts || []}
                   />

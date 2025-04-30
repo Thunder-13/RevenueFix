@@ -1,0 +1,55 @@
+services:
+  web:
+    build:
+      context: .
+      target: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    environment:
+      - NGINX_ENV=production
+
+  backend:
+    build:
+      context: .
+      target: backend-dev
+    environment:
+      - FLASK_ENV=development
+      # - DATABASE_URL=postgresql://user:password@db:5439/production
+      # - REDSHIFT_HOST=db
+      # - REDSHIFT_PORT=5439
+      # - REDSHIFT_USER=user
+      # - REDSHIFT_PASSWORD=password
+      # - REDSHIFT_DB=production
+    volumes:
+      - ./backend:/app
+      - ./backend/assets:/app/assets
+    ports:
+      - "5000:5000"
+  
+  frontend:
+    build:
+      context: .
+      target: frontend-dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://backend:5000
+  # db:
+  #   image: postgres:13
+  #   environment:
+  #     POSTGRES_USER: user
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: production
+  #   ports:
+  #     - "5439:5432"
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+
+# volumes:
+#   postgres-data:
