@@ -61,7 +61,6 @@ const AlarmManagement = () => {
       <div className="flex min-h-screen">
         <AppSidebar />
         <div className="flex flex-1 flex-col">
-          <Header />
           <main className="flex flex-1 items-center justify-center">
             <LoadingSpinner size="lg" text="Loading alarm management data..." />
           </main>
@@ -87,7 +86,6 @@ const AlarmManagement = () => {
     <div className="flex min-h-screen">
       <AppSidebar />
       <div className="flex flex-1 flex-col">
-        <Header />
         <main className="flex-1 p-6 md:p-8">
           <div className="mx-auto max-w-7xl">
           <div className="mb-6 flex items-center justify-between">
