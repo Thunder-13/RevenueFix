@@ -38,7 +38,6 @@ interface DataTableProps {
   searchable?: boolean;
   downloadable?: boolean;
   onRowClick?: (row: any) => void;
-  onExport?: () => void; 
 }
 
 export function DataTable({
@@ -52,8 +51,6 @@ export function DataTable({
   searchable = true,
   downloadable = true,
   onRowClick,
-  onExport
-  
 }: DataTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
