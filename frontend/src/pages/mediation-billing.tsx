@@ -64,7 +64,6 @@ const MediationBilling = () => {
     <div className="flex min-h-screen">
       <AppSidebar />
       <div className="flex flex-1 flex-col">
-        <Header />
         <main className="flex-1 p-6 md:p-8">
           <div className="mx-auto max-w-7xl">
             <h1 className="mb-6 text-3xl font-bold">Mediation vs Billing</h1>
