@@ -37,17 +37,48 @@ export function useSidebar() {
 
 // Sidebar Component
 function Sidebar({ children, className }: { children: React.ReactNode; className?: string }) {
-  const { expanded } = useSidebar();
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return document.documentElement.classList.contains('dark');
+  });
+
   return (
     <div
       className={cn(
-        `fixed top-24 left-4 h-[calc(100%-8rem)] z-50 ${expanded ? "w-64" : "w-16"} transition-all duration-300 
-        bg-gradient-to-b from-[#7e3af2] to-[#1e1e2d] dark:from-[#1e1e2d] dark:to-[#7e3af2] 
-        rounded-lg p-2 shadow-lg`, // Adjusted top and height
+        "fixed left-5 top-24 h-[calc(100vh-8rem)] w-[15%] min-w-[200px] max-w-[250px] rounded-xl", // Added fixed positioning
+        "bg-gradient-to-b from-[#7e3af2] to-[#1e1e2d] dark:from-[#1e1e2d] dark:to-[#7e3af2]",
+        "flex flex-col shadow-lg",
         className
       )}
     >
-      {children}
+      {/* Navigation Items with custom scrollbar */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-[3%]">
+        {children}
+      </div>
+
+      {/* Theme Toggle - Fixed at bottom */}
+      <div className="p-[4%] border-t border-gray-700 bg-inherit mt-auto">
+        <button
+          onClick={() => {
+            setIsDarkMode(!isDarkMode);
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDarkMode ? 'light' : 'dark');
+          }}
+          className="w-full flex items-center justify-center gap-[2%] p-[2%] rounded-md 
+                   text-white hover:bg-white/10 transition-colors"
+        >
+          {isDarkMode ? (
+            <>
+              <Sun className="w-[12%] h-auto" />
+              <span className="text-[0.75rem]">Light Mode</span>
+            </>
+          ) : (
+            <>
+              <Moon className="w-[12%] h-auto" />
+              <span className="text-[0.75rem]">Dark Mode</span>
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 }
@@ -84,25 +115,24 @@ function SidebarMenuItem({
   isActive: boolean;
   url: string;
 }) {
-  const { expanded } = useSidebar();
   return (
     <li
       className={cn(
-        "group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all duration-200",
+        "group flex items-center gap-[3%] p-[3%] text-[0.75rem] transition-all duration-200",
         isActive
           ? "bg-[#7e3af2] text-white font-bold shadow-lg border-l-4 border-[#ffffff]"
-          : "text-white hover:bg-[#7e3af2]/20 hover:text-white", // Ensure text is white
-        expanded ? "justify-start" : "justify-center"
+          : "text-white hover:bg-[#7e3af2]/20 hover:text-white",
+        "justify-start"
       )}
     >
-      <Link to={url} className="flex items-center gap-3 w-full">
+      <Link to={url} className="flex items-center gap-[3%] w-full">
         <Icon
           className={cn(
-            "h-6 w-6 transition-transform duration-200",
-            isActive ? "text-white scale-110" : "text-white group-hover:scale-110" // Ensure icon is white
+            "w-[15%] h-auto transition-transform duration-200",
+            isActive ? "text-white scale-110" : "text-white group-hover:scale-110"
           )}
         />
-        {expanded && <span className="whitespace-nowrap">{children}</span>}
+        <span className="whitespace-nowrap">{children}</span>
       </Link>
     </li>
   );
@@ -139,36 +169,10 @@ const items = [
 // Main Sidebar Component
 export function AppSidebar() {
   const location = useLocation();
-  const [expanded, setExpanded] = useState(() => {
-    const savedState = localStorage.getItem("sidebar-expanded");
-    return savedState === "true";
-  });
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    return savedTheme === "dark";
-  });
+  // Always keep sidebar expanded
+  const [expanded, setExpanded] = useState(true);
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) {
-      setIsDarkMode(savedTheme === "dark");
-      document.body.classList.toggle("dark", savedTheme === "dark");
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.body.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.body.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  }, [isDarkMode]);
-
-  useEffect(() => {
-    localStorage.setItem("sidebar-expanded", expanded.toString());
-  }, [expanded]);
+  // No need to save expanded state since it's always true
 
   return (
     <SidebarContext.Provider value={{ expanded, setExpanded }}>
@@ -188,59 +192,47 @@ export function AppSidebar() {
                     {item.title}
                   </SidebarMenuItem>
                   {item.submenu && expanded && (
-                    <ul className="ml-6">
-                      {item.submenu.map((subItem) => {
-                        const isSubActive = location.pathname === subItem.url;
-                        return (
-                          <SidebarMenuItem
-                            key={subItem.title}
-                            icon={subItem.icon}
-                            isActive={isSubActive}
-                            url={subItem.url}
-                          >
-                            {subItem.title}
-                          </SidebarMenuItem>
-                        );
-                      })}
-                    </ul>
+                    <SidebarSubmenu items={item.submenu} expanded={expanded} />
                   )}
                 </li>
               );
             })}
           </SidebarMenu>
         </SidebarContent>
-
-        {/* Theme Toggle Button */}
-        <div className="absolute bottom-16 left-0 w-full flex justify-center">
-          <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="h-8 w-8 text-white hover:bg-[#7e3af2]/10 transition-colors duration-200 rounded-full"
-          >
-            {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-        </div>
-
-        {/* Collapse/Expand Button */}
-        <div className="absolute bottom-4 left-0 w-full flex justify-center">
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="h-8 w-8 text-white hover:bg-[#7e3af2]/10 transition-colors duration-200 rounded-full"
-          >
-            {expanded ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-          </button>
-        </div>
       </Sidebar>
     </SidebarContext.Provider>
   );
-}
+ }
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex">
+    <div className="flex min-h-screen bg-gray-100">
       <AppSidebar />
-      <div className="flex-1 ml-16 md:ml-64">
-        {children}
+      <div className="flex-1 ml-[calc(30%+16rem)] p-6"> {/* Adjusted margin for fixed sidebar */}
+        <main className="w-full">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-[2%] min-h-[95vh]">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
+  );
+}
+
+// Update submenu styles
+function SidebarSubmenu({ items, expanded }: { items: any[]; expanded: boolean }) {
+  return (
+    <ul className="ml-[8%] w-[92%]">
+      {items.map((subItem) => (
+        <SidebarMenuItem
+          key={subItem.title}
+          icon={subItem.icon}
+          isActive={false}
+          url={subItem.url}
+        >
+          {subItem.title}
+        </SidebarMenuItem>
+      ))}
+    </ul>
   );
 }

@@ -114,7 +114,6 @@ const Dashboard = () => {
       <div className="flex min-h-screen">
         <AppSidebar />
         <div className="flex flex-1 flex-col">
-          <Header />
           <main className="flex flex-1 items-center justify-center">
             <LoadingSpinner size="lg" text="Loading dashboard data..." />
           </main>
@@ -123,13 +122,10 @@ const Dashboard = () => {
     );
   }
 
-  const COLORS = ['#7e3af2', '#3f83f8', '#0e9f6e', '#ff5a1f', '#9061f9'];
-
   return (
     <div className="flex min-h-screen">
       <AppSidebar />
       <div className="flex flex-1 flex-col">
-        <Header />
         <main className="flex-1 p-6 md:p-8">
           <div className="mx-auto max-w-7xl">
             <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
@@ -210,9 +206,30 @@ const Dashboard = () => {
                         <ResponsiveContainer width="100%" height="100%">
                           <RechartsPieChart>
                             <defs>
-                              <linearGradient id="purpleGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#7e3af2" />
-                                <stop offset="100%" stopColor="#9061f9" />
+                              {/* Deep Purple Gradient */}
+                              <linearGradient id="deepPurpleGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#4c1d95" />
+                                <stop offset="100%" stopColor="#5b21b6" />
+                              </linearGradient>
+                              {/* Medium Purple Gradient */}
+                              <linearGradient id="mediumPurpleGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#7e22ce" />
+                                <stop offset="100%" stopColor="#9333ea" />
+                              </linearGradient>
+                              {/* Light Purple Gradient */}
+                              <linearGradient id="lightPurpleGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#a855f7" />
+                                <stop offset="100%" stopColor="#c084fc" />
+                              </linearGradient>
+                              {/* Very Light Purple Gradient */}
+                              <linearGradient id="veryLightPurpleGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#d8b4fe" />
+                                <stop offset="100%" stopColor="#e9d5ff" />
+                              </linearGradient>
+                              {/* Dark Purple Gradient */}
+                              <linearGradient id="darkPurpleGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#3b0764" />
+                                <stop offset="100%" stopColor="#4c1d95" />
                               </linearGradient>
                             </defs>
                             <Pie
@@ -221,20 +238,25 @@ const Dashboard = () => {
                               cy="50%"
                               labelLine={false}
                               outerRadius={80}
-                              fill="url(#purpleGradient)"
                               dataKey="value"
                               label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                               animationDuration={1500}
                             >
-                              {data?.revenue_by_channel.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill="url(#purpleGradient)" />
-                              ))}
+                              {data?.revenue_by_channel.map((entry, index) => {
+                                const purpleGradients = ['deepPurpleGradient', 'mediumPurpleGradient', 'lightPurpleGradient', 'veryLightPurpleGradient', 'darkPurpleGradient'];
+                                return (
+                                  <Cell 
+                                    key={`cell-${index}`} 
+                                    fill={`url(#${purpleGradients[index % purpleGradients.length]})`}
+                                  />
+                                );
+                              })}
                             </Pie>
                             <Tooltip
                               formatter={(value: number) => `$${value.toLocaleString()}`}
                               contentStyle={{
                                 backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                borderColor: '#7e3af2',
+                                borderColor: '#7e22ce',
                                 borderRadius: '6px',
                                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                               }}
