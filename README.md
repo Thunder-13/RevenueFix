@@ -37,6 +37,12 @@ RevenueFix is a comprehensive revenue analytics and billing reconciliation platf
 
 ## Getting Started
 
+###Docker Compose(Run)
+
+sudo docker-compose down --volumes --remove-orphans
+sudo docker-compose build --no-cache
+sudo docker-compose up
+
 ### Backend Setup
 
 1. Navigate to the backend directory:
