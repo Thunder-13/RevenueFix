@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/layout/Sidebar";
-import { Header } from "@/components/layout/Header";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { DataTable } from "@/components/dashboard/DataTable";
@@ -251,7 +250,6 @@ const SMS = () => {
         <div className="flex min-h-screen">
           <AppSidebar />
           <div className="flex flex-1 flex-col">
-            <Header />
             <main className="flex-1 p-6 md:p-8">
               <div className="mx-auto max-w-7xl">
                 <h1 className="mb-6 text-3xl font-bold">SMS</h1>

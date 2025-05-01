@@ -107,7 +107,7 @@ const CrmBilling = () => {
     );
   };
 
-  const COLORS = ['#7e3af2', '#3f83f8', '#0e9f6e', '#a855f7', '#9061f9'];
+  const purpleGradients = ['deepPurpleGradient', 'mediumPurpleGradient', 'lightPurpleGradient', 'veryLightPurpleGradient', 'darkPurpleGradient'];
 
   const renderVisualization = () => {
     if (!data?.mismatch_visualization) return null;
@@ -117,6 +117,33 @@ const CrmBilling = () => {
         return (
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
+              <defs>
+                {/* Deep Purple Gradient */}
+                <linearGradient id="deepPurpleGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#4c1d95" />
+                  <stop offset="100%" stopColor="#5b21b6" />
+                </linearGradient>
+                {/* Medium Purple Gradient */}
+                <linearGradient id="mediumPurpleGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#7e22ce" />
+                  <stop offset="100%" stopColor="#9333ea" />
+                </linearGradient>
+                {/* Light Purple Gradient */}
+                <linearGradient id="lightPurpleGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#a855f7" />
+                  <stop offset="100%" stopColor="#c084fc" />
+                </linearGradient>
+                {/* Very Light Purple Gradient */}
+                <linearGradient id="veryLightPurpleGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#d8b4fe" />
+                  <stop offset="100%" stopColor="#e9d5ff" />
+                </linearGradient>
+                {/* Dark Purple Gradient */}
+                <linearGradient id="darkPurpleGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#3b0764" />
+                  <stop offset="100%" stopColor="#4c1d95" />
+                </linearGradient>
+              </defs>
               <Pie
                 data={data.mismatch_visualization}
                 cx="50%"
@@ -125,15 +152,17 @@ const CrmBilling = () => {
                 outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 animationDuration={1500}
               >
                 {data.mismatch_visualization.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={`url(#${purpleGradients[index % purpleGradients.length]})`}
+                  />
                 ))}
               </Pie>
               <Tooltip 
-                formatter={(value: number) => value.toLocaleString()}
+                formatter={(value: number, name: string) => [`${value}`, `${name}`]}
                 contentStyle={{ 
                   backgroundColor: 'rgba(255, 255, 255, 0.9)',
                   borderColor: '#7e3af2',

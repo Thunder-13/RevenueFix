@@ -158,8 +158,7 @@ class DataProcessor:
             mismatch_visualization = [
                 {'name': 'Bill Plan Mismatches', 'value': bill_plan_mismatches.shape[0]},
                 {'name': 'Account Status Mismatches', 'value': account_status_mismatches.shape[0]},
-                {'name': 'Start Date Mismatches', 'value': start_date_mismatches.shape[0]},
-                {'name': 'Matched Records', 'value': total_accounts - total_mismatches}
+                {'name': 'Start Date Mismatches', 'value': start_date_mismatches.shape[0]}
             ]
         
             return {
@@ -169,7 +168,8 @@ class DataProcessor:
                     'mismatched_account_status': account_status_mismatches.shape[0],
                     'mismatched_start_dates': start_date_mismatches.shape[0],
                     'duplicate_records': total_duplicates,
-                    'mismatch_percentage': round(mismatch_percentage, 2)
+                    'mismatch_percentage': round(mismatch_percentage, 2),
+                    'mismatched_accounts': len(mismatched_accounts)
                 },
                 'account_status': {
                     'crm_active_billing_inactive': crm_active_billing_inactive,

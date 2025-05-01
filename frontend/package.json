@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
       "dev": "vite --host 0.0.0.0",
-      "build": "tsc -b && vite build --host 0.0.0.0",
+      "build": "tsc -b && vite build",
       "lint": "eslint .",
       "preview": "vite preview",
       "build:sourcemap": "tsc -b && vite build --sourcemap"
