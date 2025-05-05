@@ -192,7 +192,7 @@ export function KpiDialog({ open, onOpenChange, data }: KpiDialogProps) {
                   data={data.trend}
                   showControls={true}
                   height={400}
-                  type="composed"
+                  type="area"
                   showAverage={true}
                   allowFullscreen={true}
                 />
