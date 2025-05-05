@@ -744,6 +744,8 @@ api.interceptors.response.use(
       return Promise.resolve({ data: { status: 'success', data: dummyData.voiceSmsData } });
     } else if (url.includes('/network-billing-sms')) {
       return Promise.resolve({ data: { status: 'success', data: dummyData.voiceSmsData } });
+    } else if (url.includes('/network-billing-voice')) {
+      return Promise.resolve({ data: { status: 'success', data: dummyData.voiceSmsData } });
     } else if (url.includes('/auth/login')) {
       // Simulate successful login
       return Promise.resolve({
@@ -809,6 +811,10 @@ export const apiService = {
 
   //Network vs Billing SMS
   getNetworkVsBillingSms: () => api.get("/network-billing-sms"),
+
+  //Network vs Billing SMS
+  getNetworkVsBillingVoice: () => api.get("/network-billing-voice"),
+
   
   // CRM Insights
   getCRMInsights: () => api.get("/crm"),

@@ -25,7 +25,7 @@ class DataProcessor:
         except Exception as e:
             print(f"Error loading CSV file {file_path}: {e}")
             return pd.DataFrame()
-    
+     
     @staticmethod
     def get_crm_billing_analytics():
         """Process CRM and Billing data for reconciliation"""

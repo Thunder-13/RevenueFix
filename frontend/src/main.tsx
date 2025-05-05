@@ -62,7 +62,7 @@ createRoot(document.getElementById("root")!).render(
               <Route path='/b2b-analysis' element={<ProtectedRoute Component={() => <ProtectedComponent Component={B2BAnalysis} />} />} />
               <Route path='/b2c-analysis' element={<ProtectedRoute Component={() => <ProtectedComponent Component={B2CAnalysis} />} />} />
               <Route path='/fixed-line' element={<ProtectedRoute Component={() => <ProtectedComponent Component={FixedLine} />} />} />
-              <Route path='/voice' element={<ProtectedRoute Component={() => <ProtectedComponent Component={Voice} />} />} />
+              <Route path='/network-billing-voice' element={<ProtectedRoute Component={() => <ProtectedComponent Component={Voice} />} />} />
               <Route path='/network-billing-sms' element={<ProtectedRoute Component={() => <ProtectedComponent Component={SMS} />} />} />
               <Route path='/network-billing-data' element={<ProtectedRoute Component={() => <ProtectedComponent Component={Data} />} />} />
               <Route path='/crm-insights' element={<ProtectedRoute Component={() => <ProtectedComponent Component={CrmInsights} />} />} />

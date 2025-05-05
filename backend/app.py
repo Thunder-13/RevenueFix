@@ -17,6 +17,7 @@ from routes.settings import settings_bp
 from routes.upcoming_features import upcoming_features_bp
 from routes.network_billing_data import network_billing_data_bp
 from routes.network_billing_sms import network_billing_sms_bp
+from routes.network_billing_voice import network_billing_voice_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -38,6 +39,7 @@ app.register_blueprint(settings_bp, url_prefix='/api/settings')
 app.register_blueprint(upcoming_features_bp, url_prefix='/api/upcoming-features')
 app.register_blueprint(network_billing_data_bp, url_prefix='/api/network-billing-data')
 app.register_blueprint(network_billing_sms_bp, url_prefix='/api/network-billing-sms')
+app.register_blueprint(network_billing_voice_bp, url_prefix='/api/network-billing-voice')
 
 
 @app.route('/')

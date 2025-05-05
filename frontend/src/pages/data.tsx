@@ -107,7 +107,7 @@ const Data = () => {
     };
 
     const getColumnsForMismatchReason = (mismatchReason: string) => {
-      if (mismatchReason === "Service ID mismatch between Network and Billing") {
+      if (mismatchReason === "Service mismatch between Network and Billing") {
         return [
           { key: "MSISDN", header: "MSISDN" },
           { 
@@ -189,6 +189,25 @@ const Data = () => {
             ),
 
           },
+          { key: "Mismatch Reason", header: "Mismatch Reason" },
+        ];
+      } else if (mismatchReason === "Service Status mismatch between Network and Billing") {
+        return [
+          { key: "MSISDN", header: "MSISDN" },
+          { key: "Service ID", header: "Service ID" },
+          { key: "Service Name", header: "Service Name" },
+          { 
+            key: "Service Status",
+            header: "Network Service Status",
+            formatter: (value) => getStatusBadge(value),
+          },
+          { 
+            key: "Billing Service Status",
+            header: "Billing Service Status",
+            formatter: (value) => getStatusBadge(value),
+          },
+          { key: "Service Start Date", header: "Service Start Date" },
+          { key: "Service End Date", header: "Service End Date" },
           { key: "Mismatch Reason", header: "Mismatch Reason" },
         ];
       } else {

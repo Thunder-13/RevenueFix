@@ -20,7 +20,7 @@ interface NetworkBillingSMSMetrics {
     account_status_mismatch_count: number;
     transaction_mismatch_count: number;
     transaction_date_mismatch_count: number;
-    download_mismatch_count: number;
+    count_mismatch_count: number;
     service_mismatch_count: number;
     duplicate_count: number;
     msisdn_missing_count: number;
@@ -107,21 +107,9 @@ const SMS = () => {
     };
 
     const getColumnsForMismatchReason = (mismatchReason: string) => {
-      if (mismatchReason === "Service ID mismatch between Network and Billing") {
+      if (mismatchReason === "Service mismatch between Network and Billing") {
         return [
           { key: "MSISDN", header: "MSISDN" },
-          { 
-            key: "Service ID",
-            header: "Network Service ID",
-            formatter: (value) => (
-              <Badge
-                variant="outline"
-                className="bg-green-500 text-white hover:border-green-500 hover:text-green-500 hover:bg-white"
-              >
-                {value}
-              </Badge>
-            ),
-          },
           { 
             key: "Service Name",
             header: "Network Service Name",
@@ -129,18 +117,6 @@ const SMS = () => {
               <Badge
                 variant="outline"
                 className="bg-green-500 text-white hover:border-green-500 hover:text-green-500 hover:bg-white"
-              >
-                {value}
-              </Badge>
-            ),
-          },
-          { 
-            key: "Billing Service ID",
-            header: "Billing Service ID",
-            formatter: (value) => (
-              <Badge
-                variant="outline"
-                className="bg-red-500 text-white hover:border-red-500 hover:text-red-500 hover:bg-white"
               >
                 {value}
               </Badge>
@@ -213,6 +189,25 @@ const SMS = () => {
             ),
 
           },
+          { key: "Mismatch Reason", header: "Mismatch Reason" },
+        ];
+      } else if (mismatchReason === "Service Status mismatch between Network and Billing") {
+        return [
+          { key: "MSISDN", header: "MSISDN" },
+          { key: "Service ID", header: "Service ID" },
+          { key: "Service Name", header: "Service Name" },
+          { 
+            key: "Service Status",
+            header: "Network Service Status",
+            formatter: (value) => getStatusBadge(value),
+          },
+          { 
+            key: "Billing Service Status",
+            header: "Billing Service Status",
+            formatter: (value) => getStatusBadge(value),
+          },
+          { key: "Service Start Date", header: "Service Start Date" },
+          { key: "Service End Date", header: "Service End Date" },
           { key: "Mismatch Reason", header: "Mismatch Reason" },
         ];
       } else {
@@ -323,12 +318,12 @@ const SMS = () => {
                       onClick={() => handleMetricClick("Missing Records")}
                     />
                     <MetricsCard
-                      title="Volume Mismatch"
-                      value={data?.data.download_mismatch_count || 0}
+                      title="Count Mismatch"
+                      value={data?.data.count_mismatch_count || 0}
                      // prefix="$"
                       //description="per gigabyte"
                       icon={<CloudDownload className="h-4 w-4 text-muted-foreground" />}
-                      onClick={() => handleMetricClick("Volume Mismatch")}
+                      onClick={() => handleMetricClick("Count Mismatch")}
                     />
                      <MetricsCard
                       title="Transaction Mismatch"
@@ -434,9 +429,9 @@ const SMS = () => {
                                   { key: "Usage Type", header: "Usage Type" },
                                   { key: "Usage Sub Type", header: "Usage Sub Type" },
                                   { key: "Transaction Date", header: "Transaction Date" },
-                                  { key: "Download (MB)", header: "Download (MB)" },
+                                  { key: "Count", header: "Count" },
                                   { key: "Service ID", header: "Service ID" },
-                                  { key: "Service Name", header: "Service Name" },
+                                  { key: "Service Name",header: "Service Name" },
                                   { key: "Service Status", header: "Service Status" },
                                   { key: "Service Start Date", header: "Service Start Date" },
                                   { key: "Service End Date", header: "Service End Date" },
@@ -464,15 +459,15 @@ const SMS = () => {
                                   { key: "Account Status", header: "Account Status" },
                                   { key: "Transaction Date", header: "Transaction Date" },
                                 ]
-                              : selectedMetric === "Volume Mismatch"
+                              : selectedMetric === "Count Mismatch"
                               ? [
                                   { key: "MSISDN", header: "MSISDN" },
                                   { key: "Usage Type", header: "Usage Type" },
                                   { key: "Usage Sub Type", header: "Usage Sub Type" },
                                   { key: "Service Name", header: "Service Name" },
                                   { 
-                                    key: "Download (MB)",
-                                    header: "Network Download (MB)",
+                                    key: "Count",
+                                    header: "Network Count",
                                     formatter: (value) => (
                                       <Badge
                                         variant="outline"
@@ -483,8 +478,8 @@ const SMS = () => {
                                     ),
                                   },
                                   { 
-                                    key: "Billing Download (MB)",
-                                    header: "Billing Download (MB)",
+                                    key: "Billing Count",
+                                    header: "Billing Count",
                                     formatter: (value) => (
                                       <Badge
                                         variant="outline"

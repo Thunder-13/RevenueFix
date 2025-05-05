@@ -1,26 +1,68 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { AppSidebar } from "@/components/layout/Sidebar";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
+import { DataTable } from "@/components/dashboard/DataTable";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { useToast } from "@/hooks/use-toast";
 import apiService from "@/lib/api";
-import { PhoneCall, TrendingUp, BarChart3 } from "lucide-react";
+import { BarChart3, TrendingUp, PhoneCall, MessageSquare, Wifi, CloudDownload } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertTriangle, CalendarX, Clock, DownloadCloud, UserX, PhoneMissed } from "lucide-react";
+import { Database, AlertCircle, WifiOff } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+
+
+interface NetworkBillingVoiceMetrics {
+  data: {
+    total_records: number;
+    mismatch_count: number;
+    account_status_mismatch_count: number;
+    transaction_mismatch_count: number;
+    transaction_date_mismatch_count: number;
+    duration_mismatch_count: number;
+    service_mismatch_count: number;
+    duplicate_count: number;
+    msisdn_missing_count: number;
+    revenue_trend: Array<{ date: string; value: number }>;
+    service_breakdown: {
+      service_name: string;
+      usage_type: string,
+      usage_sub_type: string,
+      count: number,
+      total_download_mb: number,
+    }[];
+    records_display_card: Array<{
+      name: string;
+      records: Array<{
+        [key: string]: any; // Dynamic fields for each record
+      }>;
+    }>;
+    evenue_trend: Array<{ date: string; value: number }>;
+  };
+}
 
 const Voice = () => {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<NetworkBillingVoiceMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
+  const [relatedRecords, setRelatedRecords] = useState<any[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await apiService.getVoiceSmsDataMetrics();
+        const response = await apiService.getNetworkVsBillingVoice();
         setData(response.data.data);
+        
+        if (response.data.data.records_display_card?.length > 0) {
+          setRelatedRecords(response.data.data.records_display_card[0].records || []);
+        }
       } catch (error) {
-        console.error("Error fetching voice metrics:", error);
+        console.error("Error fetching Voice metrics:", error);
         toast({
           title: "Error",
-          description: "Failed to load voice metrics. Please try again.",
+          description: "Failed to load Voice metrics. Please try again.",
           variant: "destructive",
         });
       } finally {
@@ -31,55 +73,477 @@ const Voice = () => {
     fetchData();
   }, [toast]);
 
+  
+
+  const handleMetricClick = (metricKey: string) => {
+    setSelectedMetric(metricKey);
+  
+    if (data?.data.records_display_card) {
+      const section = data.data.records_display_card.find(
+        (record) => record.name === metricKey
+      );
+
+      setRelatedRecords(section?.records || []);
+      //setRelatedRecords(data.data.records_display_card[3].records || []);
+    }
+  };
+
+    const getStatusBadge = (status: string) => {
+      return status.toLowerCase() === "active" || status.toLowerCase() === "a" ? (
+        <Badge
+                variant="outline"
+                className="bg-green-500 text-white hover:border-green-500 hover:text-green-500 hover:bg-white"
+              >
+                Active
+              </Badge>
+      ) : (
+        <Badge
+                variant="outline"
+                className="bg-red-500 text-white hover:border-red-500 hover:text-red-500 hover:bg-white"
+              >
+                Inactive
+              </Badge>
+      );
+    };
+
+    const getColumnsForMismatchReason = (mismatchReason: string) => {
+      if (mismatchReason === "Service mismatch between Network and Billing") {
+        return [
+          { key: "MSISDN", header: "MSISDN" },
+          { 
+            key: "Service Name",
+            header: "Network Service Name",
+            formatter: (value) => (
+              <Badge
+                variant="outline"
+                className="bg-green-500 text-white hover:border-green-500 hover:text-green-500 hover:bg-white"
+              >
+                {value}
+              </Badge>
+            ),
+          },
+          { 
+            key: "Billing Service Name",
+            header: "Billing Service Name",
+            formatter: (value) => (
+              <Badge
+                variant="outline"
+                className="bg-red-500 text-white hover:border-red-500 hover:text-red-500 hover:bg-white"
+              >
+                {value}
+              </Badge>
+            ),
+          },
+          { key: "Mismatch Reason", header: "Mismatch Reason" },
+        ];
+      } else if (mismatchReason === "Service Start/End Date mismatch between Network and Billing") {
+        return [
+          { key: "MSISDN", header: "MSISDN" },
+          { key: "Service ID", header: "Network Service ID" },
+          { 
+            key: "Service Start Date",
+            header: "Network Service Start Date",
+            formatter: (value) => (
+              <Badge
+                variant="outline"
+                className="bg-green-500 text-white hover:border-green-500 hover:text-green-500 hover:bg-white"
+              >
+                {value}
+              </Badge>
+            ),
+          },
+          { 
+            key: "Service End Date",
+            header: "Network Service End Date",
+            formatter: (value) => (
+              <Badge
+                variant="outline"
+                className="bg-green-500 text-white hover:border-green-500 hover:text-green-500 hover:bg-white"
+              >
+                {value}
+              </Badge>
+            ),
+          },
+          { 
+            key: "Billing Service Start Date",
+            header: "Billing Service Start Date",
+            formatter: (value) => (
+              <Badge
+                variant="outline"
+                className="bg-red-500 text-white hover:border-red-500 hover:text-red-500 hover:bg-white"
+              >
+                {value}
+              </Badge>
+            ),
+          },
+          { 
+            key: "Billing Service End Date",
+            header: "Billing Service End Date",
+            formatter: (value) => (
+              <Badge
+                variant="outline"
+                className="bg-red-500 text-white hover:border-red-500 hover:text-red-500 hover:bg-white"
+              >
+                {value}
+              </Badge>
+            ),
+
+          },
+          { key: "Mismatch Reason", header: "Mismatch Reason" },
+        ];
+      } else if (mismatchReason === "Service Status mismatch between Network and Billing") {
+        return [
+          { key: "MSISDN", header: "MSISDN" },
+          { key: "Service ID", header: "Service ID" },
+          { key: "Service Name", header: "Service Name" },
+          { 
+            key: "Service Status",
+            header: "Network Service Status",
+            formatter: (value) => getStatusBadge(value),
+          },
+          { 
+            key: "Billing Service Status",
+            header: "Billing Service Status",
+            formatter: (value) => getStatusBadge(value),
+          },
+          { key: "Service Start Date", header: "Service Start Date" },
+          { key: "Service End Date", header: "Service End Date" },
+          { key: "Mismatch Reason", header: "Mismatch Reason" },
+        ];
+      } else {
+        return [
+          { key: "MSISDN", header: "MSISDN" },
+          { key: "Service ID", header: "Network Service ID" },
+          { key: "Mismatch Reason", header: "Mismatch Reason" },
+        ];
+      }
+    };
+
+    const preprocessRecords = (records: any[]) => {
+      const groupedRecords: { [key: string]: any[] } = {};
+    
+      records.forEach((record) => {
+        const mismatchReason = record["Mismatch Reason"];
+        if (!groupedRecords[mismatchReason]) {
+          groupedRecords[mismatchReason] = [];
+        }
+        groupedRecords[mismatchReason].push(record);
+      });
+    
+      return groupedRecords;
+    };
+
   if (loading) {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        <LoadingSpinner size="lg" text="Loading voice metrics..." />
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner />
       </div>
     );
   }
 
-  return (
-    <div className="mx-auto max-w-7xl">
-      <h1 className="mb-6 text-3xl font-bold">Voice</h1>
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricsCard
-          title="Voice Revenue"
-          value={data?.voice.total_revenue || 0}
-          prefix="$"
-          trend={data?.voice.growth_rate}
-          description="vs. previous period"
-          icon={<PhoneCall className="h-4 w-4 text-muted-foreground" />}
-        />
-        <MetricsCard
-          title="Growth Rate"
-          value={data?.voice.growth_rate || 0}
-          suffix="%"
-          description="compared to last month"
-          icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
-        />
-        <MetricsCard
-          title="Call Minutes"
-          value={data?.voice.call_minutes || 0}
-          description="total minutes"
-          icon={<PhoneCall className="h-4 w-4 text-muted-foreground" />}
-        />
-        <MetricsCard
-          title="Avg Revenue/Min"
-          value={data?.voice.average_revenue_per_minute || 0}
-          prefix="$"
-          description="per minute"
-          icon={<BarChart3 className="h-4 w-4 text-muted-foreground" />}
-        />
-      </div>
-      <RevenueChart
-        title="Voice Revenue Trend"
-        data={data?.voice.revenue_trend || []}
-        valuePrefix="$"
-        description="Daily voice revenue over the last 30 days"
-      />
-    </div>
-  );
+    return (
+        <div className="flex min-h-screen">
+          <AppSidebar />
+          <div className="flex flex-1 flex-col">
+            <main className="flex-1 p-6 md:p-8">
+              <div className="mx-auto max-w-7xl">
+                <h1 className="mb-6 text-3xl font-bold">Voice</h1>
+    
+                {/* Service Distribution */}
+                {/*<div className="mb-8">
+                  <DataTable
+                    title="Service Revenue Distribution"
+                    columns={[
+                      { key: "name", header: "Service" },
+                      { 
+                        key: "percentage", 
+                        header: "Percentage", 
+                        formatter: (value) => `${value}%`
+                      },
+                    ]}
+                    data={data?.service_distribution || []}
+                  />
+                </div>*/}
+    
+                <Tabs defaultValue="data" className="mb-8">
+                  
+                  {/* Data Tab */}
+                  <TabsContent value="data">
+                <div className="grid gap-6">
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <MetricsCard
+                      title="Total Records"
+                      value={data?.data.total_records || 0}
+                      //prefix="$"
+                      description={`Excluding ${
+                      data?.data.duplicate_count|| 0
+                      } duplicates`}
+                      icon={<Database className="h-4 w-4 text-muted-foreground" />}
+                    />
+                    <MetricsCard
+                      title="Total Mismatch"
+                      value={data?.data.mismatch_count || 0}
+                      //suffix="%"
+                      //description="are mismatched records"
+                      description="Mismatches between N/B"
+                      icon={<AlertCircle className="h-4 w-4 text-muted-foreground" />}
+                      onClick={() => handleMetricClick("Mismatched Records")}
+                    />
+                    <MetricsCard
+                      title="Service Mismatch"
+                      value={data?.data.service_mismatch_count || 0}
+                      //suffix=" TB"
+                     description="Service mismatch between N/B"
+                      icon={<WifiOff className="h-4 w-4 text-muted-foreground" />}
+                      onClick={() => handleMetricClick("Service Mismatch")}
+                    />
+                    
+                  </div>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    <MetricsCard
+                        title="Account Status Mismatch"
+                        value={data?.data.account_status_mismatch_count || 0}
+                        //suffix=" TB"
+                      // description="total terabytes"
+                        icon={<UserX className="h-4 w-4 text-muted-foreground" />}
+                        onClick={() => handleMetricClick("Account Status Mismatch")}
+                      />
+                    
+                    <MetricsCard
+                      title="Missed Records in Billing" 
+                      value={data?.data.msisdn_missing_count || 0}
+                      //suffix=" TB"
+                     // description="total terabytes"
+                      icon={<PhoneMissed  className="h-4 w-4 text-muted-foreground" />}
+                      onClick={() => handleMetricClick("Missing Records")}
+                    />
+                    <MetricsCard
+                      title="Duration Mismatch"
+                      value={data?.data.duration_mismatch_count || 0}
+                     // prefix="$"
+                      //description="per gigabyte"
+                      icon={<CloudDownload className="h-4 w-4 text-muted-foreground" />}
+                      onClick={() => handleMetricClick("Duration Mismatch")}
+                    />
+                     <MetricsCard
+                      title="Transaction Mismatch"
+                      value={data?.data.transaction_mismatch_count + data?.data.transaction_date_mismatch_count || 0}
+                     // prefix="$"
+                      //description="per gigabyte"
+                      icon={<CalendarX className="h-4 w-4 text-muted-foreground" />}
+                      onClick={() => handleMetricClick("Transaction Mismatch")}
+                    />
+                  </div>
+                  <RevenueChart
+                    title=" Monthly Mismatch Trend"
+                    data={data?.data.revenue_trend || []}
+                    //valuePrefix="$"
+                    description="Monthly Mismatch - Network vs Billing"
+                  />
+                </div>
+                
+                <div>
+                {selectedMetric && (
+                  <div className="mt-8">
+                    <h2 className="text-xl font-bold mb-4">Detailed View of {selectedMetric}</h2>
+                    {relatedRecords.length > 0 ? (
+                      selectedMetric === "Service Mismatch" ? (
+                        Object.entries(preprocessRecords(relatedRecords)).map(([mismatchReason, records], index) => (
+                          <div key={index} className="mb-6">
+                            
+                            <DataTable
+                              title={''}
+                              columns={getColumnsForMismatchReason(mismatchReason)}
+                              data={records}
+                            />
+                          </div>
+                        ))
+                      ) : selectedMetric === "Transaction Mismatch" ? (
+                        Object.entries(preprocessRecords(relatedRecords)).map(([mismatchReason, records], index) => (
+                          <div key={index} className="mb-6">
+                            <DataTable
+                              title={''}
+                              columns={
+                                mismatchReason === "Call Start Time not In Between Service Start/End Date"
+                                  ? [
+                                      { key: "MSISDN", header: "MSISDN" },
+                                      { 
+                                        key: "Call Start Time",
+                                        header: "Network Call Start Time",
+                                        formatter: (value) => (
+                                          <Badge
+                                            variant="outline"
+                                            className="bg-red-500 text-white hover:border-red-500 hover:text-red-500 hover:bg-white"
+                                          >
+                                            {value}
+                                          </Badge>
+                                        ),
+                                      },
+                                      { key: "Service Start Date", header: "Service Start Date" },
+                                      { key: "Service End Date", header: "Service End Date" },
+                                      { key: "Mismatch Reason", header: "Mismatch Reason" },
+                                    ]
+                                  : mismatchReason === "Call Start/End Time not matched between Network and Billing"
+                                  ? [
+                                      { key: "MSISDN", header: "MSISDN" },
+                                      { 
+                                        key: "Call Start Time",
+                                        header: "Network Call Start Time",
+                                        formatter: (value) => (
+                                          <Badge
+                                            variant="outline"
+                                            className="bg-green-500 text-white hover:border-green-500 hover:text-green-500 hover:bg-white"
+                                          >
+                                            {value}
+                                          </Badge>
+                                        ),
+                                        
+                                      },
+                                      { 
+                                        key: "Call End Time",
+                                        header: "Network Call End Time",
+                                        formatter: (value) => (
+                                          <Badge
+                                            variant="outline"
+                                            className="bg-green-500 text-white hover:border-green-500 hover:text-green-500 hover:bg-white"
+                                          >
+                                            {value}
+                                          </Badge>
+                                        ),
+                                        
+                                      },
+                                      { 
+                                        key: "Billing Call Start Time",
+                                        header: "Billing Call Start Time",
+                                        formatter: (value) => (
+                                          <Badge
+                                            variant="outline"
+                                            className="bg-red-500 text-white hover:border-red-500 hover:text-red-500 hover:bg-white"
+                                          >
+                                            {value}
+                                          </Badge>
+                                        ),
+                                      },
+                                      { 
+                                        key: "Billing Call End Time",
+                                        header: "Billing Call End Time",
+                                        formatter: (value) => (
+                                          <Badge
+                                            variant="outline"
+                                            className="bg-red-500 text-white hover:border-red-500 hover:text-red-500 hover:bg-white"
+                                          >
+                                            {value}
+                                          </Badge>
+                                        ),
+                                      },
+                                      { key: "Mismatch Reason", header: "Mismatch Reason" },
+                                    ]
+                                  : []
+                              }
+                              data={records}
+                            />
+                          </div>
+                        ))
+                      ) : (
+                        <DataTable
+                          title={''}
+                          columns={
+                            selectedMetric === "Mismatched Records"
+                              ? [
+                                  { key: "MSISDN", header: "MSISDN" },
+                                  { key: "Account Status", header: "Account Status" },
+                                  { key: "Usage Type", header: "Usage Type" },
+                                  { key: "Usage Sub Type", header: "Usage Sub Type" },
+                                  { key: "Call Start Time", header: "Call Start Time" },
+                                  { key: "Call End Time", header: "Call End Time" },
+                                  { key: "Duration (Mins)", header: "Duration (Mins)" },
+                                  { key: "Service ID", header: "Service ID" },
+                                  { key: "Service Name",header: "Service Name" },
+                                  { key: "Service Status", header: "Service Status" },
+                                  { key: "Service Start Date", header: "Service Start Date" },
+                                  { key: "Service End Date", header: "Service End Date" },
+                                ]
+                              : selectedMetric === "Account Status Mismatch"
+                              ? [
+                                  { key: "MSISDN", header: "MSISDN" },
+                                  {
+                                    key: "Account Status",
+                                    header: "Account Status",
+                                    formatter: (value) => getStatusBadge(value),
+                                  },
+                                  { key: "Call Start Time", header: "Call Start Time" },
+                                  {
+                                    key: "Service Status",
+                                    header: "Service Status",
+                                    formatter: (value) => getStatusBadge(value),
+                                  },
+                                  { key: "Service Start Date", header: "Service Start Date" },
+                                  { key: "Service End Date", header: "Service End Date" },
+                                ]
+                              : selectedMetric === "Missing Records"
+                              ? [
+                                  { key: "MSISDN", header: "MSISDN" },
+                                  { key: "Account Status", header: "Account Status" },
+                                  { key: "Call Start Time", header: "Call Start Time" },
+                                  { key: "Call End Time", header: "Call End Time" },
+                                ]
+                              : selectedMetric === "Duration Mismatch"
+                              ? [
+                                  { key: "MSISDN", header: "MSISDN" },
+                                  { key: "Usage Type", header: "Usage Type" },
+                                  { key: "Usage Sub Type", header: "Usage Sub Type" },
+                                  { key: "Service Name", header: "Service Name" },
+                                  { 
+                                    key: "Duration (Mins)",
+                                    header: "Network Duration (Mins)",
+                                    formatter: (value) => (
+                                      <Badge
+                                        variant="outline"
+                                        className="bg-green-500 text-white hover:border-green-500 hover:text-green-500 hover:bg-white"
+                                      >
+                                        {value}
+                                      </Badge>
+                                    ),
+                                  },
+                                  { 
+                                    key: "Billing Duration (Mins)",
+                                    header: "Billing Duration (Mins)",
+                                    formatter: (value) => (
+                                      <Badge
+                                        variant="outline"
+                                        className="bg-red-500 text-white hover:border-red-500 hover:text-red-500 hover:bg-white"
+                                      >
+                                        {value}
+                                      </Badge>
+                                    ),
+                                  },
+                                  { key: "Mismatch Reason", header: "Mismatch Reason" },
+                                  
+                                ]
+                              : relatedRecords.length > 0
+                              ? Object.keys(relatedRecords[0]).map((key) => ({
+                                  key,
+                                  header: key.replace(/_/g, " ").toUpperCase(),
+                                }))
+                              : []
+                          }
+                          data={relatedRecords}
+                        />
+                      )
+                    ) : (
+                      <p className="text-gray-500">No related records found for {selectedMetric}.</p>
+                    )}
+                  </div>
+                )}
+                </div>
+                
+              </TabsContent>
+                </Tabs>
+              </div>
+            </main>
+          </div>
+        </div>
+      );
 };
 
 export default Voice;

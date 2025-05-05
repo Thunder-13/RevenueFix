@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -38,7 +38,7 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 262 83% 58%;
   }
-
+ 
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -74,7 +74,7 @@
     --sidebar-ring: 262 83% 58%;
   }
 }
-
+ 
 @layer base {
   * {
     @apply border-border;
@@ -83,87 +83,87 @@
     @apply bg-background text-foreground;
   }
 }
-
+ 
 main {
   @apply min-h-screen w-full;
 }
-
+ 
 /* Enhanced Sidebar Styles */
 .sidebar-item {
   @apply relative overflow-hidden transition-all duration-200;
 }
-
+ 
 .sidebar-item::before {
   content: '';
   @apply absolute left-0 top-0 h-full w-0 bg-primary/10 transition-all duration-300;
 }
-
+ 
 .sidebar-item:hover::before {
   @apply w-full;
 }
-
+ 
 .sidebar-item.active::before {
   @apply w-full bg-primary/20;
 }
-
+ 
 .sidebar-item.active {
   @apply font-medium text-primary;
 }
-
+ 
 /* Enhanced Sidebar Button Styles */
 .sidebar-toggle-btn {
   @apply transition-transform duration-300;
 }
-
+ 
 .sidebar-toggle-btn:hover {
   @apply scale-110 text-primary;
 }
-
+ 
 /* Enhanced Sidebar Item Hover Effects */
 .sidebar-item:hover .sidebar-icon {
   @apply text-[#7e3af2] transform scale-110;
 }
-
+ 
 .sidebar-item:hover .sidebar-text {
   @apply text-[#7e3af2] font-medium;
 }
-
+ 
 .sidebar-item:active {
   @apply bg-[#7e3af2]/20;
 }
-
+ 
 /* Enhanced Chart Styles */
 .chart-container {
   @apply relative overflow-hidden rounded-lg transition-all duration-300;
 }
-
+ 
 .chart-container:hover {
   @apply shadow-lg;
 }
-
+ 
 .chart-tooltip {
   @apply rounded-md bg-white p-2 shadow-lg dark:bg-gray-800;
 }
-
+ 
 /* Card Hover Effects */
 .metrics-card {
   @apply transition-all duration-300;
 }
-
+ 
 .metrics-card:hover {
   @apply translate-y-[-2px] shadow-md;
 }
-
+ 
 /* Animated Progress */
 .animated-progress {
   @apply relative overflow-hidden;
 }
-
+ 
 .animated-progress::after {
   content: '';
   @apply absolute left-0 top-0 h-full w-full animate-pulse bg-primary/10;
 }
-
+ 
 /* Pulse Animation */
 @keyframes pulse-animation {
   0% {
@@ -176,47 +176,53 @@ main {
     box-shadow: 0 0 0 0 rgba(126, 58, 242, 0);
   }
 }
-
+ 
 .pulse {
   animation: pulse-animation 2s infinite;
 }
-
+ 
 /* Enhanced Table Styles */
 .enhanced-table {
   @apply overflow-hidden rounded-lg border border-border;
 }
-
+ 
 .enhanced-table th {
   @apply bg-muted px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground;
+  font-size: 12px;
+  min-width: 120px;
+  white-space: nowrap;
 }
-
+ 
 .enhanced-table td {
   @apply border-t border-border px-4 py-3;
+  font-size: 12px;
+  min-width: 120px;
+  white-space: nowrap;
 }
-
+ 
 .enhanced-table tr:hover {
   @apply bg-muted/50;
 }
-
+ 
 /* Gradient Text */
 .gradient-text {
   @apply bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent;
 }
-
+ 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-
+ 
 ::-webkit-scrollbar-track {
   @apply bg-muted;
 }
-
+ 
 ::-webkit-scrollbar-thumb {
   @apply rounded-full bg-primary/30;
 }
-
+ 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-primary/50;
 }
