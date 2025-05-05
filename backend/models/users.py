@@ -1,52 +1,89 @@
 from models.base import BaseModel
-
+from datetime import datetime, timedelta
+import random
 class UserModel(BaseModel):
     """Model for user data"""
-    
+    current_time = datetime.now()
     dummy_data = [
         {
             'id': 1,
-            'name': 'Admin User',
-            'email': 'admin@revenuefix.com',
+            'name': 'Saravanan',
+            'email': 'saravanan@revenuefix.com',
             'role': 'admin',
             'department': 'IT',
-            'last_login': '2023-06-15T14:23:45',
+            'last_login': (current_time - timedelta(hours=random.randint(1, 3))).isoformat(),
             'status': 'active'
         },
         {
             'id': 2,
-            'name': 'John Smith',
-            'email': 'john.smith@revenuefix.com',
+            'name': 'Aravinth',
+            'email': 'Aravinth@revenuefix.com',
             'role': 'manager',
             'department': 'Finance',
-            'last_login': '2023-06-15T10:15:22',
+            'last_login': (current_time - timedelta(hours=random.randint(1, 3))).isoformat(),
             'status': 'active'
         },
         {
             'id': 3,
-            'name': 'Jane Doe',
-            'email': 'jane.doe@revenuefix.com',
+            'name': 'Abinesh',
+            'email': 'abinesh@revenuefix.com',
             'role': 'analyst',
             'department': 'Revenue Assurance',
-            'last_login': '2023-06-14T16:05:17',
+            'last_login': (current_time - timedelta(hours=random.randint(1, 3))).isoformat(),
             'status': 'active'
         },
         {
             'id': 4,
-            'name': 'Robert Johnson',
-            'email': 'robert.johnson@revenuefix.com',
+            'name': 'Sayantani',
+            'email': 'sayantani@revenuefix.com',
             'role': 'viewer',
             'department': 'Marketing',
-            'last_login': '2023-06-13T09:58:03',
+            'last_login': (current_time - timedelta(hours=random.randint(1, 3))).isoformat(),
             'status': 'active'
         },
         {
             'id': 5,
-            'name': 'Emily Wilson',
-            'email': 'emily.wilson@revenuefix.com',
+            'name': 'Ganesh',
+            'email': 'Ganesh@revenuefix.com',
             'role': 'analyst',
             'department': 'Customer Service',
-            'last_login': '2023-06-15T11:45:51',
+            'last_login': (current_time - timedelta(hours=random.randint(1, 3))).isoformat(),
+            'status': 'active'
+        },
+        {
+            'id': 6,
+            'name': 'Muthulakshmi',
+            'email': 'Aravinth@revenuefix.com',
+            'role': 'manager',
+            'department': 'Finance',
+            'last_login': (current_time - timedelta(hours=random.randint(1, 3))).isoformat(),
+            'status': 'active'
+        },
+        {
+            'id': 7,
+            'name': 'Anselm',
+            'email': 'anselm@revenuefix.com',
+            'role': 'analyst',
+            'department': 'Revenue Assurance',
+            'last_login': (current_time - timedelta(hours=random.randint(1, 3))).isoformat(),
+            'status': 'active'
+        },
+        {
+            'id': 8,
+            'name': 'Sampath',
+            'email': 'sampath@revenuefix.com',
+            'role': 'viewer',
+            'department': 'Marketing',
+            'last_login': (current_time - timedelta(hours=random.randint(1, 3))).isoformat(),
+            'status': 'active'
+        },
+        {
+            'id': 9,
+            'name': 'Murugan',
+            'email': 'murugan@revenuefix.com',
+            'role': 'analyst',
+            'department': 'Customer Service',
+            'last_login': (current_time - timedelta(hours=random.randint(1, 3))).isoformat(),
             'status': 'inactive'
         }
     ]
@@ -60,6 +97,7 @@ class UserModel(BaseModel):
             {'id': 3, 'name': 'analyst', 'description': 'Data analysis and reporting access'},
             {'id': 4, 'name': 'viewer', 'description': 'Read-only access to reports'}
         ]
+    
     
     @classmethod
     def get_departments(cls):

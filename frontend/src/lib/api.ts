@@ -375,10 +375,10 @@ const dummyData = {
   users: [
     {
       id: 1,
-      name: 'Admin User',
-      email: 'admin@revenuefix.com',
+      name: 'Saravanan R',
+      email: 'thunder@revenuefix.com',
       role: 'admin',
-      department: 'IT',
+      department: 'Admin',
       last_login: '2025-04-15T14:23:45',
       status: 'active'
     },

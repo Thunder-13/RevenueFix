@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Area, AreaChart, ReferenceLine, Bar, BarChart, ComposedChart } from "recharts";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Area, AreaChart, ReferenceLine, Bar, BarChart} from "recharts";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -24,7 +24,7 @@ interface RevenueChartProps {
   showControls?: boolean;
   showGradient?: boolean;
   showAverage?: boolean;
-  type?: "line" | "area" | "bar" | "composed";
+  type?: "line" | "area" | "bar";
   height?: number;
   onClick?: () => void;
   secondaryData?: { key: string; name: string; color: string }[];
@@ -32,6 +32,7 @@ interface RevenueChartProps {
   allowDownload?: boolean;
   showInfoTooltip?: boolean;
   infoTooltipContent?: string;
+  allowTimeRange?: boolean;
 }
 
 export function RevenueChart({
@@ -51,10 +52,11 @@ export function RevenueChart({
   allowFullscreen = true,
   allowDownload = true,
   showInfoTooltip = false,
-  infoTooltipContent
+  infoTooltipContent,
+  allowTimeRange = true,
 }: RevenueChartProps) {
   const [timeRange, setTimeRange] = useState<string>("30d");
-  const [chartType, setChartType] = useState<"line" | "area" | "bar" | "composed">(type);
+  const [chartType, setChartType] = useState<"bar" | "area" | "line">(type);
   const [fullscreen, setFullscreen] = useState<boolean>(false);
   
   const formatValue = (value: number) => {
@@ -349,90 +351,6 @@ export function RevenueChart({
             ))}
           </BarChart>
         );
-      case "composed":
-        return (
-          <ComposedChart
-            data={filteredData}
-            margin={{
-              top: 20,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis 
-              dataKey="date" 
-              tick={{ fontSize: 12 }}
-              tickFormatter={formatDate}
-            />
-            <YAxis 
-              tick={{ fontSize: 12 }}
-              tickFormatter={(value) => {
-                if (value >= 1000000) {
-                  return `${(value / 1000000).toFixed(1)}M`;
-                } else if (value >= 1000) {
-                  return `${(value / 1000).toFixed(1)}K`;
-                }
-                return value;
-              }}
-            />
-            <Tooltip 
-              formatter={(value: number) => formatValue(value)}
-              labelFormatter={formatDate}
-              contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                borderColor: '#7e3af2',
-                borderRadius: '6px',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-              }}
-            />
-            <Legend />
-            {showAverage && (
-              <ReferenceLine 
-                y={average} 
-                stroke="#ff6b6b" 
-                strokeDasharray="3 3"
-                label={{ 
-                  value: 'Average', 
-                  position: 'insideBottomRight',
-                  fill: '#ff6b6b',
-                  fontSize: 12
-                }} 
-              />
-            )}
-            <defs>
-              <linearGradient id="colorValueComposed" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#7e3af2" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#7e3af2" stopOpacity={0.1}/>
-              </linearGradient>
-            </defs>
-            <Area
-              type="monotone"
-              dataKey="value"
-              name="Value"
-              stroke="#7e3af2"
-              strokeWidth={2}
-              fill={showGradient ? "url(#colorValueComposed)" : "#7e3af2"}
-              fillOpacity={showGradient ? 0.6 : 0.2}
-              activeDot={{ r: 6, fill: "#7e3af2", stroke: "white", strokeWidth: 2 }}
-              animationDuration={1500}
-            />
-            {secondaryData && secondaryData.map((item) => (
-              <Line
-                key={item.key}
-                type="monotone"
-                dataKey={item.key}
-                name={item.name}
-                stroke={item.color}
-                strokeWidth={2}
-                dot={{ r: 3, fill: item.color }}
-                activeDot={{ r: 6, fill: item.color, stroke: "white", strokeWidth: 2 }}
-                animationDuration={1500}
-              />
-            ))}
-          </ComposedChart>
-        );
       default:
         return null;
     }
@@ -463,6 +381,7 @@ export function RevenueChart({
         
         {showControls && (
           <div className="flex items-center gap-2">
+          {allowTimeRange && (
             <Select value={timeRange} onValueChange={setTimeRange}>
               <SelectTrigger className="h-8 w-[100px]">
                 <SelectValue placeholder="Time Range" />
@@ -475,13 +394,12 @@ export function RevenueChart({
                 <SelectItem value="all">All time</SelectItem>
               </SelectContent>
             </Select>
-            
+          )}            
             <Tabs defaultValue={chartType} onValueChange={(value) => setChartType(value as any)}>
               <TabsList className="h-8">
                 <TabsTrigger value="line" className="px-2 text-xs">Line</TabsTrigger>
                 <TabsTrigger value="area" className="px-2 text-xs">Area</TabsTrigger>
                 <TabsTrigger value="bar" className="px-2 text-xs">Bar</TabsTrigger>
-                <TabsTrigger value="composed" className="px-2 text-xs">Composed</TabsTrigger>
               </TabsList>
             </Tabs>
             
