@@ -110,13 +110,12 @@ const UserManagement = () => {
                   { key: "name", header: "Name" },
                   { key: "email", header: "Email" },
                   { key: "role", header: "Role" },
-                  { key: "department", header: "Department" },
                   { 
                     key: "last_login", 
                     header: "Last Login",
                     formatter: (value) => {
                       const date = new Date(value);
-                      return date.toLocaleString();
+                        return date.toLocaleString();
                     }
                   },
                   { 
@@ -141,13 +140,13 @@ const UserManagement = () => {
               />
 
               {/* Departments Table */}
-              <DataTable
+              {/* <DataTable
                 title="Departments"
                 columns={[
                   { key: "name", header: "Department" },
                 ]}
                 data={departments}
-              />
+              /> */}
             </div>
           </div>
         </main>

@@ -14,6 +14,45 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, AreaChart, Area } from "recharts";
 
+interface ValidationResult {
+  description: string;
+  valid_count: number;
+  invalid_count: number;
+  percentage_valid: number;
+}
+
+interface MLTFComparison {
+  ml_accuracy: number;
+  discrepancy_percentages: {
+    Account_Status_Discrepancy: number;
+    Bill_Plan_Discrepancy: number;
+    Ent_Residence_Discrepancy: number;
+    Start_Date_Discrepancy: number;
+    Account_Service_Status_Discrepancy: number;
+  };
+  comparison_sample: Array<{
+    Customer_ID: string;
+    Account_ID: string;
+    MSISDN: string;
+    ML_Valid: number;
+    TF_Account_Status_Mismatch: boolean;
+    Manual_Account_Status_Mismatch: boolean;
+    TF_Bill_Plan_Mismatch: boolean;
+    Manual_Bill_Plan_Mismatch: boolean;
+    TF_Ent_Residence_Mismatch: boolean;
+    Manual_Ent_Residence_Mismatch: boolean;
+    TF_Start_Date_Invalid: boolean;
+    Manual_Start_Date_Invalid: boolean;
+    TF_Account_Service_Status_Invalid: boolean;
+    Manual_Account_Service_Status_Invalid: boolean;
+    Account_Status_Discrepancy: boolean;
+    Bill_Plan_Discrepancy: boolean;
+    Ent_Residence_Discrepancy: boolean;
+    Start_Date_Discrepancy: boolean;
+    Account_Service_Status_Discrepancy: boolean;
+  }>;
+}
+
 interface CrmBillingData {
   summary: {
     total_accounts: number;
@@ -55,6 +94,15 @@ interface CrmBillingData {
     name: string;
     value: number;
   }[];
+  validation_results: {
+    account_status_match: ValidationResult;
+    service_details_match: ValidationResult;
+    bill_plan_match: ValidationResult;
+    ent_residence_match: ValidationResult;
+    account_service_start_date: ValidationResult;
+    account_service_status: ValidationResult;
+  };
+  ml_tf_comparison: MLTFComparison;
 }
 
 const CrmBilling = () => {
@@ -98,7 +146,7 @@ const CrmBilling = () => {
   }
 
   const getStatusBadge = (status: string) => {
-    return status.toLowerCase() === "active" || status.toLowerCase() === "act" ? (
+    return status.toLowerCase() === "act" || status.toLowerCase() === "a" || status.toLowerCase() === "active" ? (
       <Badge className="bg-green-500">Active</Badge>
     ) : (
       <Badge variant="outline" className="border-red-500 text-red-500">
@@ -370,72 +418,137 @@ const CrmBilling = () => {
               </CardContent>
             </Card>
 
+            {/* Validation Results */}
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle>Validation Results</CardTitle>
+                <CardDescription>Key validation checks for CRM and Billing data</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {data?.validation_results && Object.entries(data.validation_results).map(([key, result]) => (
+                    <div key={key} className="rounded-lg border p-4">
+                      <div className="mb-2 flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">{result.description}</p>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span>Valid: {result.valid_count.toLocaleString()}</span>
+                            <span>|</span>
+                            <span>Invalid: {result.invalid_count.toLocaleString()}</span>
+                          </div>
+                        </div>
+                        <Badge className={result.percentage_valid > 95 ? "bg-green-500" : "bg-yellow-500"}>
+                          {result.percentage_valid.toFixed(2)}% Valid
+                        </Badge>
+                      </div>
+                      <div className="h-2 w-full rounded-full bg-muted">
+                        <div
+                          className={`h-2 rounded-full ${result.percentage_valid > 95 ? "bg-green-500" : "bg-yellow-500"}`}
+                          style={{ width: `${result.percentage_valid}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* ML vs TensorFlow Comparison */}
+            {/* <Card className="mb-8">
+              <CardHeader>
+                <CardTitle>ML vs TensorFlow Analysis</CardTitle>
+                <CardDescription>Comparison of ML model and TensorFlow calculations</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-6">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-sm font-medium">ML Model Accuracy</span>
+                    <span className="text-sm font-medium">{data?.ml_tf_comparison.ml_accuracy.toFixed(1)}%</span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-muted">
+                    <div
+                      className="h-2 rounded-full bg-[#7e3af2]"
+                      style={{ width: `${data?.ml_tf_comparison.ml_accuracy || 0}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <h3 className="mb-4 text-lg font-medium">Discrepancy Analysis</h3>
+                <div className="mb-6 grid gap-4 md:grid-cols-2">
+                  {data?.ml_tf_comparison.discrepancy_percentages && Object.entries(data.ml_tf_comparison.discrepancy_percentages).map(([key, value]) => (
+                    <div key={key} className="rounded-lg border p-3">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium">{key.replace(/_/g, ' ')}</p>
+                        <Badge variant={value > 0.5 ? "destructive" : "outline"} className={value > 0.5 ? "" : "border-green-500 text-green-500"}>
+                          {value.toFixed(2)}%
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="mb-4 text-lg font-medium">Comparison Sample</h3>
+                <DataTable
+                  title=""
+                  columns={[
+                    { key: "Customer_ID", header: "Customer ID" },
+                    { key: "Account_ID", header: "Account ID" },
+                    { key: "MSISDN", header: "MSISDN" },
+                    { key: "ML_Valid", header: "ML Valid", formatter: (value) => value === 1 ? "Yes" : "No" },
+                    { 
+                      key: "Account_Status_Discrepancy", 
+                      header: "Account Status Discrepancy",
+                      formatter: (value) => value ? 
+                        <Badge variant="destructive">Yes</Badge> : 
+                        <Badge variant="outline" className="border-green-500 text-green-500">No</Badge>
+                    },
+                    { 
+                      key: "Bill_Plan_Discrepancy", 
+                      header: "Bill Plan Discrepancy",
+                      formatter: (value) => value ? 
+                        <Badge variant="destructive">Yes</Badge> : 
+                        <Badge variant="outline" className="border-green-500 text-green-500">No</Badge>
+                    }
+                  ]}
+                  data={data?.ml_tf_comparison.comparison_sample || []}
+                />
+              </CardContent>
+            </Card> */}
+
+            
+
             {/* Account Status Mismatches */}
             <div className="mb-8 grid gap-6 md:grid-cols-2">
+              {/* Mismatch Visualization */}
               <Card className="mb-8">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Billing vs CRM Mismatches</CardTitle>
                   <div className="flex gap-2">
-                    {/* Fix: Wrap TabsList in a Tabs component */}
-                    <Tabs
-                      value={visualizationType}
-                      onValueChange={(value) =>
-                        setVisualizationType(value as any)
-                      }
-                    >
+                      {/* Fix: Wrap TabsList in a Tabs component */}
+                      <Tabs
+                        value={visualizationType}
+                        onValueChange={(value) =>
+                          setVisualizationType(value as any)
+                        }
+                      >
                       <TabsList>
                         <TabsTrigger value="pie">Pie</TabsTrigger>
                         <TabsTrigger value="bar">Bar</TabsTrigger>
-                        {/* <TabsTrigger value="line">Line</TabsTrigger> */}
-                        <TabsTrigger value="area">Area</TabsTrigger>
+                          {/* <TabsTrigger value="line">Line</TabsTrigger> */}
+                        {/* <TabsTrigger value="area">Area</TabsTrigger> */}
                       </TabsList>
                     </Tabs>
                   </div>
                 </CardHeader>
-                <CardContent>{renderVisualization()}</CardContent>
+                  <CardContent>{renderVisualization()}</CardContent>
               </Card>
-
-              {/* <Card>
-                <CardHeader>
-                  <CardTitle>Account Status Mismatches</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between rounded-lg border p-3">
-                      <div>
-                        <p className="font-medium">
-                          CRM Active, Billing Inactive
-                        </p>
-                      </div>
-                      <Badge
-                        variant="outline"
-                        className="border-red-500 text-red-500"
-                      >
-                        {data?.account_status.crm_active_billing_inactive || 0}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between rounded-lg border p-3">
-                      <div>
-                        <p className="font-medium">
-                          CRM Inactive, Billing Active
-                        </p>
-                      </div>
-                      <Badge
-                        variant="outline"
-                        className="border-red-500 text-red-500"
-                      >
-                        {data?.account_status.crm_inactive_billing_active || 0}
-                      </Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card> */}
 
               <RevenueChart
                 title="Mismatch Trend"
                 data={data?.trend_data || []}
-                valueSuffix="%"
-                description="Daily mismatch percentage over time"
+                type="bar"
+                allowTimeRange={false}
+                description="Monthly mismatch count over time"
               />
             </div>
 
@@ -481,11 +594,11 @@ const CrmBilling = () => {
                       { key: "customer_id", header: "Customer ID" },
                       { key: "account_id", header: "Account ID" },
                       { key: "msisdn", header: "MSISDN" },
-                      {
+                      { 
                         key: "enterprise_category",
                         header: "Enterprise Category",
                       },
-                      {
+                      { 
                         key: "mismatch_type",
                         header: "Mismatch Type",
                         formatter: (value: string[]) => {return Array.isArray(value) ? value.join(", ") : String(value)}
@@ -503,10 +616,7 @@ const CrmBilling = () => {
                       { key: "msisdn", header: "MSISDN" },
                       { key: "crm_bill_plan", header: "CRM Bill Plan" },
                       { key: "billing_bill_plan", header: "Billing Bill Plan" },
-                      {
-                        key: "enterprise_category",
-                        header: "Enterprise Category",
-                      },
+                      { key: "enterprise_category", header: "Enterprise Category" },
                     ]}
                     data={(data?.mismatched_accounts || []).filter((account) =>
                       account.mismatch_type.includes("Bill Plan")
@@ -520,23 +630,20 @@ const CrmBilling = () => {
                       { key: "customer_id", header: "Customer ID" },
                       { key: "account_id", header: "Account ID" },
                       { key: "msisdn", header: "MSISDN" },
-                      {
-                        key: "crm_status",
+                      { 
+                        key: "crm_status", 
                         header: "CRM Status",
-                        formatter: (value) => getStatusBadge(value),
+                        formatter: (value) => getStatusBadge(value)
                       },
-                      {
-                        key: "billing_status",
+                      { 
+                        key: "billing_status", 
                         header: "Billing Status",
-                        formatter: (value) => getStatusBadge(value),
+                        formatter: (value) => getStatusBadge(value)
                       },
-                      {
-                        key: "enterprise_category",
-                        header: "Enterprise Category",
-                      },
+                      { key: "enterprise_category", header: "Enterprise Category" },
                     ]}
-                    data={(data?.mismatched_accounts || []).filter((account) =>
-                      account.mismatch_type.includes("Account Status")
+                    data={(data?.mismatched_accounts || []).filter(
+                      (account) => account.mismatch_type.includes("Account Status")
                     )}
                   />
                 </TabsContent>
@@ -547,18 +654,18 @@ const CrmBilling = () => {
                       { key: "customer_id", header: "Customer ID" },
                       { key: "account_id", header: "Account ID" },
                       { key: "msisdn", header: "MSISDN" },
-                      { key: "crm_bill_start_date", header: "CRM Bill Start" },
-                      {
-                        key: "billing_bill_start_date",
-                        header: "Billing Bill Start",
+                      { 
+                        key: "crm_bill_start_date", 
+                        header: "CRM Account Start Date"
                       },
-                      {
-                        key: "enterprise_category",
-                        header: "Enterprise Category",
+                      { 
+                        key: "billing_bill_start_date", 
+                        header: "Billing Account Start Date"
                       },
+                      { key: "enterprise_category", header: "Enterprise Category" },
                     ]}
-                    data={(data?.mismatched_accounts || []).filter((account) =>
-                      account.mismatch_type.includes("Bill Start Date")
+                    data={(data?.mismatched_accounts || []).filter(
+                      (account) => account.mismatch_type.includes("Bill Start Date")
                     )}
                   />
                 </TabsContent>
