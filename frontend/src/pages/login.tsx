@@ -167,14 +167,6 @@ export default function LoginForm() {
                     Remember me
                   </Label>
                 </div>
-                
-                <div className="rounded-md bg-muted p-3">
-                  <p className="text-sm text-muted-foreground">
-                    <strong>Demo Credentials:</strong><br />
-                    Email: demo@revenuefix.com<br />
-                    Password: password
-                  </p>
-                </div>
               </CardContent>
 
               <CardFooter className='flex flex-col space-y-4'>

@@ -3,7 +3,7 @@ import { AppSidebar } from "./Sidebar";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-snow-300 dark:bg-gray-2000">
       {/* Fixed Header */}
       <Header />
 
@@ -16,8 +16,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Main Content with responsive margins */}
-        <div className="flex-1 ml-[calc(100px+5rem)] lg:ml-[calc(200px+5rem)] mt-4 mr-5 mb-5">
-          <div className="bg-transparent rounded-lg shadow-md px-8 min-h-[calc(100vh-7rem)]">
+        <div className="bg-white dark:bg-black flex-1 ml-[calc(100px+5rem)] lg:ml-[calc(200px+5rem)] mt-4 mr-5 mb-5">
+          <div className="rounded-lg shadow-md px-8 min-h-[calc(100vh-7rem)]">
             {children}
           </div>
         </div>

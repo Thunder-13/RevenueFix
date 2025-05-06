@@ -1,0 +1,14 @@
+id,severity,source,message,timestamp,status
+ALM-1001,Critical,Billing System,Database connection failure,2023-06-15T14:23:45,Open
+ALM-1002,Major,Core Network,High CPU utilization on router,2023-06-15T14:15:22,Open
+ALM-1003,Minor,CRM System,API response time degradation,2023-06-15T14:05:17,Resolved
+ALM-1004,Critical,Data Center,Power supply failure,2023-06-15T13:58:03,Open
+ALM-1005,Minor,Access Network,Signal strength degradation,2023-06-15T13:45:51,Resolved
+ALM-1006,Major,Billing System,Payment processing delay,2023-06-14T10:23:12,Open
+ALM-1007,Minor,Network Edge,Packet loss increase,2023-06-14T09:17:45,Open
+ALM-1008,Major,Database Server,High memory usage,2023-06-13T16:42:18,Resolved
+ALM-1009,Critical,Security System,Multiple failed login attempts,2023-06-13T14:05:33,Resolved
+ALM-1010,Minor,Monitoring System,Sensor offline,2023-06-12T11:30:27,Open
+ALM-1011,Critical,Core Network,jfhjggjh,2025-05-06T22:50:49.419481,Open
+ALM-1012,Major,CRM System,guytfyfygf,2025-05-06T22:53:03.688941,Open
+ALM-1013,Major,Core Network,hjhijhi,2025-05-06T23:06:57.559578,Open

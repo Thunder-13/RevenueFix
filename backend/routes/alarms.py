@@ -1,12 +1,161 @@
-from flask import Blueprint, jsonify
-from models.operations import OperationsModel
+from flask import Blueprint, jsonify, request
+import pandas as pd
+import os
+import datetime
+import uuid
 
 alarms_bp = Blueprint('alarms', __name__)
+
+def get_next_alarm_id():
+    """Generate the next alarm ID based on existing alarms"""
+    try:
+        df = pd.read_csv(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'alarms.csv'))
+        if df.empty:
+            return "ALM-1001"
+        
+        # Extract numbers from IDs
+        last_id = df['id'].iloc[-1]
+        num = int(last_id.split('-')[1])
+        return f"ALM-{num + 1}"
+    except Exception as e:
+        print(f"Error generating alarm ID: {e}")
+        return f"ALM-{uuid.uuid4().hex[:6]}"
 
 @alarms_bp.route('', methods=['GET'])
 def get_alarm_data():
     """Get alarm management data"""
-    return jsonify({
-        'status': 'success',
-        'data': OperationsModel.get_alarm_data()
-    })
+    try:
+        # Read alarms from CSV
+        file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'alarms.csv')
+        df = pd.read_csv(file_path)
+        
+        # Convert to list of dictionaries
+        alarms = df.to_dict('records')
+        
+        # Calculate summary statistics
+        total_alarms = len(alarms)
+        critical_alarms = len(df[df['severity'] == 'Critical'])
+        major_alarms = len(df[df['severity'] == 'Major'])
+        minor_alarms = len(df[df['severity'] == 'Minor'])
+        resolved_today = len(df[df['status'] == 'Resolved'])
+        
+        # Group alarms by source for category breakdown
+        alarm_by_category = df.groupby('source').size().reset_index(name='count')
+        alarm_by_category.columns = ['category', 'count']
+        
+        return jsonify({
+            'status': 'success',
+            'data': {
+                'summary': {
+                    'total_alarms': total_alarms,
+                    'critical_alarms': critical_alarms,
+                    'major_alarms': major_alarms,
+                    'minor_alarms': minor_alarms,
+                    'resolved_today': resolved_today
+                },
+                'alarm_by_category': alarm_by_category.to_dict('records'),
+                'recent_alarms': alarms
+            }
+        })
+    except Exception as e:
+        print(f"Error fetching alarm data: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
+
+@alarms_bp.route('', methods=['POST'])
+def add_alarm():
+    """Add a new alarm"""
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['severity', 'source', 'message']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({
+                    'status': 'error',
+                    'message': f"Missing required field: {field}"
+                }), 400
+        
+        # Read existing alarms
+        file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'alarms.csv')
+        df = pd.read_csv(file_path)
+        
+        # Create new alarm
+        new_alarm = {
+            'id': get_next_alarm_id(),
+            'severity': data['severity'],
+            'source': data['source'],
+            'message': data['message'],
+            'timestamp': datetime.datetime.now().isoformat(),
+            'status': data.get('status', 'Open')
+        }
+        
+        # Append new alarm to DataFrame
+        df = pd.concat([df, pd.DataFrame([new_alarm])], ignore_index=True)
+        
+        # Save updated DataFrame to CSV
+        df.to_csv(file_path, index=False)
+        
+        return jsonify({
+            'status': 'success',
+            'data': new_alarm
+        })
+    except Exception as e:
+        print(f"Error adding alarm: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
+
+@alarms_bp.route('/<alarm_id>', methods=['PUT'])
+def update_alarm(alarm_id):
+    """Update an existing alarm"""
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['severity', 'source', 'message', 'status']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({
+                    'status': 'error',
+                    'message': f"Missing required field: {field}"
+                }), 400
+        
+        # Read existing alarms
+        file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'alarms.csv')
+        df = pd.read_csv(file_path)
+        
+        # Find the alarm to update
+        alarm_index = df[df['id'] == alarm_id].index
+        if len(alarm_index) == 0:
+            return jsonify({
+                'status': 'error',
+                'message': f"Alarm with ID {alarm_id} not found"
+            }), 404
+        
+        # Update the alarm
+        df.loc[alarm_index, 'severity'] = data['severity']
+        df.loc[alarm_index, 'source'] = data['source']
+        df.loc[alarm_index, 'message'] = data['message']
+        df.loc[alarm_index, 'status'] = data['status']
+        
+        # Save updated DataFrame to CSV
+        df.to_csv(file_path, index=False)
+        
+        # Get the updated alarm
+        updated_alarm = df.loc[alarm_index].to_dict('records')[0]
+        
+        return jsonify({
+            'status': 'success',
+            'data': updated_alarm
+        })
+    except Exception as e:
+        print(f"Error updating alarm: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500

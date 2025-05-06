@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
-import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { useToast } from "@/hooks/use-toast";
@@ -10,6 +9,47 @@ import apiService from "@/lib/api";
 import { FolderOpen, Clock, PlusCircle, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+interface Case {
+  id: string;
+  priority: string;
+  customer: string;
+  subject: string;
+  status: string;
+  created_at: string;
+  assigned_to: string;
+  description: string;
+}
 
 interface CaseData {
   summary: {
@@ -21,47 +61,142 @@ interface CaseData {
   };
   case_by_priority: Array<{ priority: string; count: number }>;
   case_by_department: Array<{ department: string; count: number }>;
-  case_trend: Array<{ date: string; value: number }>;
-  recent_cases: Array<{ 
-    id: string; 
-    priority: string; 
-    customer: string; 
-    subject: string; 
-    status: string; 
-    created_at: string;
-  }>;
+  recent_cases: Case[];
 }
+
+// Form schema for adding/editing a case
+const caseFormSchema = z.object({
+  priority: z.string({
+    required_error: "Please select a priority level",
+  }),
+  customer: z.string().min(2, {
+    message: "Customer name must be at least 2 characters",
+  }),
+  subject: z.string().min(5, {
+    message: "Subject must be at least 5 characters",
+  }),
+  description: z.string().min(10, {
+    message: "Description must be at least 10 characters",
+  }),
+  assigned_to: z.string().optional(),
+  status: z.string().default("Open"),
+});
 
 const CaseManagement = () => {
   const [data, setData] = useState<CaseData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await apiService.getCaseData();
-        setData(response.data.data);
-      } catch (error) {
-        console.error("Error fetching case data:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load case management data. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Initialize form
+  const form = useForm<z.infer<typeof caseFormSchema>>({
+    resolver: zodResolver(caseFormSchema),
+    defaultValues: {
+      priority: "",
+      customer: "",
+      subject: "",
+      description: "",
+      assigned_to: "",
+      status: "Open",
+    },
+  });
 
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await apiService.getCaseData();
+      setData(response.data.data);
+    } catch (error) {
+      console.error("Error fetching case data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load case management data. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, [toast]);
 
-  if (loading) {
+  // Reset form when dialog opens/closes or when switching between add/edit modes
+  useEffect(() => {
+    if (isDialogOpen) {
+      if (isEditMode && selectedCase) {
+        form.reset({
+          priority: selectedCase.priority,
+          customer: selectedCase.customer,
+          subject: selectedCase.subject,
+          description: selectedCase.description,
+          assigned_to: selectedCase.assigned_to,
+          status: selectedCase.status,
+        });
+      } else {
+        form.reset({
+          priority: "",
+          customer: "",
+          subject: "",
+          description: "",
+          assigned_to: "",
+          status: "Open",
+        });
+      }
+    }
+  }, [isDialogOpen, isEditMode, selectedCase, form]);
+
+  const onSubmit = async (values: z.infer<typeof caseFormSchema>) => {
+    try {
+      if (isEditMode && selectedCase) {
+        // Update existing case
+        await apiService.updateCase(selectedCase.id, values);
+        toast({
+          title: "Success",
+          description: "Case has been updated successfully.",
+        });
+      } else {
+        // Add new case
+        await apiService.addCase(values);
+        toast({
+          title: "Success",
+          description: "Case has been added successfully.",
+        });
+      }
+      setIsDialogOpen(false);
+      form.reset();
+      fetchData(); // Refresh data
+    } catch (error) {
+      console.error(`Error ${isEditMode ? 'updating' : 'adding'} case:`, error);
+      toast({
+        title: "Error",
+        description: `Failed to ${isEditMode ? 'update' : 'add'} case. Please try again.`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRowClick = (caseItem: Case) => {
+    setSelectedCase(caseItem);
+    setIsEditMode(true);
+    setIsDialogOpen(true);
+  };
+
+  const handleAddNewClick = () => {
+    setSelectedCase(null);
+    setIsEditMode(false);
+    setIsDialogOpen(true);
+  };
+
+  if (loading && !data) {
     return (
       <div className="flex min-h-screen">
         <AppSidebar />
         <div className="flex flex-1 flex-col">
+          <Header />
           <main className="flex flex-1 items-center justify-center">
             <LoadingSpinner size="lg" text="Loading case management data..." />
           </main>
@@ -93,8 +228,11 @@ const CaseManagement = () => {
         return <Badge className="bg-blue-500">In Progress</Badge>;
       case 'Pending Customer':
         return <Badge className="bg-yellow-500">Pending Customer</Badge>;
+      case 'Scheduled':
+        return <Badge className="bg-purple-500">Scheduled</Badge>;
       case 'Closed':
-        return <Badge className="bg-green-500">Closed</Badge>;
+      case 'Resolved':
+        return <Badge className="bg-green-500">{status}</Badge>;
       default:
         return <Badge>{status}</Badge>;
     }
@@ -104,18 +242,157 @@ const CaseManagement = () => {
     <div className="flex min-h-screen">
       <AppSidebar />
       <div className="flex flex-1 flex-col">
+        <Header />
         <main className="flex-1 p-6 md:p-8">
           <div className="mx-auto max-w-7xl">
             <div className="mb-6 flex items-center justify-between">
               <h1 className="text-3xl font-bold">Case Management</h1>
-              <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Create Case
-              </Button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={handleAddNewClick}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Create Case
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[525px]">
+                  <DialogHeader>
+                    <DialogTitle>{isEditMode ? "Edit Case" : "Create New Case"}</DialogTitle>
+                    <DialogDescription>
+                      {isEditMode 
+                        ? "Update the case details below." 
+                        : "Fill in the details to create a new support case."}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="priority"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Priority</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select priority level" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="P1">P1 - Critical</SelectItem>
+                                <SelectItem value="P2">P2 - High</SelectItem>
+                                <SelectItem value="P3">P3 - Medium</SelectItem>
+                                <SelectItem value="P4">P4 - Low</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="customer"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Customer</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Customer name or company" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="subject"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Subject</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Brief description of the issue" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Detailed description of the case..."
+                                className="resize-none"
+                                rows={4}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="assigned_to"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Assign To</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select agent" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="John Smith">John Smith</SelectItem>
+                                  <SelectItem value="Sarah Johnson">Sarah Johnson</SelectItem>
+                                  <SelectItem value="Michael Brown">Michael Brown</SelectItem>
+                                  <SelectItem value="Emily Davis">Emily Davis</SelectItem>
+                                  <SelectItem value="Robert Wilson">Robert Wilson</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="status"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Status</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select status" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="Open">Open</SelectItem>
+                                  <SelectItem value="In Progress">In Progress</SelectItem>
+                                  <SelectItem value="Pending Customer">Pending Customer</SelectItem>
+                                  <SelectItem value="Scheduled">Scheduled</SelectItem>
+                                  <SelectItem value="Closed">Closed</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <DialogFooter>
+                        <Button type="submit">{isEditMode ? "Update Case" : "Create Case"}</Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
             </div>
 
             {/* Key Metrics */}
-            <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               <MetricsCard
                 title="Total Cases"
                 value={data?.summary.total_cases || 0}
@@ -140,54 +417,13 @@ const CaseManagement = () => {
                 description="resolved cases"
                 icon={<CheckCircle className="h-4 w-4 text-green-500" />}
               />
-              <MetricsCard
-                title="Avg Resolution Time"
-                value={data?.summary.average_resolution_time || 0}
-                suffix=" hrs"
-                description="average time to resolve"
-                icon={<Clock className="h-4 w-4 text-muted-foreground" />}
-              />
             </div>
 
-            {/* Case Trend Chart */}
-            <div className="mb-8">
-              <RevenueChart
-                title="Case Trend"
-                data={data?.case_trend || []}
-                description="Daily case count over the last 30 days"
-              />
-            </div>
-
-            <div className="grid gap-8 md:grid-cols-2">
-              {/* Case by Priority */}
-              <DataTable
-                title="Cases by Priority"
-                columns={[
-                  { 
-                    key: "priority", 
-                    header: "Priority",
-                    formatter: (value) => getPriorityBadge(value)
-                  },
-                  { key: "count", header: "Count" },
-                ]}
-                data={data?.case_by_priority || []}
-              />
-
-              {/* Case by Department */}
-              <DataTable
-                title="Cases by Department"
-                columns={[
-                  { key: "department", header: "Department" },
-                  { key: "count", header: "Count" },
-                ]}
-                data={data?.case_by_department || []}
-              />
-            </div>
-
-            {/* Recent Cases */}
+            {/* Cases Table */}
             <div className="mt-8">
               <DataTable
-                title="Recent Cases"
+                title="All Cases"
+                description="Click on any row to edit the case"
                 columns={[
                   { key: "id", header: "ID" },
                   { 
@@ -202,6 +438,7 @@ const CaseManagement = () => {
                     header: "Status",
                     formatter: (value) => getStatusBadge(value)
                   },
+                  { key: "assigned_to", header: "Assigned To" },
                   { 
                     key: "created_at", 
                     header: "Created",
@@ -212,6 +449,7 @@ const CaseManagement = () => {
                   },
                 ]}
                 data={data?.recent_cases || []}
+                onRowClick={handleRowClick}
               />
             </div>
           </div>
