@@ -29,9 +29,7 @@ class DataProcessor:
     @staticmethod
     def get_crm_billing_analytics():
         """Process CRM and Billing data for reconciliation"""
-        assets_dir = '/app/assets'
-        crm_file = os.path.join(assets_dir, 'CRM_100.csv')
-        billing_file = os.path.join(assets_dir, 'Billing_CRM_100.csv')
+        
         # print("CSV files:", crm_file, billing_file)
         """Process CRM and Billing data for reconciliation using both ML and TensorFlow"""
         curr_dir = os.path.dirname(os.path.abspath(__file__))

@@ -1,15 +1,5 @@
+version: "3.8"
 services:
-  web:
-    build:
-      context: .
-      target: nginx
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-    environment:
-      - NGINX_ENV=production
-
   backend:
     build:
       context: .
@@ -26,7 +16,8 @@ services:
       - ./backend:/app
       - ./backend/assets:/app/assets
     ports:
-      - "5000:5000"
+      - "13130:13130"
+    command: ["flask", "run", "--host=0.0.0.0", "--port=13130"]
   
   frontend:
     build:
@@ -36,10 +27,11 @@ services:
       - ./frontend:/app
       - /app/node_modules
     ports:
-      - "5173:5173"
+      - "13131:13131"
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://backend:5000
+      - VITE_API_URL=http://backend:13130
+    command: ["npm", "run", "dev", "--", "--port", "13131"]
   # db:
   #   image: postgres:13
   #   environment:
