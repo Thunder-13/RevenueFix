@@ -233,13 +233,18 @@ const Data = () => {
       return groupedRecords;
     };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <LoadingSpinner />
-      </div>
-    );
-  }
+    if (loading) {
+      return (
+        <div className="flex min-h-screen">
+          <AppSidebar />
+          <div className="flex flex-1 flex-col">
+            <main className="flex flex-1 items-center justify-center">
+              <LoadingSpinner size="lg" text="Loading Internet data..." />
+            </main>
+          </div>
+        </div>
+      );
+    }
 
     return (
         <div className="flex min-h-screen">
