@@ -52,7 +52,6 @@ const B2BAnalysis = () => {
       <div className="flex min-h-screen">
         <AppSidebar />
         <div className="flex flex-1 flex-col">
-          <Header />
           <main className="flex flex-1 items-center justify-center">
             <LoadingSpinner size="lg" text="Loading B2B analysis data..." />
           </main>
