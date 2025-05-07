@@ -448,15 +448,13 @@ const dummyData = {
     { id: 3, name: 'analyst', description: 'Data analysis and reporting access' },
     { id: 4, name: 'viewer', description: 'Read-only access to reports' }
   ],
-  departments: [
-    { id: 1, name: 'IT' },
-    { id: 2, name: 'Finance' },
-    { id: 3, name: 'Revenue Assurance' },
-    { id: 4, name: 'Marketing' },
-    { id: 5, name: 'Customer Service' },
-    { id: 6, name: 'Operations' },
-    { id: 7, name: 'Sales' }
-  ],
+  tasks: [
+        { "name": "Abinesh", "tasks": 3 },
+        { "name": "Saravanan", "tasks": 2 },
+        { "name": "Aravinth", "tasks": 3 },
+        { "name": "Sayantani", "tasks": 1 },
+        { "name": "Murugan", "tasks": 1 }
+    ],
   settings: {
     general: {
       app_name: 'RevenueFix',
@@ -710,8 +708,8 @@ api.interceptors.response.use(
       return Promise.resolve({ data: { status: 'success', data: dummyData.cases } });
     } else if (url.includes('/users/roles')) {
       return Promise.resolve({ data: { status: 'success', data: dummyData.userRoles } });
-    } else if (url.includes('/users/departments')) {
-      return Promise.resolve({ data: { status: 'success', data: dummyData.departments } });
+    } else if (url.includes('/users/tasks')) {
+      return Promise.resolve({ data: { status: 'success', data: dummyData.tasks } });
     } else if (url.includes('/users')) {
       return Promise.resolve({ data: { status: 'success', data: dummyData.users } });
     } else if (url.includes('/settings')) {
@@ -809,7 +807,7 @@ export const apiService = {
   getUsers: () => api.get("/users"),
   getUserById: (id: number) => api.get(`/users/${id}`),
   getUserRoles: () => api.get("/users/roles"),
-  getUserDepartments: () => api.get("/users/departments"),
+  getUserTasks: () => api.get("/users/tasks"),
   
   // Case Management
   getCaseData: () => api.get("/cases"),

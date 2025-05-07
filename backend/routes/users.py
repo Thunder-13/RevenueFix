@@ -33,10 +33,11 @@ def get_roles():
         'data': UserModel.get_user_roles()
     })
 
-@users_bp.route('/departments', methods=['GET'])
-def get_departments():
-    """Get available departments"""
+@users_bp.route('/tasks', methods=['GET'])
+def get_tasks():
+    """Get available task"""
+
     return jsonify({
         'status': 'success',
-        'data': UserModel.get_departments()
+        'data': UserModel.get_tasks()
     })

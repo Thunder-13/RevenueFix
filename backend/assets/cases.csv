@@ -4,9 +4,3 @@ CS-1002,P2,John Smith,Billing dispute for June invoice,In Progress,2023-06-15T14
 CS-1003,P3,Tech Solutions,Plan upgrade request,Pending Customer,2023-06-15T14:05:17,Saravanan,Customer wants to upgrade from basic to premium business plan
 CS-1004,P1,City Hospital,Network connectivity issue,Open,2023-06-15T13:58:03,Sayantani,Critical healthcare customer experiencing intermittent connectivity
 CS-1005,P4,Jane Doe,Account information update,Closed,2023-06-15T13:45:51,Murugan,Customer requested address change on account
-CS-1006,P2,Metro University,Bandwidth throttling complaint,In Progress,2023-06-14T10:12:33,Aravinth,Customer reports unexpected bandwidth limitations
-CS-1007,P3,Small Business Inc,New service installation,Scheduled,2023-06-14T09:45:21,Abinesh,New customer requires on-site installation of business services
-CS-1008,P2,Large Retail Chain,Data usage discrepancy,Open,2023-06-13T16:30:45,Saravanan,Customer disputes data usage measurements on monthly bill
-CS-1009,P1,Emergency Services,Priority line failure,Resolved,2023-06-13T11:20:18,Sayantani,Emergency services hotline experienced downtime
-CS-1010,P3,Personal Customer,International calling setup,Closed,2023-06-12T14:15:30,Murugan,Customer needed assistance enabling international calling feature
-CS-1011,P2,Abinesh,Tele billing,Open,2025-05-07T18:54:39.193793,Aravinth,Sample template

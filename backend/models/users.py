@@ -1,6 +1,9 @@
 from models.base import BaseModel
 from datetime import datetime, timedelta
 import random
+import pandas as pd
+import os
+from collections import defaultdict
 class UserModel(BaseModel):
     """Model for user data"""
     current_time = datetime.now()
@@ -100,14 +103,17 @@ class UserModel(BaseModel):
     
     
     @classmethod
-    def get_departments(cls):
+    def get_tasks(cls):
         """Get available departments"""
-        return [
-            {'id': 1, 'name': 'IT'},
-            {'id': 2, 'name': 'Finance'},
-            {'id': 3, 'name': 'Revenue Assurance'},
-            {'id': 4, 'name': 'Marketing'},
-            {'id': 5, 'name': 'Customer Service'},
-            {'id': 6, 'name': 'Operations'},
-            {'id': 7, 'name': 'Sales'}
-        ]
+        file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'alarms.csv')
+        alarm = pd.read_csv(file_path).to_dict('records')
+        file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'cases.csv')
+        cases = pd.read_csv(file_path).to_dict('records')
+
+        user_map = defaultdict(int)
+        for alarm in alarm:
+            user_map[alarm['assigned_to']] += 1
+        for case in cases:
+            user_map[case['assigned_to']] += 1
+
+        return [{"name": name, "tasks": id_} for name, id_ in user_map.items()]

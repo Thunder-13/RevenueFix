@@ -25,7 +25,7 @@ interface UserRole {
   description: string;
 }
 
-interface Department {
+interface Tasks {
   id: number;
   name: string;
 }
@@ -33,22 +33,22 @@ interface Department {
 const UserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<UserRole[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
+  const [task, setTasks] = useState<Tasks[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [usersResponse, rolesResponse, departmentsResponse] = await Promise.all([
+        const [usersResponse, rolesResponse, tasksResponse] = await Promise.all([
           apiService.getUsers(),
           apiService.getUserRoles(),
-          apiService.getUserDepartments()
+          apiService.getUserTasks()
         ]);
         
         setUsers(usersResponse.data.data);
         setRoles(rolesResponse.data.data);
-        setDepartments(departmentsResponse.data.data);
+        setTasks(tasksResponse.data.data);
       } catch (error) {
         console.error("Error fetching user management data:", error);
         toast({
@@ -139,14 +139,15 @@ const UserManagement = () => {
                 data={roles}
               />
 
-              {/* Departments Table */}
-              {/* <DataTable
-                title="Departments"
+              {/* User Task Table */}
+              <DataTable
+                title="User Task"
                 columns={[
-                  { key: "name", header: "Department" },
+                  { key: "name", header: "User" },
+                  { key: "tasks", header: "Task Count"}
                 ]}
-                data={departments}
-              /> */}
+                data={task}
+              />
             </div>
           </div>
         </main>
