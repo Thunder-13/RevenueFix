@@ -55,7 +55,7 @@ export function RevenueChart({
   infoTooltipContent,
   allowTimeRange = true,
 }: RevenueChartProps) {
-  const [timeRange, setTimeRange] = useState<string>("30d");
+  const [timeRange, setTimeRange] = useState<string>("12d");
   const [chartType, setChartType] = useState<"bar" | "area" | "line">(type);
   const [fullscreen, setFullscreen] = useState<boolean>(false);
   
@@ -92,6 +92,9 @@ export function RevenueChart({
       }
       return dateStr;
     }
+    const [year, month] = dateStr.split('-');
+    return `${new Date(parseInt(year), parseInt(month) - 1).toLocaleString('default', { month: 'short' })} ${year}`;
+
     return date.toLocaleDateString();
   };
 
@@ -387,10 +390,10 @@ export function RevenueChart({
                 <SelectValue placeholder="Time Range" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="7d">7 days</SelectItem>
-                <SelectItem value="14d">14 days</SelectItem>
-                <SelectItem value="30d">30 days</SelectItem>
-                <SelectItem value="90d">90 days</SelectItem>
+                <SelectItem value="6d">6 month</SelectItem>
+                <SelectItem value="12d">1 year</SelectItem>
+                <SelectItem value="24d">2 years</SelectItem>
+                <SelectItem value="36d">3 years</SelectItem>
                 <SelectItem value="all">All time</SelectItem>
               </SelectContent>
             </Select>

@@ -24,14 +24,41 @@ class RevenueModel(BaseModel):
             })
             
         return data
+    @staticmethod
+    def generate_time_series_monthly(periods=12, base_value=100000, volatility=0.05, period_type="monthly"):
+        data = []
+        today = datetime.today()
+        
+        for i in range(periods):
+            if period_type == "monthly":
+                date = today - timedelta(days=(periods - i - 1)*30)
+                date_format = date.strftime("%Y-%m")
+            else:  # Default to daily
+                date = today - timedelta(days=periods - i - 1)
+            date_format = date.strftime("%Y-%m-%d")
+        
+        change = (random.random() - 0.5) * 2 * volatility
+        value = base_value * (1 + change)
+        base_value = value  # For the next period
+        
+        data.append({
+            "date": date_format,
+            "value": round(value, 2)
+        })
+    
+        return data
+
     
     @classmethod
     def get_dashboard_metrics(cls):
+        print(0/0)
         """Get metrics for the dashboard"""
         return {
             'total_revenue': 12458932.45,
-            'revenue_growth': 8.7,
+            'revenue_growth': 0.023,
             'average_revenue_per_user': 42.35,
+            'leakage_detected': 0.2,
+            'leakage_value': 12345.67,
             'churn_rate': 2.1,
             'revenue_by_channel': [
                 {'name': 'Voice', 'value': 4523651.23},
@@ -39,12 +66,12 @@ class RevenueModel(BaseModel):
                 {'name': 'Data', 'value': 5689472.34},
                 {'name': 'Fixed Line', 'value': 1000019.32}
             ],
-            'revenue_trend': cls.generate_time_series(),
+            'revenue_trend': cls.generate_time_series_monthly(periods=12, base_value=1000000, volatility=0.1, period_type="monthly"),
             'top_products': [
                 {'name': 'Premium Data Plan', 'revenue': 2345678.90},
-                {'name': 'Family Voice Bundle', 'revenue': 1987654.32},
+                {'name': 'Family Bundle', 'revenue': 1987654.32},
                 {'name': 'Business Fiber', 'revenue': 1456789.01},
-                {'name': 'International SMS Pack', 'revenue': 987654.32},
+                {'name': 'International Roaming', 'revenue': 987654.32},
                 {'name': 'IoT Connectivity', 'revenue': 876543.21}
             ]
         }

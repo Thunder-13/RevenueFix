@@ -8,7 +8,7 @@ def get_dashboard_data():
     """Get dashboard data"""
     return jsonify({
         'status': 'success',
-        'data': RevenueModel.get_dashboard_metrics()
+        'data': RevenueModel.get_dashboard_metriics()
     })
 
 @dashboard_bp.route('/kra/<kra_id>', methods=['GET'])

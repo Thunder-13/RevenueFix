@@ -21,6 +21,7 @@ interface DashboardData {
   average_revenue_per_user: number;
   churn_rate: number;
   leakage_detected: number; // Added this property
+  leakage_value: number; // Added this property
   revenue_by_channel: Array<{ name: string; value: number }>;
   revenue_trend: Array<{ date: string; value: number }>;
   top_products: Array<{ name: string; revenue: number }>;
@@ -143,11 +144,11 @@ const Dashboard = () => {
                 {/* Key Metrics */}
                 <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                   <MetricsCard
-                    title="Total Revenue"
+                    title="Total Revenue (monthly)"
                     value={data?.total_revenue || 0}
                     prefix="$"
                     trend={data?.revenue_growth}
-                    description="vs. previous period"
+                    description="this month"
                     icon={<BarChart3 className="h-4 w-4 text-muted-foreground" />}
                     onClick={() => handleKraClick('revenue')}
                     infoTooltip="Click for detailed revenue KRA"
@@ -164,16 +165,16 @@ const Dashboard = () => {
                   <MetricsCard
                     title="Leakage Detected"
                     value={data?.leakage_detected || 0}
-                    prefix="$"
+                    suffix="%"
                     description="monthly rate"
                     icon={<Users className="h-4 w-4 text-muted-foreground" />}
                     onClick={() => handleKpiClick('arpu')}
                     infoTooltip="Click for detailed ARPU KPI"
                   />
                   <MetricsCard
-                    title="Customer Count"
-                    value={data?.churn_rate || 0}
-                    suffix="%"
+                    title="Leakage Value"
+                    value={data?.leakage_value || 0}
+                    prefix="$"
                     description="monthly rate"
                     icon={<ArrowDownRight className="h-4 w-4 text-muted-foreground" />}
                     onClick={() => handleKpiClick('churn')}
@@ -188,7 +189,7 @@ const Dashboard = () => {
                     data={data?.revenue_trend || []}
                     valuePrefix="$"
                     description="Daily revenue over the last 30 days"
-                    onClick={() => handleKpiClick('revenue')}
+                    //onClick={() => handleKpiClick('revenue')}
                     allowFullscreen={true}
                     showInfoTooltip={true}
                     infoTooltipContent="Click for detailed revenue analysis"

@@ -26,8 +26,10 @@ api.interceptors.request.use(
 const dummyData = {
   dashboard: {
     total_revenue: 1245893.45,
-    revenue_growth: 8.7,
+    revenue_growth: 0.023,
     average_revenue_per_user: 42.35,
+    leakage_detected : 0.2,
+    leakage_value: 12345.67,
     churn_rate: 2.1,
     revenue_by_channel: [
       { name: 'Voice', value: 452365.23 },
@@ -35,12 +37,12 @@ const dummyData = {
       { name: 'Data', value: 568947.34 },
       { name: 'Fixed Line', value: 100001.32 }
     ],
-    revenue_trend: generateTimeSeries(30, 100000),
+    revenue_trend: generateTimeSeries(60, 100000, 0.15, "monthly"),
     top_products: [
       { name: 'Premium Data Plan', revenue: 234567.90 },
-      { name: 'Family Voice Bundle', revenue: 198765.32 },
+      { name: 'Family Bundle', revenue: 198765.32 },
       { name: 'Business Fiber', revenue: 145678.01 },
-      { name: 'International SMS Pack', revenue: 98765.32 },
+      { name: 'International Roaming', revenue: 98765.32 },
       { name: 'IoT Connectivity', revenue: 87654.21 }
     ]
   },
