@@ -72,7 +72,7 @@ const CrmInsights = () => {
             <h1 className="mb-6 text-3xl font-bold">CRM Insights</h1>
 
             {/* Key Metrics */}
-            <div className="mb-8 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="mb-8 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
               <MetricsCard
                 title="Total Customers"
                 value={data?.summary.total_customers || 0}
@@ -92,17 +92,17 @@ const CrmInsights = () => {
                 description="monthly rate"
                 icon={<ArrowDownRight className="h-4 w-4 text-muted-foreground" />}
               />
-              <MetricsCard
+              {/* <MetricsCard
                 title="Customer Satisfaction"
                 value={data?.summary.customer_satisfaction || 0}
                 suffix="%"
                 description="satisfaction score"
                 icon={<ThumbsUp className="h-4 w-4 text-muted-foreground" />}
-              />
+              /> */}
               <MetricsCard
                 title="ARPU"
                 value={data?.summary.arpu || 0}
-                prefix="$"
+                suffix=" $"
                 description="average revenue per user"
                 icon={<BarChart3 className="h-4 w-4 text-muted-foreground" />}
               />
@@ -110,14 +110,14 @@ const CrmInsights = () => {
 
             <div className="mb-8 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
               {/* Customer Satisfaction Trend Chart */}
-              <div className="mb-8">
+              {/* <div className="mb-8">
                 <RevenueChart
                   title="Customer Satisfaction Trend"
                   data={data?.customer_satisfaction_trend || []}
                   valueSuffix="%"
                   description="Daily customer satisfaction score over the last 30 days"
                 />
-              </div>
+              </div> */}
 
               {/* Churn Trend Chart */}
               <div className="mb-8">
@@ -128,10 +128,6 @@ const CrmInsights = () => {
                   description="Daily churn rate over the last 30 days"
                 />
               </div>
-            </div>
-
-            <div className="grid gap-8 md:grid-cols-2">
-              {/* Customer Segments */}
               <DataTable
                 title="Customer Segments"
                 columns={[
@@ -140,17 +136,22 @@ const CrmInsights = () => {
                   { key: "percentage", header: "Percentage", formatter: (value) => `${value}%` },
                 ]}
                 data={data?.customer_segments || []}
-              />
+              />         
+            </div>
+
+            <div className="grid gap-8 md:grid-cols-2">
+              {/* Customer Segments */}
+              
 
               {/* Customer Lifecycle */}
-              <DataTable
+              {/* <DataTable
                 title="Customer Lifecycle"
                 columns={[
                   { key: "stage", header: "Stage" },
                   { key: "count", header: "Count", formatter: (value) => value.toLocaleString() },
                 ]}
                 data={data?.customer_lifecycle || []}
-              />
+              /> */}
             </div>
             <div className="mb-8 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
             {/* Customer Count Per Service Line */}

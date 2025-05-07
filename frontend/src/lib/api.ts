@@ -261,15 +261,15 @@ const dummyData = {
   },
   crm: {
     summary: {
-      total_customers: 123456,
-      new_customers_mtd: 1234,
+      total_customers: 10741,
+      new_customers_mtd: 124,
       churn_rate: 2.3,
       customer_satisfaction: 87.5
     },
     customer_segments: [
-      { segment: 'High Value', count: 12345, percentage: 10.0 },
-      { segment: 'Medium Value', count: 37037, percentage: 30.0 },
-      { segment: 'Low Value', count: 74074, percentage: 60.0 }
+      { segment: 'High Value', count: 271, percentage: 10.0 },
+      { segment: 'Medium Value', count: 4781, percentage: 30.0 },
+      { segment: 'Low Value', count: 5689, percentage: 60.0 }
     ],
     customer_lifecycle: [
       { stage: 'Acquisition', count: 1234 },
