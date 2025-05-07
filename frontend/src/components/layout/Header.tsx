@@ -22,6 +22,8 @@ export function Header() {
   const { expanded, setExpanded } = useSidebar();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [notifications, setNotifications] = useState<number>(3);
+  const [startDate, setStartDate] = useState("2025-04-01");
+  const [endDate, setEndDate] = useState("2025-04-30");
 
   useEffect(() => {
     const userStr = localStorage.getItem("user");
@@ -121,9 +123,8 @@ export function Header() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button variant="ghost" size="icon" className="text-white">
-          <HelpCircle className="h-5 w-5" />
-        </Button>
+        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-8 rounded border px-2 text-sm" />
+        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-8 rounded border px-2 text-sm" />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
