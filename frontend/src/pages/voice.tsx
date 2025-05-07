@@ -111,7 +111,7 @@ const Voice = () => {
         return [
           { key: "MSISDN", header: "MSISDN" },
           { 
-            key: "Service Name",
+            key: "Service Name_Network",
             header: "Network Service Name",
             formatter: (value) => (
               <Badge
@@ -123,7 +123,7 @@ const Voice = () => {
             ),
           },
           { 
-            key: "Billing Service Name",
+            key: "Service Name_Billing",
             header: "Billing Service Name",
             formatter: (value) => (
               <Badge
@@ -139,9 +139,9 @@ const Voice = () => {
       } else if (mismatchReason === "Service Start/End Date mismatch between Network and Billing") {
         return [
           { key: "MSISDN", header: "MSISDN" },
-          { key: "Service ID", header: "Network Service ID" },
+          { key: "Service ID_Network", header: "Network Service ID" },
           { 
-            key: "Service Start Date",
+            key: "Service Start Date_Network",
             header: "Network Service Start Date",
             formatter: (value) => (
               <Badge
@@ -153,7 +153,7 @@ const Voice = () => {
             ),
           },
           { 
-            key: "Service End Date",
+            key: "Service End Date_Network",
             header: "Network Service End Date",
             formatter: (value) => (
               <Badge
@@ -197,7 +197,7 @@ const Voice = () => {
           { key: "Service ID", header: "Service ID" },
           { key: "Service Name", header: "Service Name" },
           { 
-            key: "Service Status",
+            key: "Service Status Network",
             header: "Network Service Status",
             formatter: (value) => getStatusBadge(value),
           },
@@ -392,7 +392,7 @@ const Voice = () => {
                                   ? [
                                       { key: "MSISDN", header: "MSISDN" },
                                       { 
-                                        key: "Call Start Time",
+                                        key: "Call Start Time_Network",
                                         header: "Network Call Start Time",
                                         formatter: (value) => (
                                           <Badge
@@ -405,7 +405,7 @@ const Voice = () => {
                                         
                                       },
                                       { 
-                                        key: "Call End Time",
+                                        key: "Call End Time_Network",
                                         header: "Network Call End Time",
                                         formatter: (value) => (
                                           <Badge
@@ -418,7 +418,7 @@ const Voice = () => {
                                         
                                       },
                                       { 
-                                        key: "Billing Call Start Time",
+                                        key: "Call Start Time_Billing",
                                         header: "Billing Call Start Time",
                                         formatter: (value) => (
                                           <Badge
@@ -430,7 +430,7 @@ const Voice = () => {
                                         ),
                                       },
                                       { 
-                                        key: "Billing Call End Time",
+                                        key: "Call End Time_Billing",
                                         header: "Billing Call End Time",
                                         formatter: (value) => (
                                           <Badge

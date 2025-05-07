@@ -310,11 +310,11 @@ const dummyData = {
       { category: 'Performance', count: 21 }
     ],
     recent_alarms: [
-      { id: 'ALM-1001', severity: 'Critical', source: 'Billing System', message: 'Network Data not loading into RevenueFix', timestamp: '2023-06-15T14:23:45', status: 'Open', assigned_to: 'Unassigned' },
-      { id: 'ALM-1002', severity: 'Major', source: 'Core Network', message: 'High CPU utilization on router', timestamp: '2023-06-15T14:15:22', status: 'Open', assigned_to: 'Aravinth' },
-      { id: 'ALM-1003', severity: 'Minor', source: 'CRM System', message: 'API response time degradation', timestamp: '2023-06-15T14:05:17', status: 'Resolved', assigned_to: 'Saravanan' },
-      { id: 'ALM-1004', severity: 'Critical', source: 'Data Center', message: 'Power supply failure', timestamp: '2023-06-15T13:58:03', status: 'Open', assigned_to: 'Abinesh' },
-      { id: 'ALM-1005', severity: 'Minor', source: 'Access Network', message: 'Signal strength degradation', timestamp: '2023-06-15T13:45:51', status: 'Resolved', assigned_to: 'Sayantani' }
+      { id: 'ALM-1001', severity: 'Critical', source: 'Billing System', message: 'Network Data not loading into RevenueFix', timestamp: '2025-06-15T14:23:45', status: 'Open', assigned_to: 'Unassigned' },
+      { id: 'ALM-1002', severity: 'Major', source: 'Core Network', message: 'High CPU utilization on router', timestamp: '2025-06-15T14:15:22', status: 'Open', assigned_to: 'Aravinth' },
+      { id: 'ALM-1003', severity: 'Minor', source: 'CRM System', message: 'API response time degradation', timestamp: '2025-06-15T14:05:17', status: 'Resolved', assigned_to: 'Saravanan' },
+      { id: 'ALM-1004', severity: 'Critical', source: 'Data Center', message: 'Power supply failure', timestamp: '2025-06-15T13:58:03', status: 'Open', assigned_to: 'Abinesh' },
+      { id: 'ALM-1005', severity: 'Minor', source: 'Access Network', message: 'Signal strength degradation', timestamp: '2025-06-15T13:45:51', status: 'Resolved', assigned_to: 'Sayantani' }
     ],
     assigned_to_list: ['Saravanan', 'Abinesh', 'Aravinth', 'Sayantani', 'Ganesh']
   },
@@ -342,11 +342,11 @@ const dummyData = {
       { department: 'Closed', count: 190 }
     ],
     recent_cases: [
-      { id: 'CS-1001', priority: 'P1', customer: 'Global Corp', subject: 'Service outage in downtown area', status: 'Open', created_at: '2023-06-15T14:23:45', assigned_to: 'Unassigned', description: 'Multiple customers reporting complete service outage in downtown business district' },
-      { id: 'CS-1002', priority: 'P2', customer: 'John Smith', subject: 'Billing dispute for June invoice', status: 'In Progress', created_at: '2023-06-15T14:15:22', assigned_to: 'Aravinth', description: 'Customer claims they were charged for services not used' },
-      { id: 'CS-1003', priority: 'P3', customer: 'Tech Solutions', subject: 'Plan upgrade request', status: 'Pending Customer', created_at: '2023-06-15T14:05:17', assigned_to: 'Saravanan', description: 'Customer wants to upgrade from basic to premium business plan' },
-      { id: 'CS-1004', priority: 'P1', customer: 'City Hospital', subject: 'Network connectivity issue', status: 'Open', created_at: '2023-06-15T13:58:03', assigned_to: 'Abinesh', description: 'Critical healthcare customer experiencing intermittent connectivity' },
-      { id: 'CS-1005', priority: 'P4', customer: 'Jane Doe', subject: 'Account information update', status: 'Closed', created_at: '2023-06-15T13:45:51', assigned_to: 'Sayantani', description: 'Customer requested address change on account' }
+      { id: 'CS-1001', priority: 'P1', customer: 'Global Corp', subject: 'Service outage in downtown area', status: 'Open', created_at: '2025-06-15T14:23:45', assigned_to: 'Unassigned', description: 'Multiple customers reporting complete service outage in downtown business district' },
+      { id: 'CS-1002', priority: 'P2', customer: 'John Smith', subject: 'Billing dispute for June invoice', status: 'In Progress', created_at: '2025-06-15T14:15:22', assigned_to: 'Aravinth', description: 'Customer claims they were charged for services not used' },
+      { id: 'CS-1003', priority: 'P3', customer: 'Tech Solutions', subject: 'Plan upgrade request', status: 'Pending Customer', created_at: '2025-06-15T14:05:17', assigned_to: 'Saravanan', description: 'Customer wants to upgrade from basic to premium business plan' },
+      { id: 'CS-1004', priority: 'P1', customer: 'City Hospital', subject: 'Network connectivity issue', status: 'Open', created_at: '2025-06-15T13:58:03', assigned_to: 'Abinesh', description: 'Critical healthcare customer experiencing intermittent connectivity' },
+      { id: 'CS-1005', priority: 'P4', customer: 'Jane Doe', subject: 'Account information update', status: 'Closed', created_at: '2025-06-15T13:45:51', assigned_to: 'Sayantani', description: 'Customer requested address change on account' }
     ],
     assigned_to_list: ['Saravanan', 'Abinesh', 'Aravinth', 'Sayantani', 'Ganesh']
   },
@@ -499,35 +499,35 @@ const dummyData = {
       name: 'AI-Powered Revenue Forecasting',
       description: 'Machine learning algorithms to predict future revenue trends with higher accuracy',
       status: 'In Development',
-      release_date: '2023-08-15'
+      release_date: '2025-08-15'
     },
     {
       id: 2,
       name: 'Advanced Fraud Detection',
       description: 'Real-time fraud detection system using pattern recognition and anomaly detection',
       status: 'Planning',
-      release_date: '2023-10-01'
+      release_date: '2025-10-01'
     },
     {
       id: 3,
       name: 'Interactive Revenue Maps',
       description: 'Geographical visualization of revenue data with drill-down capabilities',
       status: 'In Development',
-      release_date: '2023-07-30'
+      release_date: '2025-07-30'
     },
     {
       id: 4,
       name: 'Custom Report Builder',
       description: 'Drag-and-drop interface for creating custom reports and dashboards',
       status: 'Beta Testing',
-      release_date: '2023-07-15'
+      release_date: '2025-07-15'
     },
     {
       id: 5,
       name: 'Mobile App',
       description: 'Native mobile application for iOS and Android with key metrics and alerts',
       status: 'Planning',
-      release_date: '2023-11-15'
+      release_date: '2025-11-15'
     }
   ],
   kra: {

@@ -32,6 +32,8 @@ import Settings from "./pages/settings";
 import Voice from "./pages/voice";
 import SMS from "./pages/sms";
 import Data from "./pages/data";
+import Home from "./pages/home-page";
+
 
 const queryClient = new QueryClient();
 
@@ -51,7 +53,8 @@ createRoot(document.getElementById("root")!).render(
         <SidebarProvider>
           <BrowserRouter>
             <Routes>
-              <Route path='/' element={<Index />} />
+              
+              <Route path='/' element={<Home />} />
               <Route path='/login' element={<LoginForm />} />
               <Route path='/signup' element={<SignupForm />} />
               <Route path='/logout' element={<Logout />} />

@@ -10,7 +10,7 @@ def get_network_billing_sms():
         
         return jsonify({
             'status': 'success',
-            'data': ServicesModel.get_network_vs_billing_sms()
+            'data': ServicesModel.get_network_vs_billing_sms_opt()
         })
         
     except Exception as e:

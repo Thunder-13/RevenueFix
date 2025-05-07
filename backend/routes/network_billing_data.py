@@ -10,7 +10,7 @@ def get_network_billing_data():
         
         return jsonify({
             'status': 'success',
-            'data': ServicesModel.get_network_vs_billing_data()
+            'data': ServicesModel.get_network_vs_billing_data_opt()
         })
         
     except Exception as e:

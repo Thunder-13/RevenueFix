@@ -52,34 +52,34 @@ class SettingsModel(BaseModel):
                 'name': 'AI-Powered Revenue Forecasting',
                 'description': 'Machine learning algorithms to predict future revenue trends with higher accuracy',
                 'status': 'In Development',
-                'release_date': '2023-08-15'
+                'release_date': '2025-08-15'
             },
             {
                 'id': 2,
                 'name': 'Advanced Fraud Detection',
                 'description': 'Real-time fraud detection system using pattern recognition and anomaly detection',
                 'status': 'Planning',
-                'release_date': '2023-10-01'
+                'release_date': '2025-10-01'
             },
             {
                 'id': 3,
                 'name': 'Interactive Revenue Maps',
                 'description': 'Geographical visualization of revenue data with drill-down capabilities',
                 'status': 'In Development',
-                'release_date': '2023-07-30'
+                'release_date': '2025-07-30'
             },
             {
                 'id': 4,
                 'name': 'Custom Report Builder',
                 'description': 'Drag-and-drop interface for creating custom reports and dashboards',
                 'status': 'Beta Testing',
-                'release_date': '2023-07-15'
+                'release_date': '2025-07-15'
             },
             {
                 'id': 5,
                 'name': 'Mobile App',
                 'description': 'Native mobile application for iOS and Android with key metrics and alerts',
                 'status': 'Planning',
-                'release_date': '2023-11-15'
+                'release_date': '2025-11-15'
             }
         ]

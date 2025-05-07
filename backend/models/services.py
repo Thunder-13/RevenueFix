@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 import pandas as pd
 import numpy as np
+import time
 
 class ServicesModel(BaseModel):
     """Model for telecom services data"""
@@ -28,7 +29,993 @@ class ServicesModel(BaseModel):
             })
 
         return data
+    @classmethod
+    def get_network_vs_billing_data_opt(cls):
 
+        start_time = time.time()
+
+         # Initialize metrics
+        metrics = {
+                'voice': {},
+                'sms': {},
+                'data': {
+                    'total_records': 0,
+                    'mismatch_count': 0,
+                    'mismatch_status': "No Mismatches",
+                    'mismatched_records': [],
+                    'account_status_mismatch_count': 0,
+                    'account_status_mismatched_records': [],
+                    'transaction_mismatch_count': 0,
+                    'transaction_mismatched_records': [],
+                    'transaction_date_mismatch_count': 0,
+                    'download_mismatch_count': 0,
+                    'download_mismatched_records': [],
+                    'transaction_date_mismatched_records': [],
+                    'msisdn_missing_count': 0,
+                    'msisdn_missing_records': [],
+                    'service_mismatch_count': 0,
+                    'service_mismatched_records': [],
+                    'duplicate_count': 0,
+                    'duplicate_records': [],
+                    'revenue_trend': [],
+                    'service_breakdown': [],
+                    'records_display_card': []
+                },
+                'service_distribution': []
+            }
+        
+        curr_dir = os.path.dirname(os.path.abspath(__file__))
+        billing_file_path = os.path.join(curr_dir, '..', 'assets', 'Network_Billing_DATA', 'Billing_100_VSDN.csv')
+        network_file_path = os.path.join(curr_dir, '..', 'assets', 'Network_Billing_DATA', 'Network_100_VSDN.csv')
+
+        df_Billing = pd.read_csv(billing_file_path)
+        df_Network = pd.read_csv(network_file_path)
+        total_inc_duplicate = int(max(df_Billing.shape[0], df_Network.shape[0]))
+        
+        t1 = time.time()
+        # Clean and prepare data
+        # Remove leading/trailing spaces from column names
+        df_Network.columns = df_Network.columns.str.strip()
+        df_Billing.columns = df_Billing.columns.str.strip()
+
+        # Identify duplicate rows in CRM and Billing
+        billing_duplicates = df_Billing.duplicated(subset=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Transaction Date', 'Download (MB)', 'Service ID', 'Service Name', 'Service Status',	'Service Start Date', 'Service End Date']).sum()
+        network_duplicates = df_Network.duplicated(subset=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Transaction Date', 'Download (MB)', 'Service ID', 'Service Name', 'Service Status',	'Service Start Date', 'Service End Date']).sum()
+        total_duplicates = int(billing_duplicates + network_duplicates)
+
+        # Remove duplicates for analysis
+        df_Network = df_Network.drop_duplicates(subset=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Transaction Date', 'Download (MB)', 'Service ID', 'Service Name', 'Service Status', 'Service Start Date', 'Service End Date'])
+        df_Billing = df_Billing.drop_duplicates(subset=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Transaction Date', 'Download (MB)', 'Service ID', 'Service Name', 'Service Status', 'Service Start Date', 'Service End Date'])
+
+        
+
+        print(f"T1: {time.time() - t1:.2f} seconds") 
+
+        t2 = time.time()
+
+        # Merge datasets on MSISDN
+        merged_df = pd.merge(
+            df_Network,
+            df_Billing,
+            on=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Transaction Date', 'Download (MB)', 'Service ID', 'Service Name', 'Service Status', 'Service Start Date', 'Service End Date'],
+            how='outer',
+            suffixes=('_Network', '_Billing'),
+            indicator=True
+
+        )
+
+
+        mismatched_records = merged_df[merged_df['_merge'] == 'left_only'].copy()
+
+        # Append mismatched records to metrics
+        metrics['data']['mismatched_records'].extend(mismatched_records.to_dict(orient='records'))
+        metrics['data']['mismatch_count'] += len(mismatched_records)
+
+        # Process mismatched records to calculate monthly mismatch trend
+        if metrics['data']['mismatched_records']:
+            # Convert mismatched records to a DataFrame for efficient processing
+            mismatched_df = pd.DataFrame(metrics['data']['mismatched_records'])
+
+            # Ensure 'Transaction Date_Network' is in datetime format
+            mismatched_df['Transaction Date'] = pd.to_datetime(
+                mismatched_df['Transaction Date'], format='%m/%d/%Y %H:%M', errors='coerce'
+            )
+
+            # Extract the month and year for grouping
+            mismatched_df['Month_Year'] = mismatched_df['Transaction Date'].dt.to_period('M')
+
+            # Calculate the mismatch trend by grouping by 'Month_Year'
+            mismatch_trend = mismatched_df['Month_Year'].value_counts().sort_index()
+
+            # Convert mismatch trend to a list of dictionaries for the revenue_trend field
+            metrics['data']['revenue_trend'] = [
+                {'date': period.strftime('%m/%Y'), 'value': count} for period, count in mismatch_trend.items()
+            ]
+
+        
+        #total records
+        metrics['data']['total_records'] = total_inc_duplicate
+        #total duplicates
+        metrics['data']['duplicate_count'] = total_duplicates
+
+
+        # Filter relevant rows
+        df_Network_filtered = df_Network[df_Network['Account Status'] == "I"]
+
+        # Optimize data types
+        df_Network_filtered['Account Status'] = df_Network_filtered['Account Status'].astype('category')
+        df_Network_filtered['Service Status'] = df_Network_filtered['Service Status'].astype('category')
+
+        print(f"T2: {time.time() - t2:.2f} seconds")   
+
+        t3 = time.time()
+
+        # Merge datasets on common keys for comparison
+        serv_status_df = pd.merge(
+            df_Network, 
+            df_Billing, 
+            on=['MSISDN','Service ID', 'Service Name', 'Service Start Date', 'Service End Date'], 
+            how='inner',
+            suffixes=(' Network', ' Billing')
+        )
+        # Vectorized Account Status mismatch
+        account_status_mismatch = (
+            (df_Network_filtered['Account Status'] == "I") & 
+            (df_Network_filtered['Service Status'] != "I")
+        )
+        if account_status_mismatch.any():
+            metrics['data']['account_status_mismatch_count'] = account_status_mismatch.sum()
+            metrics['data']['account_status_mismatched_records'] = df_Network_filtered[account_status_mismatch].to_dict(orient='records')
+
+        # Vectorized Service Status mismatch
+        service_status_mismatch = (
+            ((serv_status_df['Service Status Network'] == "A") & (serv_status_df['Service Status Billing'] == "I")) |
+            ((serv_status_df['Service Status Network'] == "I") & (serv_status_df['Service Status Billing'] == "A"))
+        )
+        if service_status_mismatch.any():
+            mismatched_records = serv_status_df[service_status_mismatch].copy()
+            mismatched_records['Billing Service Status'] = mismatched_records['Service Status Billing']
+            mismatched_records['Mismatch Reason'] = "Service Status mismatch between Network and Billing"
+            metrics['data']['service_mismatch_count'] = service_status_mismatch.sum()
+            metrics['data']['service_mismatched_records'] = mismatched_records.to_dict(orient='records')
+
+        print(f"T3: {time.time() - t3:.2f} seconds")   
+        t4 = time.time()
+
+        # Filter rows where Account Status and Service Status are both "A"
+        active_records = df_Network[
+            (df_Network['Account Status'] == "A") & 
+            (df_Network['Service Status'] == "A")
+        ]
+
+
+        # Vectorized Transaction Date mismatch condition
+        transaction_date_mismatch = (
+            (pd.notna(active_records['Transaction Date'])) &
+            (pd.notna(active_records['Service Start Date'])) &
+            (pd.notna(active_records['Service End Date'])) &
+            ~((active_records['Service Start Date'] <= active_records['Transaction Date']) &
+            (active_records['Transaction Date'] <= active_records['Service End Date']))
+        )
+
+        # Process transaction mismatched records
+        if transaction_date_mismatch.any():
+            mismatched_records = active_records[transaction_date_mismatch].copy()
+            mismatched_records['Mismatch Reason'] = "Transaction Date not In Between Service Start/End Date"
+            metrics['data']['transaction_mismatch_count'] = transaction_date_mismatch.sum()
+            metrics['data']['transaction_mismatched_records'] = mismatched_records.to_dict(orient='records')
+
+        # Filter rows where Transaction Date is between Service Start Date and Service End Date
+        valid_transaction_records = active_records[
+            (pd.notna(active_records['Transaction Date'])) &
+            (pd.notna(active_records['Service Start Date'])) &
+            (pd.notna(active_records['Service End Date'])) &
+            (active_records['Service Start Date'] <= active_records['Transaction Date']) &
+            (active_records['Transaction Date'] <= active_records['Service End Date'])
+        ]
+
+        # Compare MSISDN values between Network and Billing
+        msisdn_missing_mask = ~valid_transaction_records['MSISDN'].isin(df_Billing['MSISDN'])
+
+        # Process MSISDN mismatched records
+        if msisdn_missing_mask.any():
+            msisdn_missing_records = valid_transaction_records[msisdn_missing_mask].copy()
+            metrics['data']['msisdn_missing_count'] = msisdn_missing_mask.sum()
+            metrics['data']['msisdn_missing_records'] = msisdn_missing_records.to_dict(orient='records')
+        print(f"T4: {time.time() - t4:.2f} seconds")   
+        t5 = time.time()
+
+        # Filter Network dataset based on conditions
+        df_Network_filtered = df_Network[
+            (df_Network['Account Status'] == "A") &
+            (df_Network['Service Status'] == "A") &
+            (pd.to_datetime(df_Network['Transaction Date'], errors='coerce') >= pd.to_datetime(df_Network['Service Start Date'], errors='coerce')) &
+            (pd.to_datetime(df_Network['Transaction Date'], errors='coerce') <= pd.to_datetime(df_Network['Service End Date'], errors='coerce'))
+        ]
+
+        # Filter Billing dataset based on MSISDN matching
+        df_Billing_filtered = df_Billing[
+            df_Billing['MSISDN'].isin(df_Network_filtered['MSISDN'])
+        ]
+
+        print(f"T5: {time.time() - t5:.2f} seconds")   
+        t6 = time.time()
+
+        # Merge filtered datasets
+        merged_transaction_df = pd.merge(
+            df_Network_filtered,
+            df_Billing_filtered,
+            on=['MSISDN', 'Service ID', 'Service Name', 'Service Start Date', 'Service End Date'],
+            how='inner',
+            suffixes=('_Network', '_Billing')
+        )
+
+        # Merge filtered datasets
+        merged_service_df = pd.merge(
+            df_Network_filtered,
+            df_Billing_filtered,
+            on=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Transaction Date', 'Download (MB)'],
+            how='inner',
+            suffixes=('_Network', '_Billing')
+        )
+
+
+
+        # Transaction Date mismatch between Network and Billing
+        transaction_date_mismatch = (
+            merged_transaction_df['Transaction Date_Network'] != merged_transaction_df['Transaction Date_Billing']
+        )
+
+        # Process Transaction Date mismatched records
+        if transaction_date_mismatch.any():
+            mismatched_records = merged_transaction_df[transaction_date_mismatch].copy()
+            mismatched_records['Mismatch Reason'] = "Transaction Date not matched between Network and Billing"
+            metrics['data']['transaction_date_mismatch_count'] = transaction_date_mismatch.sum()
+            metrics['data']['transaction_date_mismatched_records'] = mismatched_records.to_dict(orient='records')
+        print(f"T6: {time.time() - t6:.2f} seconds")   
+
+        t7 = time.time()
+
+        # Download (MB) mismatch between Network and Billing
+        download_mismatch = (
+            merged_transaction_df['Download (MB)_Network'] != merged_transaction_df['Download (MB)_Billing']
+        )
+
+        # Process Download (MB) mismatched records
+        if download_mismatch.any():
+            mismatched_records = merged_transaction_df[download_mismatch].copy()
+            mismatched_records['Mismatch Reason'] = "Download (MB) mismatch between Network and Billing"
+            metrics['data']['download_mismatch_count'] = download_mismatch.sum()
+            metrics['data']['download_mismatched_records'] = mismatched_records.to_dict(orient='records')
+        
+        print(f"T7: {time.time() - t7:.2f} seconds")   
+
+        t8 = time.time()
+        # Service ID and Service Start/End Date mismatch
+        service_id_mismatch = (
+            merged_service_df['Service ID_Network'] != merged_service_df['Service ID_Billing']
+        )
+
+        if service_id_mismatch.any():
+            mismatched_records = merged_service_df[service_id_mismatch].copy()
+            mismatched_records['Billing Service ID'] = mismatched_records['Service ID_Billing']
+            mismatched_records['Billing Service Name'] = mismatched_records['Service Name_Billing']
+            mismatched_records['Mismatch Reason'] = "Service mismatch between Network and Billing"
+            metrics['data']['service_mismatch_count'] += service_id_mismatch.sum()
+            metrics['data']['service_mismatched_records'].extend(mismatched_records.to_dict(orient='records'))
+
+        service_date_mismatch = (
+            (merged_service_df['Service Start Date_Network'] != merged_service_df['Service Start Date_Billing']) |
+            (merged_service_df['Service End Date_Network'] != merged_service_df['Service End Date_Billing'])
+        )
+
+        if service_date_mismatch.any():
+            mismatched_records = merged_service_df[service_date_mismatch].copy()
+            mismatched_records['Billing Service Start Date'] = mismatched_records['Service Start Date_Billing']
+            mismatched_records['Billing Service End Date'] = mismatched_records['Service End Date_Billing']
+            mismatched_records['Mismatch Reason'] = "Service Start/End Date mismatch between Network and Billing"
+            metrics['data']['service_mismatch_count'] += service_date_mismatch.sum()
+            metrics['data']['service_mismatched_records'].extend(mismatched_records.to_dict(orient='records'))
+        
+        print(f"T8: {time.time() - t8:.2f} seconds")   
+  
+
+        t11 = time.time() 
+
+       
+
+        print(f"T11: {time.time() - t11:.2f} seconds")   
+        
+        t12 = time.time()
+        # Add named sections to records_display_card
+        metrics['data']['records_display_card'] = [
+            {
+                "name": "Mismatched Records",
+                "records": metrics['data']['mismatched_records']
+            },
+            {
+                "name": "Account Status Mismatch",
+                "records": metrics['data']['account_status_mismatched_records']
+            },
+            {
+                "name": "Transaction Mismatch",
+                "records": metrics['data']['transaction_mismatched_records'] + metrics['data']['transaction_date_mismatched_records']
+            },
+            {
+                "name": "Volume Mismatch",
+                "records": metrics['data']['download_mismatched_records']
+            },
+            {
+                "name": "Transaction Date Mismatch",
+                "records": metrics['data']['transaction_date_mismatched_records']
+            },
+            {
+                "name": "Missing Records",
+                "records": metrics['data']['msisdn_missing_records']
+            },
+            {
+                "name": "Service Mismatch",
+                "records": metrics['data']['service_mismatched_records']
+            }
+        ]
+
+        print(f"T12: {time.time() - t12:.2f} seconds")  
+
+        t13 = time.time()
+
+        # Ensure all data in metrics is JSON serializable
+        def convert_to_serializable(data):
+            if isinstance(data, list):
+                return [convert_to_serializable(item) for item in data]
+            elif isinstance(data, dict):
+                return {key: convert_to_serializable(value) for key, value in data.items()}
+            elif isinstance(data, (np.int64, np.float64)):
+                return data.item()  # Convert numpy types to Python-native types
+            else:
+                return data
+
+        # Ensure all data in metrics is JSON serializable
+        metrics = convert_to_serializable(metrics)
+
+        print(f"T13: {time.time() - t13:.2f} seconds")  
+        return metrics
+    
+    @classmethod
+    def get_network_vs_billing_sms_opt(cls):
+
+         # Initialize metrics
+        metrics = {
+                'voice': {},
+                'sms': {},
+                'data': {
+                    'total_records': 0,
+                    'mismatch_count': 0,
+                    'mismatch_status': "No Mismatches",
+                    'mismatched_records': [],
+                    'account_status_mismatch_count': 0,
+                    'account_status_mismatched_records': [],
+                    'transaction_mismatch_count': 0,
+                    'transaction_mismatched_records': [],
+                    'transaction_date_mismatch_count': 0,
+                    'count_mismatch_count': 0,
+                    'count_mismatched_records': [],
+                    'transaction_date_mismatched_records': [],
+                    'msisdn_missing_count': 0,
+                    'msisdn_missing_records': [],
+                    'service_mismatch_count': 0,
+                    'service_mismatched_records': [],
+                    'duplicate_count': 0,
+                    'duplicate_records': [],
+                    'revenue_trend': [],
+                    'service_breakdown': [],
+                    'records_display_card': []
+                },
+                'service_distribution': []
+            }
+        
+        curr_dir = os.path.dirname(os.path.abspath(__file__))
+        billing_file_path = os.path.join(curr_dir, '..', 'assets', 'Network_Billing_SMS', 'Billing_SMS_Big.csv')
+        network_file_path = os.path.join(curr_dir, '..', 'assets', 'Network_Billing_SMS', 'Network_SMS_Big.csv')
+
+        df_Billing = pd.read_csv(billing_file_path)
+        df_Network = pd.read_csv(network_file_path)
+        total_inc_duplicate = int(max(df_Billing.shape[0], df_Network.shape[0]))
+        
+        # Clean and prepare data
+        # Remove leading/trailing spaces from column names
+        df_Network.columns = df_Network.columns.str.strip()
+        df_Billing.columns = df_Billing.columns.str.strip()
+
+        # Identify duplicate rows in CRM and Billing
+        billing_duplicates = df_Billing.duplicated(subset=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Transaction Date', 'Count', 'Service ID', 'Service Name', 'Service Status',	'Service Start Date', 'Service End Date']).sum()
+        network_duplicates = df_Network.duplicated(subset=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Transaction Date', 'Count', 'Service ID', 'Service Name', 'Service Status',	'Service Start Date', 'Service End Date']).sum()
+        total_duplicates = int(billing_duplicates + network_duplicates)
+
+        # Remove duplicates for analysis
+        df_Network = df_Network.drop_duplicates(subset=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Transaction Date', 'Count', 'Service ID', 'Service Name', 'Service Status', 'Service Start Date', 'Service End Date'])
+        df_Billing = df_Billing.drop_duplicates(subset=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Transaction Date', 'Count', 'Service ID', 'Service Name', 'Service Status', 'Service Start Date', 'Service End Date'])
+
+        # Merge datasets on MSISDN
+        merged_df = pd.merge(
+            df_Network,
+            df_Billing,
+            on=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Transaction Date', 'Count', 'Service ID', 'Service Name', 'Service Status', 'Service Start Date', 'Service End Date'],
+            how='outer',
+            suffixes=('_Network', '_Billing'),
+            indicator=True
+
+        )
+
+
+        mismatched_records = merged_df[merged_df['_merge'] == 'left_only'].copy()
+
+        # Append mismatched records to metrics
+        metrics['data']['mismatched_records'].extend(mismatched_records.to_dict(orient='records'))
+        metrics['data']['mismatch_count'] += len(mismatched_records)
+
+        # Process mismatched records to calculate monthly mismatch trend
+        if metrics['data']['mismatched_records']:
+            # Convert mismatched records to a DataFrame for efficient processing
+            mismatched_df = pd.DataFrame(metrics['data']['mismatched_records'])
+
+            # Ensure 'Transaction Date_Network' is in datetime format
+            mismatched_df['Transaction Date'] = pd.to_datetime(
+                mismatched_df['Transaction Date'], format='%m/%d/%Y %H:%M', errors='coerce'
+            )
+
+            # Extract the month and year for grouping
+            mismatched_df['Month_Year'] = mismatched_df['Transaction Date'].dt.to_period('M')
+
+            # Calculate the mismatch trend by grouping by 'Month_Year'
+            mismatch_trend = mismatched_df['Month_Year'].value_counts().sort_index()
+
+            # Convert mismatch trend to a list of dictionaries for the revenue_trend field
+            metrics['data']['revenue_trend'] = [
+                {'date': period.strftime('%m/%Y'), 'value': count} for period, count in mismatch_trend.items()
+            ]
+   
+
+        # Merge datasets on common keys for comparison
+        serv_status_df = pd.merge(
+            df_Network, 
+            df_Billing, 
+            on=['MSISDN','Service ID', 'Service Name', 'Service Start Date', 'Service End Date'], 
+            how='inner',
+            suffixes=(' Network', ' Billing')
+        )
+
+        
+        
+        #total records
+        metrics['data']['total_records'] = total_inc_duplicate
+        #total duplicates
+        metrics['data']['duplicate_count'] = total_duplicates
+
+        # Filter relevant rows
+        df_Network_filtered = df_Network[df_Network['Account Status'] == "I"]
+
+        # Optimize data types
+        df_Network_filtered['Account Status'] = df_Network_filtered['Account Status'].astype('category')
+        df_Network_filtered['Service Status'] = df_Network_filtered['Service Status'].astype('category')
+
+        # Vectorized Account Status mismatch
+        account_status_mismatch = (
+            (df_Network_filtered['Account Status'] == "I") & 
+            (df_Network_filtered['Service Status'] != "I")
+        )
+        if account_status_mismatch.any():
+            metrics['data']['account_status_mismatch_count'] = account_status_mismatch.sum()
+            metrics['data']['account_status_mismatched_records'] = df_Network_filtered[account_status_mismatch].to_dict(orient='records')
+
+        # Vectorized Service Status mismatch
+        service_status_mismatch = (
+            ((serv_status_df['Service Status Network'] == "A") & (serv_status_df['Service Status Billing'] == "I")) |
+            ((serv_status_df['Service Status Network'] == "I") & (serv_status_df['Service Status Billing'] == "A"))
+        )
+        if service_status_mismatch.any():
+            mismatched_records = serv_status_df[service_status_mismatch].copy()
+            mismatched_records['Billing Service Status'] = mismatched_records['Service Status Billing']
+            mismatched_records['Mismatch Reason'] = "Service Status mismatch between Network and Billing"
+            metrics['data']['service_mismatch_count'] = service_status_mismatch.sum()
+            metrics['data']['service_mismatched_records'] = mismatched_records.to_dict(orient='records')
+
+        # Filter rows where Account Status and Service Status are both "A"
+        active_records = df_Network[
+            (df_Network['Account Status'] == "A") & 
+            (df_Network['Service Status'] == "A")
+        ]
+
+
+        # Vectorized Transaction Date mismatch condition
+        transaction_date_mismatch = (
+            (pd.notna(active_records['Transaction Date'])) &
+            (pd.notna(active_records['Service Start Date'])) &
+            (pd.notna(active_records['Service End Date'])) &
+            ~((active_records['Service Start Date'] <= active_records['Transaction Date']) &
+            (active_records['Transaction Date'] <= active_records['Service End Date']))
+        )
+
+        # Process transaction mismatched records
+        if transaction_date_mismatch.any():
+            mismatched_records = active_records[transaction_date_mismatch].copy()
+            mismatched_records['Mismatch Reason'] = "Transaction Date not In Between Service Start/End Date"
+            metrics['data']['transaction_mismatch_count'] = transaction_date_mismatch.sum()
+            metrics['data']['transaction_mismatched_records'] = mismatched_records.to_dict(orient='records')
+
+        # Filter rows where Transaction Date is between Service Start Date and Service End Date
+        valid_transaction_records = active_records[
+            (pd.notna(active_records['Transaction Date'])) &
+            (pd.notna(active_records['Service Start Date'])) &
+            (pd.notna(active_records['Service End Date'])) &
+            (active_records['Service Start Date'] <= active_records['Transaction Date']) &
+            (active_records['Transaction Date'] <= active_records['Service End Date'])
+        ]
+
+        # Compare MSISDN values between Network and Billing
+        msisdn_missing_mask = ~valid_transaction_records['MSISDN'].isin(df_Billing['MSISDN'])
+
+        # Process MSISDN mismatched records
+        if msisdn_missing_mask.any():
+            msisdn_missing_records = valid_transaction_records[msisdn_missing_mask].copy()
+            metrics['data']['msisdn_missing_count'] = msisdn_missing_mask.sum()
+            metrics['data']['msisdn_missing_records'] = msisdn_missing_records.to_dict(orient='records')
+
+        # Filter Network dataset based on conditions
+        df_Network_filtered = df_Network[
+            (df_Network['Account Status'] == "A") &
+            (df_Network['Service Status'] == "A") &
+            (pd.to_datetime(df_Network['Transaction Date'], errors='coerce') >= pd.to_datetime(df_Network['Service Start Date'], errors='coerce')) &
+            (pd.to_datetime(df_Network['Transaction Date'], errors='coerce') <= pd.to_datetime(df_Network['Service End Date'], errors='coerce'))
+        ]
+
+        # Filter Billing dataset based on MSISDN matching
+        df_Billing_filtered = df_Billing[
+            df_Billing['MSISDN'].isin(df_Network_filtered['MSISDN'])
+        ]
+
+        # Merge filtered datasets
+        merged_transaction_df = pd.merge(
+            df_Network_filtered,
+            df_Billing_filtered,
+            on=['MSISDN', 'Service ID', 'Service Name', 'Service Start Date', 'Service End Date'],
+            how='inner',
+            suffixes=('_Network', '_Billing')
+        )
+
+        # Merge filtered datasets
+        merged_service_df = pd.merge(
+            df_Network_filtered,
+            df_Billing_filtered,
+            on=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Transaction Date', 'Count'],
+            how='inner',
+            suffixes=('_Network', '_Billing')
+        )
+
+
+
+        # Transaction Date mismatch between Network and Billing
+        transaction_date_mismatch = (
+            merged_transaction_df['Transaction Date_Network'] != merged_transaction_df['Transaction Date_Billing']
+        )
+
+        # Process Transaction Date mismatched records
+        if transaction_date_mismatch.any():
+            mismatched_records = merged_transaction_df[transaction_date_mismatch].copy()
+            mismatched_records['Billing Transaction Date'] = mismatched_records['Transaction Date_Billing']
+            mismatched_records['Transaction Date'] = mismatched_records['Transaction Date_Network']
+            mismatched_records['Mismatch Reason'] = "Transaction Date not matched between Network and Billing"
+            metrics['data']['transaction_date_mismatch_count'] = transaction_date_mismatch.sum()
+            metrics['data']['transaction_date_mismatched_records'] = mismatched_records.to_dict(orient='records')
+
+        # Download (MB) mismatch between Network and Billing
+        download_mismatch = (
+            merged_transaction_df['Count_Network'] != merged_transaction_df['Count_Billing']
+        )
+
+        # Process Download (MB) mismatched records
+        if download_mismatch.any():
+            mismatched_records = merged_transaction_df[download_mismatch].copy()
+            mismatched_records['Billing Count'] = mismatched_records['Count_Billing']
+            mismatched_records['Count'] = mismatched_records['Count_Network']
+            mismatched_records['Usage Type'] = mismatched_records['Usage Type_Network']
+            mismatched_records['Usage Sub Type'] = mismatched_records['Usage Sub Type_Network']
+            mismatched_records['Mismatch Reason'] = "Count mismatch between Network and Billing"
+            metrics['data']['count_mismatch_count'] = download_mismatch.sum()
+            metrics['data']['count_mismatched_records'] = mismatched_records.to_dict(orient='records')
+        
+        # Service ID and Service Start/End Date mismatch
+        service_id_mismatch = (
+            merged_service_df['Service ID_Network'] != merged_service_df['Service ID_Billing']
+        )
+
+        if service_id_mismatch.any():
+            mismatched_records = merged_service_df[service_id_mismatch].copy()
+            mismatched_records['Billing Service ID'] = mismatched_records['Service ID_Billing']
+            mismatched_records['Billing Service Name'] = mismatched_records['Service Name_Billing']
+            mismatched_records['Mismatch Reason'] = "Service mismatch between Network and Billing"
+            metrics['data']['service_mismatch_count'] += service_id_mismatch.sum()
+            metrics['data']['service_mismatched_records'].extend(mismatched_records.to_dict(orient='records'))
+
+        service_date_mismatch = (
+            (merged_service_df['Service Start Date_Network'] != merged_service_df['Service Start Date_Billing']) |
+            (merged_service_df['Service End Date_Network'] != merged_service_df['Service End Date_Billing'])
+        )
+
+        if service_date_mismatch.any():
+            mismatched_records = merged_service_df[service_date_mismatch].copy()
+            mismatched_records['Billing Service Start Date'] = mismatched_records['Service Start Date_Billing']
+            mismatched_records['Billing Service End Date'] = mismatched_records['Service End Date_Billing']
+            mismatched_records['Mismatch Reason'] = "Service Start/End Date mismatch between Network and Billing"
+            metrics['data']['service_mismatch_count'] += service_date_mismatch.sum()
+            metrics['data']['service_mismatched_records'].extend(mismatched_records.to_dict(orient='records'))
+
+
+        # Add named sections to records_display_card
+        metrics['data']['records_display_card'] = [
+            {
+                "name": "Mismatched Records",
+                "records": metrics['data']['mismatched_records']
+            },
+            {
+                "name": "Account Status Mismatch",
+                "records": metrics['data']['account_status_mismatched_records']
+            },
+            {
+                "name": "Transaction Mismatch",
+                "records": metrics['data']['transaction_mismatched_records'] + metrics['data']['transaction_date_mismatched_records']
+            },
+            {
+                "name": "Count Mismatch",
+                "records": metrics['data']['count_mismatched_records']
+            },
+            {
+                "name": "Transaction Date Mismatch",
+                "records": metrics['data']['transaction_date_mismatched_records']
+            },
+            {
+                "name": "Missing Records",
+                "records": metrics['data']['msisdn_missing_records']
+            },
+            {
+                "name": "Service Mismatch",
+                "records": metrics['data']['service_mismatched_records']
+            }
+        ]
+
+
+
+        # Ensure all data in metrics is JSON serializable
+        def convert_to_serializable(data):
+            if isinstance(data, list):
+                return [convert_to_serializable(item) for item in data]
+            elif isinstance(data, dict):
+                return {key: convert_to_serializable(value) for key, value in data.items()}
+            elif isinstance(data, (np.int64, np.float64)):
+                return data.item()  # Convert numpy types to Python-native types
+            else:
+                return data
+
+        # Ensure all data in metrics is JSON serializable
+        metrics = convert_to_serializable(metrics)
+        return metrics
+
+    
+    @classmethod
+    def get_network_vs_billing_voice_opt(cls):
+
+         # Initialize metrics
+        metrics = {
+                'voice': {},
+                'sms': {},
+                'data': {
+                    'total_records': 0,
+                    'mismatch_count': 0,
+                    'mismatch_status': "No Mismatches",
+                    'mismatched_records': [],
+                    'account_status_mismatch_count': 0,
+                    'account_status_mismatched_records': [],
+                    'transaction_mismatch_count': 0,
+                    'transaction_mismatched_records': [],
+                    'transaction_date_mismatch_count': 0,
+                    'duration_mismatch_count': 0,
+                    'duration_mismatched_records': [],
+                    'transaction_date_mismatched_records': [],
+                    'msisdn_missing_count': 0,
+                    'msisdn_missing_records': [],
+                    'service_mismatch_count': 0,
+                    'service_mismatched_records': [],
+                    'duplicate_count': 0,
+                    'duplicate_records': [],
+                    'revenue_trend': [],
+                    'service_breakdown': [],
+                    'records_display_card': []
+                },
+                'service_distribution': []
+            }
+        
+        curr_dir = os.path.dirname(os.path.abspath(__file__))
+        billing_file_path = os.path.join(curr_dir, '..', 'assets', 'Network_Billing_VOICE', 'Billing_Voice_Big.csv')
+        network_file_path = os.path.join(curr_dir, '..', 'assets', 'Network_Billing_VOICE', 'Network_Voice_Big.csv')
+
+        df_Billing = pd.read_csv(billing_file_path)
+        df_Network = pd.read_csv(network_file_path)
+        total_inc_duplicate = int(max(df_Billing.shape[0], df_Network.shape[0]))
+        
+        # Clean and prepare data
+        # Remove leading/trailing spaces from column names
+        df_Network.columns = df_Network.columns.str.strip()
+        df_Billing.columns = df_Billing.columns.str.strip()
+
+        # Identify duplicate rows in CRM and Billing
+        billing_duplicates = df_Billing.duplicated(subset=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Call Start Time', 'Call End Time','Duration (Mins)', 'Service ID', 'Service Name', 'Service Status',	'Service Start Date', 'Service End Date']).sum()
+        network_duplicates = df_Network.duplicated(subset=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Call Start Time', 'Call End Time','Duration (Mins)', 'Service ID', 'Service Name', 'Service Status',	'Service Start Date', 'Service End Date']).sum()
+        total_duplicates = int(billing_duplicates + network_duplicates)
+
+        # Remove duplicates for analysis
+        df_Network = df_Network.drop_duplicates(subset=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Call Start Time', 'Call End Time','Duration (Mins)', 'Service ID', 'Service Name', 'Service Status', 'Service Start Date', 'Service End Date'])
+        df_Billing = df_Billing.drop_duplicates(subset=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Call Start Time', 'Call End Time','Duration (Mins)', 'Service ID', 'Service Name', 'Service Status', 'Service Start Date', 'Service End Date'])
+
+        # Merge datasets on MSISDN
+        merged_df = pd.merge(
+            df_Network,
+            df_Billing,
+            on=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Call Start Time', 'Call End Time', 'Duration (Mins)', 'Service ID', 'Service Name', 'Service Status', 'Service Start Date', 'Service End Date'],
+            how='outer',
+            suffixes=('_Network', '_Billing'),
+            indicator=True
+
+        )
+
+
+        mismatched_records = merged_df[merged_df['_merge'] == 'left_only'].copy()
+
+        # Append mismatched records to metrics
+        metrics['data']['mismatched_records'].extend(mismatched_records.to_dict(orient='records'))
+        metrics['data']['mismatch_count'] += len(mismatched_records)
+
+        # Process mismatched records to calculate monthly mismatch trend
+        if metrics['data']['mismatched_records']:
+            # Convert mismatched records to a DataFrame for efficient processing
+            mismatched_df = pd.DataFrame(metrics['data']['mismatched_records'])
+
+            # Ensure 'Transaction Date_Network' is in datetime format
+            mismatched_df['Call Start Time'] = pd.to_datetime(
+                mismatched_df['Call Start Time'], format='%m/%d/%Y %H:%M', errors='coerce'
+            )
+
+            # Extract the month and year for grouping
+            mismatched_df['Month_Year'] = mismatched_df['Call Start Time'].dt.to_period('M')
+
+            # Calculate the mismatch trend by grouping by 'Month_Year'
+            mismatch_trend = mismatched_df['Month_Year'].value_counts().sort_index()
+
+            # Convert mismatch trend to a list of dictionaries for the revenue_trend field
+            metrics['data']['revenue_trend'] = [
+                {'date': period.strftime('%m/%Y'), 'value': count} for period, count in mismatch_trend.items()
+            ]
+   
+
+        # Merge datasets on common keys for comparison
+        serv_status_df = pd.merge(
+            df_Network, 
+            df_Billing, 
+            on=['MSISDN','Service ID', 'Service Name', 'Service Start Date', 'Service End Date'], 
+            how='inner',
+            suffixes=(' Network', ' Billing')
+        )
+
+        
+        
+        #total records
+        metrics['data']['total_records'] = total_inc_duplicate
+        #total duplicates
+        metrics['data']['duplicate_count'] = total_duplicates
+
+        # Filter relevant rows
+        df_Network_filtered = df_Network[df_Network['Account Status'] == "I"]
+
+        # Optimize data types
+        df_Network_filtered['Account Status'] = df_Network_filtered['Account Status'].astype('category')
+        df_Network_filtered['Service Status'] = df_Network_filtered['Service Status'].astype('category')
+
+        # Vectorized Account Status mismatch
+        account_status_mismatch = (
+            (df_Network_filtered['Account Status'] == "I") & 
+            (df_Network_filtered['Service Status'] != "I")
+        )
+        if account_status_mismatch.any():
+            metrics['data']['account_status_mismatch_count'] = account_status_mismatch.sum()
+            metrics['data']['account_status_mismatched_records'] = df_Network_filtered[account_status_mismatch].to_dict(orient='records')
+
+        # Vectorized Service Status mismatch
+        service_status_mismatch = (
+            ((serv_status_df['Service Status Network'] == "A") & (serv_status_df['Service Status Billing'] == "I")) |
+            ((serv_status_df['Service Status Network'] == "I") & (serv_status_df['Service Status Billing'] == "A"))
+        )
+        if service_status_mismatch.any():
+            mismatched_records = serv_status_df[service_status_mismatch].copy()
+            mismatched_records['Billing Service Status'] = mismatched_records['Service Status Billing']
+            mismatched_records['Mismatch Reason'] = "Service Status mismatch between Network and Billing"
+            metrics['data']['service_mismatch_count'] = service_status_mismatch.sum()
+            metrics['data']['service_mismatched_records'] = mismatched_records.to_dict(orient='records')
+
+        # Filter rows where Account Status and Service Status are both "A"
+        active_records = df_Network[
+            (df_Network['Account Status'] == "A") & 
+            (df_Network['Service Status'] == "A")
+        ]
+
+
+        # Vectorized Transaction Date mismatch condition
+        transaction_date_mismatch = (
+            (pd.notna(active_records['Call Start Time'])) &
+            (pd.notna(active_records['Service Start Date'])) &
+            (pd.notna(active_records['Service End Date'])) &
+            ~((active_records['Service Start Date'] <= active_records['Call Start Time']) &
+            (active_records['Call Start Time'] <= active_records['Service End Date']))
+        )
+
+        # Process transaction mismatched records
+        if transaction_date_mismatch.any():
+            mismatched_records = active_records[transaction_date_mismatch].copy()
+            mismatched_records['Mismatch Reason'] = "Call Start Time not In Between Service Start/End Date"
+            metrics['data']['transaction_mismatch_count'] = transaction_date_mismatch.sum()
+            metrics['data']['transaction_mismatched_records'] = mismatched_records.to_dict(orient='records')
+
+        # Filter rows where Transaction Date is between Service Start Date and Service End Date
+        valid_transaction_records = active_records[
+            (pd.notna(active_records['Call Start Time'])) &
+            (pd.notna(active_records['Service Start Date'])) &
+            (pd.notna(active_records['Service End Date'])) &
+            (active_records['Service Start Date'] <= active_records['Call Start Time']) &
+            (active_records['Call Start Time'] <= active_records['Service End Date'])
+        ]
+
+        # Compare MSISDN values between Network and Billing
+        msisdn_missing_mask = ~valid_transaction_records['MSISDN'].isin(df_Billing['MSISDN'])
+
+        # Process MSISDN mismatched records
+        if msisdn_missing_mask.any():
+            msisdn_missing_records = valid_transaction_records[msisdn_missing_mask].copy()
+            metrics['data']['msisdn_missing_count'] = msisdn_missing_mask.sum()
+            metrics['data']['msisdn_missing_records'] = msisdn_missing_records.to_dict(orient='records')
+
+        # Filter Network dataset based on conditions
+        df_Network_filtered = df_Network[
+            (df_Network['Account Status'] == "A") &
+            (df_Network['Service Status'] == "A") &
+            (pd.to_datetime(df_Network['Call Start Time'], errors='coerce') >= pd.to_datetime(df_Network['Service Start Date'], errors='coerce')) &
+            (pd.to_datetime(df_Network['Call Start Time'], errors='coerce') <= pd.to_datetime(df_Network['Service End Date'], errors='coerce'))
+        ]
+
+        # Filter Billing dataset based on MSISDN matching
+        df_Billing_filtered = df_Billing[
+            df_Billing['MSISDN'].isin(df_Network_filtered['MSISDN'])
+        ]
+
+        # Merge filtered datasets
+        merged_transaction_df = pd.merge(
+            df_Network_filtered,
+            df_Billing_filtered,
+            on=['MSISDN', 'Service ID', 'Service Name', 'Service Start Date', 'Service End Date'],
+            how='inner',
+            suffixes=('_Network', '_Billing')
+        )
+
+        # Merge filtered datasets
+        merged_service_df = pd.merge(
+            df_Network_filtered,
+            df_Billing_filtered,
+            on=['MSISDN', 'Account Status', 'Usage Type', 'Usage Sub Type', 'Call Start Time', 'Call End Time', 'Duration (Mins)'],
+            how='inner',
+            suffixes=('_Network', '_Billing')
+        )
+
+
+
+        # Transaction Date mismatch between Network and Billing
+        transaction_date_mismatch = (
+            (merged_transaction_df['Call Start Time_Network'] != merged_transaction_df['Call Start Time_Billing']) | 
+            (merged_transaction_df['Call End Time_Network'] != merged_transaction_df['Call End Time_Billing'])
+        )
+
+        # Process Transaction Date mismatched records
+        if transaction_date_mismatch.any():
+            mismatched_records = merged_transaction_df[transaction_date_mismatch].copy()
+            mismatched_records['Mismatch Reason'] = "Call Start/End Time not matched between Network and Billing"
+            metrics['data']['transaction_date_mismatch_count'] = transaction_date_mismatch.sum()
+            metrics['data']['transaction_date_mismatched_records'] = mismatched_records.to_dict(orient='records')
+
+        # Download (MB) mismatch between Network and Billing
+        download_mismatch = (
+            merged_transaction_df['Duration (Mins)_Network'] != merged_transaction_df['Duration (Mins)_Billing']
+        )
+
+        # Process Download (MB) mismatched records
+        if download_mismatch.any():
+            mismatched_records = merged_transaction_df[download_mismatch].copy()
+            mismatched_records['Billing Duration (Mins)'] = mismatched_records['Duration (Mins)_Billing']
+            mismatched_records['Duration (Mins)'] = mismatched_records['Duration (Mins)_Network']
+            mismatched_records['Usage Type'] = mismatched_records['Usage Type_Network']
+            mismatched_records['Usage Sub Type'] = mismatched_records['Usage Sub Type_Network']
+            mismatched_records['Mismatch Reason'] = "Duration mismatch between Network and Billing"
+            metrics['data']['duration_mismatch_count'] = download_mismatch.sum()
+            metrics['data']['duration_mismatched_records'] = mismatched_records.to_dict(orient='records')
+        
+        # Service ID and Service Start/End Date mismatch
+        service_id_mismatch = (
+            merged_service_df['Service ID_Network'] != merged_service_df['Service ID_Billing']
+        )
+
+        if service_id_mismatch.any():
+            mismatched_records = merged_service_df[service_id_mismatch].copy()
+            mismatched_records['Mismatch Reason'] = "Service mismatch between Network and Billing"
+            metrics['data']['service_mismatch_count'] += service_id_mismatch.sum()
+            metrics['data']['service_mismatched_records'].extend(mismatched_records.to_dict(orient='records'))
+
+        service_date_mismatch = (
+            (merged_service_df['Service Start Date_Network'] != merged_service_df['Service Start Date_Billing']) |
+            (merged_service_df['Service End Date_Network'] != merged_service_df['Service End Date_Billing'])
+        )
+
+        if service_date_mismatch.any():
+            mismatched_records = merged_service_df[service_date_mismatch].copy()
+            mismatched_records['Billing Service Start Date'] = mismatched_records['Service Start Date_Billing']
+            mismatched_records['Billing Service End Date'] = mismatched_records['Service End Date_Billing']
+            mismatched_records['Mismatch Reason'] = "Service Start/End Date mismatch between Network and Billing"
+            metrics['data']['service_mismatch_count'] += service_date_mismatch.sum()
+            metrics['data']['service_mismatched_records'].extend(mismatched_records.to_dict(orient='records'))
+
+
+        # Add named sections to records_display_card
+        metrics['data']['records_display_card'] = [
+            {
+                "name": "Mismatched Records",
+                "records": metrics['data']['mismatched_records']
+            },
+            {
+                "name": "Account Status Mismatch",
+                "records": metrics['data']['account_status_mismatched_records']
+            },
+            {
+                "name": "Transaction Mismatch",
+                "records": metrics['data']['transaction_mismatched_records'] + metrics['data']['transaction_date_mismatched_records']
+            },
+            {
+                "name": "Duration Mismatch",
+                "records": metrics['data']['duration_mismatched_records']
+            },
+            {
+                "name": "Transaction Date Mismatch",
+                "records": metrics['data']['transaction_date_mismatched_records']
+            },
+            {
+                "name": "Missing Records",
+                "records": metrics['data']['msisdn_missing_records']
+            },
+            {
+                "name": "Service Mismatch",
+                "records": metrics['data']['service_mismatched_records']
+            }
+        ]
+
+
+
+        # Ensure all data in metrics is JSON serializable
+        def convert_to_serializable(data):
+            if isinstance(data, list):
+                return [convert_to_serializable(item) for item in data]
+            elif isinstance(data, dict):
+                return {key: convert_to_serializable(value) for key, value in data.items()}
+            elif isinstance(data, (np.int64, np.float64)):
+                return data.item()  # Convert numpy types to Python-native types
+            else:
+                return data
+
+        # Ensure all data in metrics is JSON serializable
+        metrics = convert_to_serializable(metrics)
+        return metrics
+        
 
     @classmethod
     def get_network_vs_billing_data(cls):

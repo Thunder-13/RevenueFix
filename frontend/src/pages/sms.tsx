@@ -111,7 +111,7 @@ const SMS = () => {
         return [
           { key: "MSISDN", header: "MSISDN" },
           { 
-            key: "Service Name",
+            key: "Service Name_Network",
             header: "Network Service Name",
             formatter: (value) => (
               <Badge
@@ -139,9 +139,9 @@ const SMS = () => {
       } else if (mismatchReason === "Service Start/End Date mismatch between Network and Billing") {
         return [
           { key: "MSISDN", header: "MSISDN" },
-          { key: "Service ID", header: "Network Service ID" },
+          { key: "Service ID_Network", header: "Network Service ID" },
           { 
-            key: "Service Start Date",
+            key: "Service Start Date_Network",
             header: "Network Service Start Date",
             formatter: (value) => (
               <Badge
@@ -153,7 +153,7 @@ const SMS = () => {
             ),
           },
           { 
-            key: "Service End Date",
+            key: "Service End Date_Network",
             header: "Network Service End Date",
             formatter: (value) => (
               <Badge
@@ -197,7 +197,7 @@ const SMS = () => {
           { key: "Service ID", header: "Service ID" },
           { key: "Service Name", header: "Service Name" },
           { 
-            key: "Service Status",
+            key: "Service Status Network",
             header: "Network Service Status",
             formatter: (value) => getStatusBadge(value),
           },
