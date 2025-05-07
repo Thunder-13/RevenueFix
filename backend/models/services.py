@@ -897,7 +897,7 @@ class ServicesModel(BaseModel):
         merged_transaction_df = pd.merge(
             df_Network_filtered,
             df_Billing_filtered,
-            on=['MSISDN', 'Service ID', 'Service Name', 'Service Start Date', 'Service End Date'],
+            on=['MSISDN', 'Service ID', 'Service Name', 'Service Start Date', 'Service End Date','Service Status'],
             how='inner',
             suffixes=('_Network', '_Billing')
         )
@@ -915,15 +915,28 @@ class ServicesModel(BaseModel):
 
         # Transaction Date mismatch between Network and Billing
         transaction_date_mismatch = (
-            (merged_transaction_df['Call Start Time_Network'] != merged_transaction_df['Call Start Time_Billing']) | 
+            (merged_transaction_df['Call Start Time_Network'] != merged_transaction_df['Call Start Time_Billing']) |
             (merged_transaction_df['Call End Time_Network'] != merged_transaction_df['Call End Time_Billing'])
         )
 
         # Process Transaction Date mismatched records
         if transaction_date_mismatch.any():
+            # Filter mismatched records
             mismatched_records = merged_transaction_df[transaction_date_mismatch].copy()
-            mismatched_records['Mismatch Reason'] = "Call Start/End Time not matched between Network and Billing"
-            metrics['data']['transaction_date_mismatch_count'] = transaction_date_mismatch.sum()
+
+            # Add mismatch reason for each record
+            mismatched_records['Mismatch Reason'] = mismatched_records.apply(
+                lambda row: "Call Start/End Time not matched between Network and Billing"
+                if (row['Call Start Time_Network'] != row['Call Start Time_Billing']) or (row['Call End Time_Network'] != row['Call End Time_Billing'])    
+                else "Call Start/End Time not matched between Network and Billing",
+                axis=1
+            )
+
+            # Restrict processing to one record per MSISDN
+            mismatched_records = mismatched_records.drop_duplicates(subset=['MSISDN'])
+
+            # Update metrics
+            metrics['data']['transaction_date_mismatch_count'] = len(mismatched_records)
             metrics['data']['transaction_date_mismatched_records'] = mismatched_records.to_dict(orient='records')
 
         # Download (MB) mismatch between Network and Billing
@@ -934,12 +947,19 @@ class ServicesModel(BaseModel):
         # Process Download (MB) mismatched records
         if download_mismatch.any():
             mismatched_records = merged_transaction_df[download_mismatch].copy()
+
+            # Drop duplicates based on MSISDN to ensure one record per MSISDN
+            mismatched_records = mismatched_records.drop_duplicates(subset=['MSISDN'])
+
+            # Add additional columns for mismatch details
             mismatched_records['Billing Duration (Mins)'] = mismatched_records['Duration (Mins)_Billing']
             mismatched_records['Duration (Mins)'] = mismatched_records['Duration (Mins)_Network']
             mismatched_records['Usage Type'] = mismatched_records['Usage Type_Network']
             mismatched_records['Usage Sub Type'] = mismatched_records['Usage Sub Type_Network']
             mismatched_records['Mismatch Reason'] = "Duration mismatch between Network and Billing"
-            metrics['data']['duration_mismatch_count'] = download_mismatch.sum()
+
+            # Update metrics
+            metrics['data']['duration_mismatch_count'] = len(mismatched_records)
             metrics['data']['duration_mismatched_records'] = mismatched_records.to_dict(orient='records')
         
         # Service ID and Service Start/End Date mismatch

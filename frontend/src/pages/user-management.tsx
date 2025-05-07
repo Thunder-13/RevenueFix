@@ -141,7 +141,7 @@ const UserManagement = () => {
 
               {/* User Task Table */}
               <DataTable
-                title="User Task"
+                title="User Tasks"
                 columns={[
                   { key: "name", header: "User" },
                   { key: "tasks", header: "Task Count"}
