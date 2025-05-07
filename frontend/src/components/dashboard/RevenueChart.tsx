@@ -309,8 +309,8 @@ export function RevenueChart({
               </Select>
             )}
            
-            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-8 rounded border px-2 text-sm" />
-            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-8 rounded border px-2 text-sm" />
+            {/* <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-8 rounded border px-2 text-sm" />
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-8 rounded border px-2 text-sm" /> */}
             <Tabs defaultValue={chartType} onValueChange={(value) => setChartType(value as any)}>
               <TabsList className="h-8">
                 <TabsTrigger value="line" className="px-2 text-xs">Line</TabsTrigger>
