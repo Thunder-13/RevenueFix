@@ -62,6 +62,7 @@ interface CaseData {
   case_by_priority: Array<{ priority: string; count: number }>;
   case_by_department: Array<{ department: string; count: number }>;
   recent_cases: Case[];
+  assigned_to_list: string[];
 }
 
 // Form schema for adding/editing a case
@@ -331,28 +332,27 @@ const CaseManagement = () => {
                         )}
                       />
                       <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="assigned_to"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Assign To</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select agent" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="John Smith">John Smith</SelectItem>
-                                  <SelectItem value="Sarah Johnson">Sarah Johnson</SelectItem>
-                                  <SelectItem value="Michael Brown">Michael Brown</SelectItem>
-                                  <SelectItem value="Emily Davis">Emily Davis</SelectItem>
-                                  <SelectItem value="Robert Wilson">Robert Wilson</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
+                      <FormField
+                            control={form.control}
+                            name="assigned_to"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Assign To</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select agent" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {/* <SelectItem value="Unassigned">Unassigned</SelectItem> */}
+                                    {data?.assigned_to_list.map((name) => (
+                                      <SelectItem key={name} value={name}>{name}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
                           )}
                         />
                         <FormField

@@ -267,9 +267,9 @@ const dummyData = {
       customer_satisfaction: 87.5
     },
     customer_segments: [
-      { segment: 'High Value', count: 271, percentage: 10.0 },
-      { segment: 'Medium Value', count: 4781, percentage: 30.0 },
-      { segment: 'Low Value', count: 5689, percentage: 60.0 }
+      { segment: 'High Value', count: 271, percentage: 2.5 },
+      { segment: 'Medium Value', count: 4781, percentage: 44.5 },
+      { segment: 'Low Value', count: 5689, percentage: 52.9 }
     ],
     customer_lifecycle: [
       { stage: 'Acquisition', count: 1234 },
@@ -295,7 +295,11 @@ const dummyData = {
       critical_alarms: 5,
       major_alarms: 23,
       minor_alarms: 95,
-      resolved_today: 34
+      resolved_today: 34,
+      open_alarms: 89,
+      resolved_alarms: 34,
+      archived_alarms: 0,
+      deleted_alarms: 0
     },
     alarm_by_category: [
       { category: 'Network', count: 56 },
@@ -304,17 +308,21 @@ const dummyData = {
       { category: 'Performance', count: 21 }
     ],
     recent_alarms: [
-      { id: 'ALM-1001', severity: 'Critical', source: 'Billing System', message: 'Database connection failure', timestamp: '2023-06-15T14:23:45', status: 'Open' },
-      { id: 'ALM-1002', severity: 'Major', source: 'Core Network', message: 'High CPU utilization on router', timestamp: '2023-06-15T14:15:22', status: 'Open' },
-      { id: 'ALM-1003', severity: 'Minor', source: 'CRM System', message: 'API response time degradation', timestamp: '2023-06-15T14:05:17', status: 'Resolved' },
-      { id: 'ALM-1004', severity: 'Critical', source: 'Data Center', message: 'Power supply failure', timestamp: '2023-06-15T13:58:03', status: 'Open' },
-      { id: 'ALM-1005', severity: 'Minor', source: 'Access Network', message: 'Signal strength degradation', timestamp: '2023-06-15T13:45:51', status: 'Resolved' }
-    ]
+      { id: 'ALM-1001', severity: 'Critical', source: 'Billing System', message: 'Network Data not loading into RevenueFix', timestamp: '2023-06-15T14:23:45', status: 'Open', assigned_to: 'Unassigned' },
+      { id: 'ALM-1002', severity: 'Major', source: 'Core Network', message: 'High CPU utilization on router', timestamp: '2023-06-15T14:15:22', status: 'Open', assigned_to: 'Aravinth' },
+      { id: 'ALM-1003', severity: 'Minor', source: 'CRM System', message: 'API response time degradation', timestamp: '2023-06-15T14:05:17', status: 'Resolved', assigned_to: 'Saravanan' },
+      { id: 'ALM-1004', severity: 'Critical', source: 'Data Center', message: 'Power supply failure', timestamp: '2023-06-15T13:58:03', status: 'Open', assigned_to: 'Abinesh' },
+      { id: 'ALM-1005', severity: 'Minor', source: 'Access Network', message: 'Signal strength degradation', timestamp: '2023-06-15T13:45:51', status: 'Resolved', assigned_to: 'Sayantani' }
+    ],
+    assigned_to_list: ['Saravanan', 'Abinesh', 'Aravinth', 'Sayantani', 'Ganesh']
   },
   cases: {
     summary: {
       total_cases: 567,
       open_cases: 123,
+      resolved_cases: 234,
+      archived_cases: 100,
+      deleted_cases: 110,
       cases_created_today: 12,
       cases_closed_today: 14,
       average_resolution_time: 36.5  // hours
@@ -332,18 +340,19 @@ const dummyData = {
       { department: 'Closed', count: 190 }
     ],
     recent_cases: [
-      { id: 'CS-1001', priority: 'P1', customer: 'Global Corp', subject: 'Service outage in downtown area', status: 'Open', created_at: '2023-06-15T14:23:45', assigned_to: 'John Smith', description: 'Multiple customers reporting complete service outage in downtown business district' },
-      { id: 'CS-1002', priority: 'P2', customer: 'John Smith', subject: 'Billing dispute for June invoice', status: 'In Progress', created_at: '2023-06-15T14:15:22', assigned_to: 'Sarah Johnson', description: 'Customer claims they were charged for services not used' },
-      { id: 'CS-1003', priority: 'P3', customer: 'Tech Solutions', subject: 'Plan upgrade request', status: 'Pending Customer', created_at: '2023-06-15T14:05:17', assigned_to: 'Michael Brown', description: 'Customer wants to upgrade from basic to premium business plan' },
-      { id: 'CS-1004', priority: 'P1', customer: 'City Hospital', subject: 'Network connectivity issue', status: 'Open', created_at: '2023-06-15T13:58:03', assigned_to: 'Emily Davis', description: 'Critical healthcare customer experiencing intermittent connectivity' },
-      { id: 'CS-1005', priority: 'P4', customer: 'Jane Doe', subject: 'Account information update', status: 'Closed', created_at: '2023-06-15T13:45:51', assigned_to: 'Robert Wilson', description: 'Customer requested address change on account' }
-    ]
+      { id: 'CS-1001', priority: 'P1', customer: 'Global Corp', subject: 'Service outage in downtown area', status: 'Open', created_at: '2023-06-15T14:23:45', assigned_to: 'Unassigned', description: 'Multiple customers reporting complete service outage in downtown business district' },
+      { id: 'CS-1002', priority: 'P2', customer: 'John Smith', subject: 'Billing dispute for June invoice', status: 'In Progress', created_at: '2023-06-15T14:15:22', assigned_to: 'Aravinth', description: 'Customer claims they were charged for services not used' },
+      { id: 'CS-1003', priority: 'P3', customer: 'Tech Solutions', subject: 'Plan upgrade request', status: 'Pending Customer', created_at: '2023-06-15T14:05:17', assigned_to: 'Saravanan', description: 'Customer wants to upgrade from basic to premium business plan' },
+      { id: 'CS-1004', priority: 'P1', customer: 'City Hospital', subject: 'Network connectivity issue', status: 'Open', created_at: '2023-06-15T13:58:03', assigned_to: 'Abinesh', description: 'Critical healthcare customer experiencing intermittent connectivity' },
+      { id: 'CS-1005', priority: 'P4', customer: 'Jane Doe', subject: 'Account information update', status: 'Closed', created_at: '2023-06-15T13:45:51', assigned_to: 'Sayantani', description: 'Customer requested address change on account' }
+    ],
+    assigned_to_list: ['Saravanan', 'Abinesh', 'Aravinth', 'Sayantani', 'Ganesh']
   },
   users: [
     {
       id: 1,
       name: 'Saravanan R',
-      email: 'thunder@revenuefix.com',
+      email: 'saravanan@revenuefix.com',
       role: 'admin',
       department: 'Admin',
       last_login: '2025-04-15T14:23:45',
@@ -790,6 +799,9 @@ export const apiService = {
   getAlarmData: () => api.get("/alarms"),
   addAlarm: (alarmData: any) => api.post("/alarms", alarmData),
   updateAlarm: (alarmId: string, alarmData: any) => api.put(`/alarms/${alarmId}`, alarmData),
+  claimAlarm: (alarmId: string, assignedTo: string) => api.put(`/alarms/${alarmId}/claim`, { assigned_to: assignedTo }),
+  archiveAlarm: (alarmId: string) => api.put(`/alarms/${alarmId}/archive`),
+  deleteAlarm: (alarmId: string) => api.put(`/alarms/${alarmId}/delete`),
   
   // User Management
   getUsers: () => api.get("/users"),
@@ -801,6 +813,9 @@ export const apiService = {
   getCaseData: () => api.get("/cases"),
   addCase: (caseData: any) => api.post("/cases", caseData),
   updateCase: (caseId: string, caseData: any) => api.put(`/cases/${caseId}`, caseData),
+  claimCase: (caseId: string, assignedTo: string) => api.put(`/cases/${caseId}/claim`, { assigned_to: assignedTo }),
+  archiveCase: (caseId: string) => api.put(`/cases/${caseId}/archive`),
+  deleteCase: (caseId: string) => api.put(`/cases/${caseId}/delete`),
   
   // Settings
   getSettings: () => api.get("/settings"),

@@ -18,6 +18,8 @@ interface Column {
   header: string;
   formatter?: (value: any) => React.ReactNode;
   sortable?: boolean;
+  cellAction?: (row: any) => React.ReactNode; // New prop for cell-specific actions
+  onCellClick?: (row: any) => void; // New prop for cell-specific click handlers
 }
 
 interface DataTableProps {
@@ -31,6 +33,7 @@ interface DataTableProps {
   searchable?: boolean;
   downloadable?: boolean;
   onRowClick?: (row: any) => void;
+  filterValue?: string; // New prop for filtering by status
 }
 
 export function DataTable({
@@ -43,21 +46,33 @@ export function DataTable({
   pageSize = 5,
   searchable = true,
   downloadable = true,
-  onRowClick
+  onRowClick,
+  filterValue
 }: DataTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
   
-  // Filter data based on search term
+  // Filter data based on search term and filterValue
   const filteredData = useMemo(() => {
-    if (!searchTerm) return data || [];
-    return (data || []).filter(row => 
-      Object.values(row).some(value => 
-        String(value).toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
-  }, [data, searchTerm]);
+    let result = data || [];
+    
+    // Apply status filter if provided
+    if (filterValue) {
+      result = result.filter(row => row.status === filterValue);
+    }
+    
+    // Apply search filter
+    if (searchTerm) {
+      result = result.filter(row => 
+        Object.values(row).some(value => 
+          String(value).toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+    }
+    
+    return result;
+  }, [data, searchTerm, filterValue]);
     
   // Sort data if sort config is set
   const sortedData = useMemo(() => {
@@ -105,7 +120,7 @@ export function DataTable({
           ? `"${value}"` 
           : value;
       }).join(',')
-    ).join('\\n'); // Use actual newline character instead of \\\\n
+    ).join('\\n'); // Use actual newline character instead of \\\n
     
     const csv = `${headers}\\n${rows}`;
     
@@ -118,6 +133,14 @@ export function DataTable({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+  
+  // Handle cell click
+  const handleCellClick = (e: React.MouseEvent, row: any, column: Column) => {
+    if (column.onCellClick) {
+      e.stopPropagation();
+      column.onCellClick(row);
+    }
   };
   
   return (
@@ -184,10 +207,18 @@ export function DataTable({
                     onClick={onRowClick ? () => onRowClick(row) : undefined}
                   >
                     {columns.map((column) => (
-                      <TableCell key={`${rowIndex}-${column.key}`}>
-                        {column.formatter
-                          ? column.formatter(row[column.key])
-                          : row[column.key]}
+                      <TableCell 
+                        key={`${rowIndex}-${column.key}`}
+                        className={column.onCellClick ? "cursor-pointer hover:bg-muted/70" : ""}
+                        onClick={(e) => handleCellClick(e, row, column)}
+                      >
+                        {column.cellAction ? (
+                          column.cellAction(row)
+                        ) : column.formatter ? (
+                          column.formatter(row[column.key])
+                        ) : (
+                          row[column.key]
+                        )}
                       </TableCell>
                     ))}
                   </motion.tr>

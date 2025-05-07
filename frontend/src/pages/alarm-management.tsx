@@ -6,7 +6,7 @@ import { DataTable } from "@/components/dashboard/DataTable";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { useToast } from "@/hooks/use-toast";
 import apiService from "@/lib/api";
-import { AlertTriangle, AlertOctagon, AlertCircle, CheckCircle, Plus } from "lucide-react";
+import { AlertTriangle, AlertOctagon, AlertCircle, CheckCircle, Plus, Archive, Trash2, UserPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,6 +39,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Alarm {
   id: string;
@@ -47,6 +48,7 @@ interface Alarm {
   message: string;
   timestamp: string;
   status: string;
+  assigned_to: string;
 }
 
 interface AlarmData {
@@ -55,10 +57,14 @@ interface AlarmData {
     critical_alarms: number;
     major_alarms: number;
     minor_alarms: number;
+    open_alarms: number;
+    resolved_alarms: number;
+    archived_alarms: number;
     resolved_today: number;
   };
   alarm_by_category: Array<{ category: string; count: number }>;
   recent_alarms: Alarm[];
+  assigned_to_list: string[];
 }
 
 // Form schema for adding/editing an alarm
@@ -73,6 +79,7 @@ const alarmFormSchema = z.object({
     message: "Message must be at least 5 characters",
   }),
   status: z.string().default("Open"),
+  assigned_to: z.string(),
 });
 
 const AlarmManagement = () => {
@@ -81,6 +88,8 @@ const AlarmManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedAlarm, setSelectedAlarm] = useState<Alarm | null>(null);
+  const [currentUser, setCurrentUser] = useState<string>("Demo User");
+  const [activeTab, setActiveTab] = useState<string>("all");
   const { toast } = useToast();
 
   // Initialize form
@@ -91,6 +100,7 @@ const AlarmManagement = () => {
       source: "",
       message: "",
       status: "Open",
+      assigned_to: "",
     },
   });
 
@@ -113,6 +123,17 @@ const AlarmManagement = () => {
 
   useEffect(() => {
     fetchData();
+    
+    // // Get current user from localStorage
+    // const userStr = localStorage.getItem("user");
+    // if (userStr) {
+    //   try {
+    //     const userData = JSON.parse(userStr);
+    //     setCurrentUser(userData.name);
+    //   } catch (e) {
+    //     console.error("Failed to parse user data", e);
+    //   }
+    // }
   }, [toast]);
 
   // Reset form when dialog opens/closes or when switching between add/edit modes
@@ -124,6 +145,7 @@ const AlarmManagement = () => {
           source: selectedAlarm.source,
           message: selectedAlarm.message,
           status: selectedAlarm.status,
+          // assigned_to: selectedAlarm.assigned_to,
         });
       } else {
         form.reset({
@@ -131,6 +153,7 @@ const AlarmManagement = () => {
           source: "",
           message: "",
           status: "Open",
+          assigned_to: "",
         });
       }
     }
@@ -167,6 +190,16 @@ const AlarmManagement = () => {
   };
 
   const handleRowClick = (alarm: Alarm) => {
+    // // Only allow editing if the alarm is assigned to the current user
+    // if (alarm.assigned_to !== 'Unassigned' && alarm.assigned_to !== currentUser) {
+    //   toast({
+    //     title: "Access Denied",
+    //     description: `This alarm is assigned to ${alarm.assigned_to}. You cannot edit it.`,
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
+    
     setSelectedAlarm(alarm);
     setIsEditMode(true);
     setIsDialogOpen(true);
@@ -176,6 +209,60 @@ const AlarmManagement = () => {
     setSelectedAlarm(null);
     setIsEditMode(false);
     setIsDialogOpen(true);
+  };
+  
+  // const handleClaimAlarm = async (alarm: Alarm) => {
+  //   try {
+  //     await apiService.claimAlarm(alarm.id, currentUser);
+  //     toast({
+  //       title: "Success",
+  //       description: "Alarm has been claimed successfully.",
+  //     });
+  //     fetchData(); // Refresh data
+  //   } catch (error) {
+  //     console.error("Error claiming alarm:", error);
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to claim alarm. Please try again.",
+  //       variant: "destructive",
+  //     });
+  //   }
+  // };
+  
+  const handleArchiveAlarm = async (alarm: Alarm) => {
+    try {
+      await apiService.archiveAlarm(alarm.id);
+      toast({
+        title: "Success",
+        description: "Alarm has been archived successfully.",
+      });
+      fetchData(); // Refresh data
+    } catch (error) {
+      console.error("Error archiving alarm:", error);
+      toast({
+        title: "Error",
+        description: "Failed to archive alarm. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  const handleDeleteAlarm = async (alarm: Alarm) => {
+    try {
+      await apiService.deleteAlarm(alarm.id);
+      toast({
+        title: "Success",
+        description: "Alarm has been deleted successfully.",
+      });
+      fetchData(); // Refresh data
+    } catch (error) {
+      console.error("Error deleting alarm:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete alarm. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (loading && !data) {
@@ -210,10 +297,59 @@ const AlarmManagement = () => {
         return <Badge variant="outline" className="border-red-500 text-red-500">Open</Badge>;
       case 'resolved':
         return <Badge className="bg-green-500">Resolved</Badge>;
+      case 'archived':
+        return <Badge variant="outline" className="border-blue-500 text-blue-500">Archived</Badge>;
+      case 'deleted':
+        return <Badge variant="outline" className="border-gray-500 text-gray-500">Deleted</Badge>;
       default:
         return <Badge>{status}</Badge>;
     }
   };
+  
+  const getAssignmentCell = (alarm: Alarm) => {
+    // if (alarm.assigned_to === 'Unassigned') {
+    //   return (
+    //     <Button 
+    //       variant="outline" 
+    //       size="sm" 
+    //       className="flex items-center gap-1 text-xs"
+    //       // onClick={() => handleClaimAlarm(alarm)}
+    //     >
+    //       <UserPlus className="h-3 w-3" />
+    //       Claim
+    //     </Button>
+    //   );
+    // }
+    return alarm.assigned_to;
+  };
+  
+  // const getActionButtons = (alarm: Alarm) => {
+  //   // Only show action buttons if the alarm is assigned to the current user
+  //   if (alarm.assigned_to !== currentUser) {
+  //     return null;
+  //   }
+    
+  //   return (
+  //     <div className="flex gap-2">
+  //       <Button 
+  //         variant="outline" 
+  //         size="sm" 
+  //         className="h-8 w-8 p-0"
+  //         onClick={() => handleArchiveAlarm(alarm)}
+  //       >
+  //         <Archive className="h-4 w-4" />
+  //       </Button>
+  //       <Button 
+  //         variant="outline" 
+  //         size="sm" 
+  //         className="h-8 w-8 p-0 text-red-500 hover:bg-red-50"
+  //         onClick={() => handleDeleteAlarm(alarm)}
+  //       >
+  //         <Trash2 className="h-4 w-4" />
+  //       </Button>
+  //     </div>
+  //   );
+  // };
 
   return (
     <div className="flex min-h-screen">
@@ -307,7 +443,56 @@ const AlarmManagement = () => {
                           </FormItem>
                         )}
                       />
-                      <FormField
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="assigned_to"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Assign To</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select agent" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {/* <SelectItem value="Unassigned">Unassigned</SelectItem> */}
+                                  {data?.assigned_to_list.map((name) => (
+                                    <SelectItem key={name} value={name}>{name}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="status"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Status</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select status" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="Open">Open</SelectItem>
+                                  <SelectItem value="In Progress">In Progress</SelectItem>
+                                  <SelectItem value="Pending Customer">Pending Customer</SelectItem>
+                                  <SelectItem value="Scheduled">Scheduled</SelectItem>
+                                  <SelectItem value="Resolved">Resolved</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {/* <FormField
                         control={form.control}
                         name="status"
                         render={({ field }) => (
@@ -322,12 +507,13 @@ const AlarmManagement = () => {
                               <SelectContent>
                                 <SelectItem value="Open">Open</SelectItem>
                                 <SelectItem value="Resolved">Resolved</SelectItem>
+                                <SelectItem value="Archived">Archived</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
                           </FormItem>
                         )}
-                      />
+                      /> */}
                       <DialogFooter>
                         <Button type="submit">{isEditMode ? "Update Alarm" : "Add Alarm"}</Button>
                       </DialogFooter>
@@ -371,11 +557,21 @@ const AlarmManagement = () => {
               />
             </div>
 
-            {/* Alarms Table */}
+            {/* Alarms Table with Tabs */}
             <div className="mt-8">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4">
+                <TabsList>
+                  <TabsTrigger value="all">All Alarms</TabsTrigger>
+                  <TabsTrigger value="Open">Open</TabsTrigger>
+                  <TabsTrigger value="Resolved">Resolved</TabsTrigger>
+                  <TabsTrigger value="Archived">Archived</TabsTrigger>
+                  {/* <TabsTrigger value="Deleted">Deleted</TabsTrigger> */}
+                </TabsList>
+              </Tabs>
+              
               <DataTable
-                title="All Alarms"
-                description="Click on any row to edit the alarm"
+                title={activeTab === "all" ? "All Alarms" : `${activeTab} Alarms`}
+                // description="Click on an alarm row to edit it (if you're assigned to it)"
                 columns={[
                   { key: "id", header: "ID" },
                   { 
@@ -398,9 +594,25 @@ const AlarmManagement = () => {
                       return date.toLocaleString();
                     }
                   },
+                  { 
+                    key: "assigned_to", 
+                    header: "Assigned To",
+                    // cellAction: (row) => getAssignmentCell(row),
+                    // onCellClick: (row) => {
+                    //   if (row.assigned_to === 'Unassigned') {
+                    //     handleClaimAlarm(row);
+                    //   }
+                    // }
+                  },
+                  // {
+                  //   key: "actions",
+                  //   header: "Actions",
+                  //   cellAction: (row) => getActionButtons(row)
+                  // }
                 ]}
                 data={data?.recent_alarms || []}
                 onRowClick={handleRowClick}
+                filterValue={activeTab === "all" ? undefined : activeTab}
               />
             </div>
           </div>
