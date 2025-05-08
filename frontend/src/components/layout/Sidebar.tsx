@@ -158,7 +158,7 @@ const items = [
       { title: "SMS", url: "/network-billing-sms", icon: MessageSquare },
     ],
   },
-  { title: "CRM Insights", url: "/crm-insights", icon: HeartPulse },
+  { title: "Customer Insights", url: "/crm-insights", icon: HeartPulse },
   { title: "Alarm Management", url: "/alarm-management", icon: Bell },
   { title: "Case Management", url: "/case-management", icon: FolderKanban },
   { title: "User Management", url: "/user-management", icon: UserCog },
@@ -227,7 +227,7 @@ function SidebarSubmenu({ items, expanded }: { items: any[]; expanded: boolean }
         <SidebarMenuItem
           key={subItem.title}
           icon={subItem.icon}
-          isActive={false}
+          isActive={location.pathname === subItem.url}
           url={subItem.url}
         >
           {subItem.title}

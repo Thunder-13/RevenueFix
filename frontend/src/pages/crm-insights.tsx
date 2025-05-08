@@ -69,7 +69,7 @@ const CrmInsights = () => {
       <div className="flex flex-1 flex-col">
         <main className="flex-1 p-6 md:p-8">
           <div className="mx-auto max-w-7xl">
-            <h1 className="mb-6 text-3xl font-bold">CRM Insights</h1>
+            <h1 className="mb-6 text-3xl font-bold">Customer Insights</h1>
 
             {/* Key Metrics */}
             <div className="mb-8 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">

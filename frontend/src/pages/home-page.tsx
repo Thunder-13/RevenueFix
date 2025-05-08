@@ -34,28 +34,28 @@ const Home = () => {
       path: "/dashboard"
     },
     {
-      title: "Network vs Billing",
-      description: "Reconcile network usage with billing records",
+      title: "CRM vs Billing",
+      description: "Reconcile CRM usage with billing records",
       icon: <Network className="h-10 w-10 text-[#7e3af2]" />,
-      path: "/network-billing"
+      path: "/crm-billing"
     },
     {
-      title: "Mediation vs Billing",
-      description: "Analyze mediation system data against billing",
+      title: "Network vs Billing",
+      description: "Reconcile Voice, SMS, Data usage with billing records",
       icon: <FileText className="h-10 w-10 text-[#7e3af2]" />,
-      path: "/mediation-billing"
+      path: "/network-billing-voice"
     },
     {
-      title: "B2B Analysis",
-      description: "Business customer revenue and performance metrics",
+      title: "Customer Insights",
+      description: "Customer segmentation and performance metrics",
       icon: <Briefcase className="h-10 w-10 text-[#7e3af2]" />,
-      path: "/b2b-analysis"
+      path: "/crm-insights"
     },
     {
-      title: "B2C Analysis",
-      description: "Consumer revenue and performance metrics",
+      title: "Alarms & Cases Management",
+      description: "Manage alarms and cases for better customer service",
       icon: <Users className="h-10 w-10 text-[#7e3af2]" />,
-      path: "/b2c-analysis"
+      path: "/alarm-management"
     }
   ];
   
@@ -95,21 +95,23 @@ const Home = () => {
             
             {/* Welcome Section */}
             <div className="mb-12 text-center">
-              <motion.h1 
+                <motion.h1 
                 className="text-4xl font-bold tracking-tight md:text-5xl"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-              >
-                Welcome to <span className="text-[#7e3af2]">RevenueFix</span>
-              </motion.h1>
+                >
+                Welcome to <span className="ml-10 flex items-center">
+                  <img src={RevenueFix} alt="RevenueFix Logo" className="h-[50%] w-[50%] md:h-[50%] md:w-[50%]" />
+                </span>
+                </motion.h1>
               <motion.p 
                 className="mt-4 text-xl text-muted-foreground"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                Comprehensive revenue analytics and billing reconciliation platform
+                A Comprehensive revenue analytics and billing reconciliation platform
               </motion.p>
             </div>
 

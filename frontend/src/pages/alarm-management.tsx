@@ -356,7 +356,7 @@ const AlarmManagement = () => {
       <AppSidebar />
       <div className="flex flex-1 flex-col">
         <main className="flex-1 p-6 md:p-8">
-          <div className="mx-auto max-w-7xl">
+          <div className="mx-auto max-w-[98%]">
             <div className="mb-6 flex items-center justify-between">
               <h1 className="text-3xl font-bold">Alarm Management</h1>
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
