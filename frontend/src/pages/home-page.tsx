@@ -100,10 +100,7 @@ const Home = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                >
-                Welcome to <span className="ml-10 flex items-center">
-                  <img src={RevenueFix} alt="RevenueFix Logo" className="h-[50%] w-[50%] md:h-[50%] md:w-[50%]" />
-                </span>
+                >Welcome to <span className="text-[#7e3af2]">RevenueFix</span>
                 </motion.h1>
               <motion.p 
                 className="mt-4 text-xl text-muted-foreground"
